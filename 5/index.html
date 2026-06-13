@@ -3,134 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle de Saída - QR Code</title>
+    <title>Controle de Saída - QR Code (Online)</title>
+    
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 10px;
-            background-color: #f4f4f9;
-            margin: 0;
-        }
-        h1 {
-            font-size: 22px;
-            color: #333;
-        }
-        #leitor-container {
-            width: 100%;
-            max-width: 400px;
-            margin: 0 auto;
-            background: white;
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        #reader {
-            width: 100%;
-        }
-        button {
-            margin-top: 10px;
-            padding: 12px 20px;
-            font-size: 16px;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            width: 100%;
-            max-width: 400px;
-            background-color: #007bff;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        #mensagem {
-            font-size: 20px;
-            font-weight: bold;
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 8px;
-            max-width: 400px;
-            margin-left: auto;
-            margin-right: auto;
-            display: none;
-        }
-        .verde {
-            color: #155724;
-            background-color: #d4edda;
-            border: 2px solid #c3e6cb;
-            display: block !important;
-        }
-        .vermelho {
-            color: #721c24;
-            background-color: #f8d7da;
-            border: 2px solid #f5c6cb;
-            display: block !important;
-        }
-        .amarelo {
-            color: #856404;
-            background-color: #fff3cd;
-            border: 2px solid #ffeeba;
-            display: block !important;
-        }
-        .azul {
-            color: #004085;
-            background-color: #cce5ff;
-            border: 2px solid #b8daff;
-            display: block !important;
-        }
+        body { font-family: Arial, sans-serif; text-align: center; padding: 10px; background-color: #f4f4f9; margin: 0; }
+        h1 { font-size: 22px; color: #333; }
+        #leitor-container { width: 100%; max-width: 400px; margin: 0 auto; background: white; padding: 10px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        #reader { width: 100%; }
+        button { margin-top: 10px; padding: 12px 20px; font-size: 16px; color: white; border: none; border-radius: 5px; cursor: pointer; width: 100%; max-width: 400px; background-color: #007bff; }
+        button:hover { background-color: #0056b3; }
+        #mensagem { font-size: 20px; font-weight: bold; margin-top: 20px; padding: 15px; border-radius: 8px; max-width: 400px; margin-left: auto; margin-right: auto; display: none; }
+        .verde { color: #155724; background-color: #d4edda; border: 2px solid #c3e6cb; display: block !important; }
+        .vermelho { color: #721c24; background-color: #f8d7da; border: 2px solid #f5c6cb; display: block !important; }
+        .amarelo { color: #856404; background-color: #fff3cd; border: 2px solid #ffeeba; display: block !important; }
+        .azul { color: #004085; background-color: #cce5ff; border: 2px solid #b8daff; display: block !important; }
         
-        /* Estilos para a lista de alunos */
-        #painel-alunos {
-            margin-top: 30px;
-            max-width: 400px;
-            margin-left: auto;
-            margin-right: auto;
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            text-align: left;
-        }
-        #painel-alunos h2 {
-            font-size: 18px;
-            text-align: center;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 10px;
-            margin-top: 0;
-        }
-        #lista-alunos {
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 10px;
-        }
-        #lista-alunos li {
-            font-size: 14px;
-            padding: 10px;
-            background-color: #f8f9fa;
-            border-radius: 4px;
-            border: 1px solid #ddd;
-            line-height: 1.5;
-        }
-        .limite-atingido {
-            color: #721c24;
-            background-color: #f8d7da !important;
-            border-color: #f5c6cb !important;
-        }
-        .horario-texto {
-            font-size: 12px;
-            color: #555;
-            display: block;
-            margin-top: 4px;
-        }
+        .painel { margin-top: 20px; max-width: 400px; margin-left: auto; margin-right: auto; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: left; }
+        .painel h2 { font-size: 18px; text-align: center; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0; color: #333; }
+        #lista-alunos { list-style-type: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr; gap: 10px; }
+        #lista-alunos li { font-size: 14px; padding: 10px; background-color: #f8f9fa; border-radius: 4px; border: 1px solid #ddd; line-height: 1.5; }
+        .limite-atingido { color: #721c24; background-color: #f8d7da !important; border-color: #f5c6cb !important; }
+        .horario-texto { font-size: 12px; color: #555; display: block; margin-top: 4px; }
+
+        #lista-historico { list-style-type: none; padding: 0; margin: 0; max-height: 250px; overflow-y: auto; }
+        #lista-historico li { font-size: 13px; padding: 10px; border-bottom: 1px solid #eee; color: #444; line-height: 1.4; }
+        .btn-apagar-historico { background-color: #dc3545; margin-top: 15px; padding: 10px; font-size: 14px; }
+        .btn-apagar-historico:hover { background-color: #c82333; }
+        .status-conexao { font-size: 12px; color: #28a745; margin-bottom: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <h1>Controle de Saídas da Turma</h1>
+    <div class="status-conexao" id="status-db">Conectando ao banco de dados...</div>
 
     <div id="leitor-container">
         <div id="reader"></div>
@@ -139,14 +49,42 @@
 
     <div id="mensagem"></div>
 
-    <div id="painel-alunos">
-        <h2>Status das Saídas (Limite: 2)</h2>
-        <ul id="lista-alunos">
-            </ul>
+    <div class="painel" id="painel-alunos">
+        <h2>Status Atual (Limite: 2)</h2>
+        <ul id="lista-alunos"></ul>
+    </div>
+
+    <div class="painel" id="painel-historico">
+        <h2>Histórico de Saídas Salvo</h2>
+        <ul id="lista-historico"></ul>
+        <button class="btn-apagar-historico" onclick="apagarHistorico()">Apagar Histórico de Todos</button>
     </div>
 
     <script>
-        const listaAlunos = [
+        // ==========================================
+        // 1. CONFIGURAÇÃO DO FIREBASE (Sincronizado)
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyBWB41DNUr-14oi6N3D_8M6KPFqH3yYesU",
+            authDomain: "controle-de-saida-54745.firebaseapp.com",
+            databaseURL: "https://controle-de-saida-54745-default-rtdb.firebaseio.com",
+            projectId: "controle-de-saida-54745",
+            storageBucket: "controle-de-saida-54745.firebasestorage.app",
+            messagingSenderId: "933472401696",
+            appId: "1:933472401696:web:a84d400cd2905c6201ff45",
+            measurementId: "G-73JT4T17N6"
+        };
+
+        // Inicializa o Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const refAlunos = database.ref('turma_alunos');
+        const refHistorico = database.ref('turma_historico');
+
+        // ==========================================
+        // 2. DADOS E LISTA BASE DE ALUNOS
+        // ==========================================
+        const listaNomesBase = [
             "DAVI LUIZ", "ELLYSA MARIA", "FRANCISCO ARTHUR", "IGOR GABRIEL",
             "JOAO VITOR", "KAUAN", "KELVEN HALERRANDRO", "KEVILLY", "LUANA",
             "MARIA APARECIDA", "MARIA EDUARDA", "MATHEUS YAN", "MICAEL",
@@ -155,38 +93,36 @@
         ];
 
         let bancoDados = {};
+        let historicoGeral = [];
 
-        // === NOVA FUNÇÃO: Carregar ou criar os dados salvos ===
-        function inicializarDados() {
-            const dadosSalvos = localStorage.getItem('controleDeSaidasAlunos');
+        // Fica escutando as mudanças na nuvem em tempo real (Alunos)
+        refAlunos.on('value', (snapshot) => {
+            const dadosOnline = snapshot.val();
             
-            if (dadosSalvos) {
-                // Se já existe algo salvo, carrega para a memória
-                bancoDados = JSON.parse(dadosSalvos);
-                
-                // Atualização de segurança: Se você adicionar um aluno novo no código depois, 
-                // ele será incluído na lista salva sem apagar os outros.
-                listaAlunos.forEach(aluno => {
-                    if (!bancoDados[aluno]) {
-                        bancoDados[aluno] = { limite: 2, contador: 0, hora1: "", hora2: "" };
-                    }
-                });
+            if (dadosOnline) {
+                bancoDados = dadosOnline;
+                document.getElementById('status-db').innerText = "🟢 Conectado e Sincronizado";
             } else {
-                // Se for a primeira vez abrindo a página, cria o banco do zero
-                listaAlunos.forEach(aluno => {
+                // Se o banco estiver vazio na nuvem pela primeira vez, configura a lista base
+                listaNomesBase.forEach(aluno => {
                     bancoDados[aluno] = { limite: 2, contador: 0, hora1: "", hora2: "" };
                 });
+                refAlunos.set(bancoDados); 
             }
-            // Salva para garantir que a estrutura esteja correta no navegador
-            salvarDados();
-        }
+            atualizarListaTela();
+        });
 
-        // === NOVA FUNÇÃO: Salvar os dados na memória do navegador ===
-        function salvarDados() {
-            localStorage.setItem('controleDeSaidasAlunos', JSON.stringify(bancoDados));
-        }
+        // Fica escutando as mudanças na nuvem em tempo real (Histórico)
+        refHistorico.on('value', (snapshot) => {
+            const histOnline = snapshot.val();
+            historicoGeral = histOnline ? histOnline : [];
+            atualizarHistoricoTela();
+        });
 
-        // Função para pegar a hora atual formatada (HH:MM)
+        // ==========================================
+        // 3. FUNÇÕES DE DATA, HORA E ATUALIZAÇÃO DA TELA
+        // ==========================================
+        function obterDataAtual() { return new Date().toLocaleDateString('pt-BR'); }
         function obterHoraAtual() {
             const agora = new Date();
             const horas = agora.getHours().toString().padStart(2, '0');
@@ -194,15 +130,15 @@
             return `${horas}:${minutos}`;
         }
 
-        // Função para atualizar a lista na tela
         function atualizarListaTela() {
             const ul = document.getElementById('lista-alunos');
-            ul.innerHTML = ''; // Limpa a lista atual
+            ul.innerHTML = '';
+            
+            const alunosOrdenados = Object.keys(bancoDados).sort();
 
-            listaAlunos.forEach(aluno => {
+            alunosOrdenados.forEach(aluno => {
                 const li = document.createElement('li');
                 const dados = bancoDados[aluno];
-                
                 let textoStatus = `<strong>${aluno}</strong>: ${dados.contador}/${dados.limite}`;
                 let textoHorarios = "";
 
@@ -213,44 +149,64 @@
                 }
                 
                 li.innerHTML = textoStatus + textoHorarios;
-                
-                if (dados.contador >= dados.limite) {
-                    li.className = "limite-atingido";
-                }
-                
+                if (dados.contador >= dados.limite) { li.className = "limite-atingido"; }
                 ul.appendChild(li);
             });
         }
 
-        // Função para zerar todas as saídas ao ler o QR Code EDUCADOR
+        function atualizarHistoricoTela() {
+            const ulHist = document.getElementById('lista-historico');
+            ulHist.innerHTML = '';
+            if (historicoGeral.length === 0) {
+                ulHist.innerHTML = '<li style="text-align:center; color:#999;">Nenhum registro no histórico.</li>';
+                return;
+            }
+            historicoGeral.forEach(registro => {
+                const li = document.createElement('li');
+                li.innerHTML = registro;
+                ulHist.appendChild(li);
+            });
+        }
+
+        // ==========================================
+        // 4. LÓGICA DE REINICIAR E APAGAR (AÇÕES NA NUVEM)
+        // ==========================================
         function reiniciarContagem() {
-            listaAlunos.forEach(aluno => {
+            for (let aluno in bancoDados) {
                 bancoDados[aluno].contador = 0;
                 bancoDados[aluno].hora1 = "";
                 bancoDados[aluno].hora2 = "";
-            });
+            }
             
-            salvarDados(); // Salva os dados zerados permanentemente
+            refAlunos.set(bancoDados); // Zera para todos os professores ao mesmo tempo
             
             const msgDiv = document.getElementById('mensagem');
-            msgDiv.innerHTML = "SISTEMA REINICIADO!<br><br>Todas as saídas foram zeradas com sucesso.";
+            msgDiv.innerHTML = "SISTEMA REINICIADO!<br><br>As saídas atuais foram zeradas em todos os aparelhos.";
             msgDiv.className = "azul";
-            
-            atualizarListaTela();
         }
 
-        // --- Lógica do Leitor de QR Code ---
+        function apagarHistorico() {
+            const confirmacao = confirm("Apagar o histórico irá removê-lo da nuvem para todos os professores. Tem certeza?");
+            if (confirmacao) {
+                refHistorico.set([]); // Limpa a lista no banco de dados
+                alert("Histórico global apagado.");
+            }
+        }
+
+        // ==========================================
+        // 5. CÂMERA E LEITURA DE QR CODE
+        // ==========================================
         let html5QrCode;
         let cameraTraseira = true;
+        let ultimoLido = "";
+        let tempoEspera;
 
         function iniciarCamera() {
             const configCamera = cameraTraseira ? { facingMode: "environment" } : { facingMode: "user" };
             const configLeitor = { fps: 10, qrbox: { width: 250, height: 250 } };
 
             if (html5QrCode) {
-                html5QrCode.stop().then(() => {
-                    iniciarNovaInstancia(configCamera, configLeitor);
-                }).catch(err => console.log("Erro ao parar a câmera: ", err));
+                html5QrCode.stop().then(() => iniciarNovaInstancia(configCamera, configLeitor)).catch(e => console.log(e));
             } else {
                 iniciarNovaInstancia(configCamera, configLeitor);
             }
@@ -258,23 +214,10 @@
 
         function iniciarNovaInstancia(configCamera, configLeitor) {
             html5QrCode = new Html5Qrcode("reader");
-            html5QrCode.start(
-                configCamera,
-                configLeitor,
-                aoLerQrCode,
-                (errorMessage) => {} // Ignora erros de leitura contínua
-            ).catch((err) => {
-                alert("Erro ao acessar a câmera. Verifique as permissões do navegador.");
-            });
+            html5QrCode.start(configCamera, configLeitor, aoLerQrCode, () => {}).catch(() => alert("Erro de permissão da câmera."));
         }
 
-        function alternarCamera() {
-            cameraTraseira = !cameraTraseira;
-            iniciarCamera();
-        }
-
-        let ultimoLido = "";
-        let tempoEspera;
+        function alternarCamera() { cameraTraseira = !cameraTraseira; iniciarCamera(); }
 
         function aoLerQrCode(textoDecodificado) {
             const qrLido = textoDecodificado.trim().toUpperCase();
@@ -284,7 +227,6 @@
             clearTimeout(tempoEspera);
             tempoEspera = setTimeout(() => { ultimoLido = ""; }, 4000);
 
-            // Se for o QR Code do educador, reinicia o sistema e salva
             if (qrLido === "EDUCADOR") {
                 reiniciarContagem();
                 return;
@@ -292,41 +234,37 @@
 
             const msgDiv = document.getElementById('mensagem');
 
-            // Lógica normal dos alunos
             if (bancoDados[qrLido]) {
                 if (bancoDados[qrLido].contador < bancoDados[qrLido].limite) {
                     bancoDados[qrLido].contador++;
                     const horaAtual = obterHoraAtual();
+                    const dataAtual = obterDataAtual();
 
-                    // Registra o horário da saída
-                    if (bancoDados[qrLido].contador === 1) {
-                        bancoDados[qrLido].hora1 = horaAtual;
-                    } else if (bancoDados[qrLido].contador === 2) {
-                        bancoDados[qrLido].hora2 = horaAtual;
-                    }
+                    if (bancoDados[qrLido].contador === 1) bancoDados[qrLido].hora1 = horaAtual;
+                    else if (bancoDados[qrLido].contador === 2) bancoDados[qrLido].hora2 = horaAtual;
 
-                    salvarDados(); // <--- SALVA OS DADOS APÓS CADA SAÍDA
+                    const textoHistorico = `📅 ${dataAtual} às ⏰ ${horaAtual}<br><strong>${qrLido}</strong> (Utilizou a ${bancoDados[qrLido].contador}ª saída)`;
+                    historicoGeral.unshift(textoHistorico);
+
+                    // Salva as atualizações no Firebase (sincroniza na hora para todo mundo)
+                    refAlunos.set(bancoDados);
+                    refHistorico.set(historicoGeral);
 
                     msgDiv.innerHTML = `${qrLido}<br><br>Saída permitida (${bancoDados[qrLido].contador}/2)<br>⏰ Horário: ${horaAtual}`;
                     msgDiv.className = "verde";
                 } else {
-                    msgDiv.innerHTML = `${qrLido}<br><br>Saída negada!<br>Limite de 2 saídas atingido.`;
+                    msgDiv.innerHTML = `${qrLido}<br><br>Saída negada!<br>Limite atingido.`;
                     msgDiv.className = "vermelho";
                 }
-                atualizarListaTela();
             } else {
-                msgDiv.innerHTML = `QR Code LIDO: ${qrLido}<br><br>Aluno não encontrado.`;
+                msgDiv.innerHTML = `QR Code: ${qrLido}<br><br>Aluno não encontrado.`;
                 msgDiv.className = "amarelo";
             }
         }
 
-        // Inicializa as funções quando a página carrega
         window.onload = function() {
-            inicializarDados(); // Carrega os dados salvos antes de tudo
             iniciarCamera();
-            atualizarListaTela();
         };
-
     </script>
 </body>
 </html>
