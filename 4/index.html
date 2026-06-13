@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Saídas - Escola</title>
+    <title>Sistema de Controle de Saídas</title>
     
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     
@@ -11,56 +11,70 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; padding: 10px; background-color: #f4f6f9; margin: 0; color: #333; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; margin: 0; padding: 10px; color: #333; text-align: center; }
         h1, h2, h3 { color: #2c3e50; }
-        button { padding: 10px 15px; font-size: 14px; color: white; border: none; border-radius: 5px; cursor: pointer; background-color: #007bff; transition: 0.2s; }
+        
+        /* Componentes básicos */
+        button { padding: 10px 15px; font-size: 14px; color: white; border: none; border-radius: 6px; cursor: pointer; background-color: #007bff; transition: 0.2s; }
         button:hover { background-color: #0056b3; }
         button:disabled { background-color: #cccccc; cursor: not-allowed; }
-        input, select { padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-size: 14px; margin-bottom: 10px; }
+        input, select { padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 14px; width: 100%; max-width: 300px; margin-bottom: 10px; }
         
         .topo-barra { display: flex; justify-content: space-between; align-items: center; background: #343a40; color: white; padding: 10px 20px; border-radius: 8px; margin-bottom: 20px; max-width: 600px; margin-left: auto; margin-right: auto; }
         .topo-barra h2 { margin: 0; color: white; font-size: 18px; }
         .btn-sair { background-color: #dc3545; padding: 6px 12px; font-size: 12px; }
         .btn-sair:hover { background-color: #c82333; }
 
-        /* --- TELAS --- */
-        .tela { display: none; max-width: 600px; margin: 0 auto; }
-        #tela-login { display: block; max-width: 350px; margin: 60px auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        #tela-login input { width: 100%; box-sizing: border-box; text-align: center; font-size: 18px; letter-spacing: 2px; }
+        .tela { display: none; max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        
+        /* Tela de Login */
+        #tela-login { display: block; max-width: 350px; margin: 60px auto; }
+        #tela-login input { text-align: center; font-size: 16px; letter-spacing: 1px; }
         #tela-login button { width: 100%; font-size: 16px; padding: 12px; background-color: #28a745; font-weight: bold; }
-        #status-conexao { font-size: 12px; color: #888; margin-bottom: 15px; }
+        #tela-login button:hover { background-color: #218838; }
+        #status-conexao { font-size: 13px; color: #888; margin-bottom: 15px; font-weight: bold; }
 
-        /* --- GERENCIAMENTO --- */
-        .card-gerencia { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px; text-align: left; border-left: 5px solid #17a2b8; }
-        .card-gerencia h3 { margin-top: 0; font-size: 16px; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
-        .linha-form { display: flex; gap: 10px; margin-bottom: 15px; }
-        .linha-form input { flex: 1; margin: 0; }
-        .linha-form button { margin: 0; }
-        .lista-itens { list-style: none; padding: 0; margin: 0; max-height: 200px; overflow-y: auto; border: 1px solid #eee; border-radius: 5px; }
-        .lista-itens li { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-bottom: 1px solid #eee; background: #fafafa; font-size: 13px; }
-        .btn-remover { background-color: #dc3545; font-size: 11px; padding: 5px 8px; }
+        /* Painel de Gerenciamento Geral / Detalhe */
+        #painel-detalhe-turma { display: none; text-align: left; }
+        .card-gerencia { background: #fafafa; padding: 15px; border-radius: 8px; border: 1px solid #eef; margin-bottom: 15px; text-align: left; }
+        .card-gerencia h3 { margin-top: 0; font-size: 15px; border-bottom: 1px solid #ddd; padding-bottom: 8px; }
+        
+        .linha-form { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
+        .linha-form input, .linha-form select { max-width: none; margin-bottom: 0; }
+        .linha-form button { white-space: nowrap; }
 
-        /* --- DIRETOR --- */
-        .filtro-diretor { text-align: left; margin-bottom: 15px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .filtro-diretor select { width: 100%; font-size: 16px; font-weight: bold; background: #e9ecef; }
-        table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-radius: 8px; overflow: hidden; font-size: 13px; }
-        th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: center; }
+        .lista-itens { list-style: none; padding: 0; margin: 0; max-height: 150px; overflow-y: auto; border: 1px solid #ddd; border-radius: 6px; background: white; }
+        .item-lista { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-bottom: 1px solid #eee; font-size: 13px; }
+        .item-lista:last-child { border-bottom: none; }
+        .btn-remover { background-color: #dc3545; font-size: 11px; padding: 4px 8px; }
+        .btn-remover:hover { background-color: #c82333; }
+        .btn-voltar { background-color: #6c757d; margin-bottom: 15px; }
+        .btn-voltar:hover { background-color: #5a6268; }
+
+        .card-turma-lista { display: flex; justify-content: space-between; align-items: center; background: #e9ecef; padding: 12px; border-radius: 6px; margin-bottom: 10px; }
+
+        /* Tela Diretor (Tabela) */
+        .filtro-diretor { text-align: left; margin-bottom: 15px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #ddd; }
+        .filtro-diretor select { font-weight: bold; background: white; max-width: none; }
+        table { width: 100%; border-collapse: collapse; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-radius: 8px; overflow: hidden; font-size: 13px; }
+        th, td { padding: 10px; border-bottom: 1px solid #eee; text-align: center; }
         th { background-color: #343a40; color: white; font-weight: normal; }
         tr:hover { background-color: #f1f1f1; }
         .status-ok { color: #28a745; font-weight: bold; }
-        .status-cheio { color: #dc3545; font-weight: bold; background-color: #ffeeb5; }
+        .status-cheio { color: #721c24; font-weight: bold; background-color: #f8d7da; }
 
-        /* --- PROFESSOR --- */
-        #leitor-container { background: white; padding: 10px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        /* Tela Professor (Câmera) */
+        #leitor-container { background: white; padding: 10px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-bottom: 20px; max-width: 400px; margin-left: auto; margin-right: auto; }
         #reader { width: 100%; }
         .btn-camera { width: 100%; margin-top: 10px; background-color: #6c757d; }
-        .painel-alunos { text-align: left; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px;}
-        .painel-alunos h3 { margin-top: 0; text-align: center; font-size: 16px; border-bottom: 2px solid #eee; padding-bottom: 10px;}
+        .painel-alunos { text-align: left; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; max-width: 400px; margin-left: auto; margin-right: auto; }
+        .painel-alunos h3 { margin-top: 0; text-align: center; font-size: 16px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
         #lista-prof-alunos { list-style: none; padding: 0; display: grid; grid-template-columns: 1fr; gap: 8px; }
         #lista-prof-alunos li { background: #f8f9fa; padding: 10px; border-radius: 5px; border: 1px solid #ddd; font-size: 14px; }
         .limite-atingido { border-color: #f5c6cb !important; background-color: #f8d7da !important; color: #721c24; }
         
-        #mensagem { font-size: 18px; font-weight: bold; margin: 15px 0; padding: 15px; border-radius: 8px; display: none; }
+        #mensagem { font-size: 16px; font-weight: bold; margin: 15px auto; padding: 12px; border-radius: 8px; max-width: 400px; display: none; }
         .verde { color: #155724; background-color: #d4edda; border: 1px solid #c3e6cb; display: block !important; }
         .vermelho { color: #721c24; background-color: #f8d7da; border: 1px solid #f5c6cb; display: block !important; }
     </style>
@@ -70,67 +84,74 @@
     <div id="tela-login" class="tela">
         <h2>Acesso ao Sistema</h2>
         <div id="status-conexao">Carregando banco de dados...</div>
-        <input type="password" id="input-login" placeholder="Digite a senha" onkeypress="verificarEnterLogin(event)" disabled>
+        <input type="password" id="input-login" placeholder="Digite sua senha" onkeypress="if(event.key === 'Enter') fazerLogin()">
         <button id="btn-entrar" onclick="fazerLogin()" disabled>Entrar</button>
     </div>
 
-    <div id="tela-gerenciamento" class="tela">
-        <div class="topo-barra">
-            <h2>⚙️ Painel de Gerenciamento</h2>
-            <button class="btn-sair" onclick="fazerLogout()">Sair</button>
+    <div id="tela-gerenciamento" class="tela" style="max-width: 650px;">
+        
+        <div id="painel-gestao-geral">
+            <div class="topo-barra" style="max-width: 100%;">
+                <h2>⚙️ Painel de Gerenciamento</h2>
+                <button class="btn-sair" onclick="fazerLogout()">Sair</button>
+            </div>
+            
+            <div class="card-gerencia">
+                <h3>Editar Senha Mestra (Diretor)</h3>
+                <div class="linha-form">
+                    <input type="text" id="input-senha-diretor" placeholder="Nova senha do diretor">
+                    <button onclick="salvarSenhaDiretor()">Salvar Senha</button>
+                </div>
+            </div>
+
+            <div class="card-gerencia">
+                <h3>Adicionar ou Remover Turmas</h3>
+                <div class="linha-form">
+                    <input type="text" id="input-nova-turma" placeholder="Ex: 1_ANO">
+                    <button onclick="adicionarTurma()" style="background-color: #28a745;">Criar Turma</button>
+                </div>
+                <div id="lista-turmas-adm" style="margin-top:10px;"></div>
+            </div>
+            <br>
+            <small style="color: #666;">Clique em "Gerenciar Turma" em uma das opções acima para cadastrar senhas de professores e alunos.</small>
         </div>
 
-        <div class="card-gerencia">
-            <h3>Senha Mestra (Acesso do Diretor)</h3>
-            <div class="linha-form">
-                <input type="text" id="input-senha-diretor" placeholder="Nova senha mestre">
-                <button onclick="salvarSenhaDiretor()" style="background-color: #28a745;">Atualizar</button>
+        <div id="painel-detalhe-turma">
+            <button class="btn-voltar" onclick="voltarParaLista()">← Voltar para lista</button>
+            <h2 id="titulo-turma-atual" style="margin-top:0;">Gerenciando: Turma</h2>
+            
+            <div class="card-gerencia">
+                <h3>Senhas de Acesso do Professor (Máximo: 5)</h3>
+                <div class="linha-form">
+                    <input type="text" id="input-nova-senha" placeholder="Nova senha para a turma">
+                    <button onclick="adicionarSenha()">Adicionar</button>
+                </div>
+                <ul class="lista-itens" id="lista-senhas-turma"></ul>
             </div>
-            <small style="color:#666;">A senha atual está oculta por segurança. Digite uma nova para substituir.</small>
-        </div>
 
-        <div class="card-gerencia">
-            <h3>Gerenciar Turmas</h3>
-            <div class="linha-form">
-                <input type="text" id="input-nova-turma" placeholder="Nome da turma (Ex: 1_ANO)">
-                <button onclick="adicionarTurma()">Criar Turma</button>
+            <div class="card-gerencia">
+                <h3>Alunos Matriculados</h3>
+                <div class="linha-form">
+                    <input type="text" id="input-novo-aluno" placeholder="Nome do Aluno" style="text-transform: uppercase;">
+                    <button onclick="adicionarAluno()" style="background-color: #28a745;">Cadastrar Aluno</button>
+                </div>
+                <ul class="lista-itens" id="lista-alunos-turma"></ul>
             </div>
-            <ul class="lista-itens" id="lista-adm-turmas"></ul>
-        </div>
-
-        <div class="card-gerencia">
-            <h3>Senhas dos Professores (Máx. 5 por turma)</h3>
-            <select id="select-turma-senha" onchange="carregarSenhasDaTurma()" style="width:100%;"></select>
-            <div class="linha-form">
-                <input type="text" id="input-nova-senha-turma" placeholder="Nova senha para a turma">
-                <button onclick="adicionarSenhaTurma()">Adicionar</button>
-            </div>
-            <ul class="lista-itens" id="lista-adm-senhas"></ul>
-        </div>
-
-        <div class="card-gerencia">
-            <h3>Gerenciar Alunos</h3>
-            <select id="select-turma-aluno" onchange="carregarAlunosDaTurma()" style="width:100%;"></select>
-            <div class="linha-form">
-                <input type="text" id="input-novo-aluno" placeholder="NOME DO ALUNO" style="text-transform: uppercase;">
-                <button onclick="adicionarAluno()">Salvar Aluno</button>
-            </div>
-            <ul class="lista-itens" id="lista-adm-alunos"></ul>
         </div>
     </div>
 
     <div id="tela-diretor" class="tela">
-        <div class="topo-barra" style="background: #17a2b8;">
-            <h2>📊 Painel do Diretor</h2>
+        <div class="topo-barra">
+            <h2>📊 Painel de Monitoramento (Diretor)</h2>
             <button class="btn-sair" onclick="fazerLogout()">Sair</button>
         </div>
 
         <div class="filtro-diretor">
-            <label>Monitoramento ao vivo da turma:</label>
+            <label>Selecione a Turma para monitorar:</label><br><br>
             <select id="select-diretor-turma" onchange="diretorMudarTurma()"></select>
         </div>
 
-        <div style="overflow-x: auto;">
+        <div style="overflow-x: auto; margin-top: 15px;">
             <table>
                 <thead>
                     <tr>
@@ -149,7 +170,7 @@
 
     <div id="tela-professor" class="tela">
         <div class="topo-barra" style="background: #28a745;">
-            <h2 id="titulo-turma-prof">Turma</h2>
+            <h2 id="titulo-turma-prof" style="margin:0; color:white;">Turma</h2>
             <button class="btn-sair" onclick="fazerLogout()">Sair</button>
         </div>
 
@@ -161,16 +182,16 @@
         <div id="mensagem"></div>
 
         <div class="painel-alunos">
-            <h3>Controle de Saídas (Limite: 2)</h3>
+            <h3>Monitoramento de Saídas (Limite: 2)</h3>
             <ul id="lista-prof-alunos"></ul>
         </div>
-        
-        <button style="width:100%; background-color:#17a2b8;" onclick="reiniciarContagemProf()">Zerar Todas as Saídas Hoje</button>
+        <br>
+        <button style="width:100%; background-color:#17a2b8;" onclick="reiniciarContagemProf()">Zerar Saídas da Turma (Nova Aula)</button>
     </div>
 
     <script>
         // ==========================================
-        // 1. FIREBASE CONFIG & INICIALIZAÇÃO
+        // 1. CONFIGURAÇÃO DO FIREBASE
         // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyBWB41DNUr-14oi6N3D_8M6KPFqH3yYesU",
@@ -185,346 +206,339 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // Variáveis Globais de Estado
-        let dbConfig = null; // Guarda configurações gerais (turmas e senhas)
-        let dbAlunos = {};   // Guarda os alunos da turma atualmente focada
+        // Variáveis de Estado
+        let dbConfig = null;
         let refConfig = database.ref('config');
         let refAlunosAtuais = null;
-        let turmaAtual = null; // Qual turma o diretor/professor está visualizando
+        let turmaEmEdicao = "";
+        let turmaAtualVisao = "";
         
-        // Leitor QR
+        // Estado da Câmera QR
         let html5QrCode = null;
         let cameraTraseira = true;
         let ultimoLido = "";
         let tempoEspera;
 
-        // Escuta inicial para baixar as configurações da nuvem e liberar o Login
+        // Ao carregar a página, baixa configurações iniciais
         refConfig.on('value', (snapshot) => {
             if (snapshot.exists()) {
                 dbConfig = snapshot.val();
             } else {
-                // Se for a primeira vez que roda o sistema, cria dados base padrão
+                // Cria estrutura inicial caso o banco esteja vazio
                 dbConfig = {
                     senha_diretor: "diretor123",
-                    turmas: {
-                        "1_ANO": { senhas: ["senha1"] }
-                    }
+                    turmas: {}
                 };
                 refConfig.set(dbConfig);
             }
             
-            // Libera tela de login
-            document.getElementById('status-conexao').innerText = "🟢 Sistema Online e Pronto";
-            document.getElementById('status-conexao').style.color = "#28a745";
+            document.getElementById('status-conexao').innerText = "🟢 Sistema Conectado";
             document.getElementById('input-login').disabled = false;
             document.getElementById('btn-entrar').disabled = false;
 
-            // Se o painel de adm estiver aberto, atualiza as listas
-            if(document.getElementById('tela-gerenciamento').style.display === 'block') {
-                atualizarListasGerenciamento();
+            // Atualiza listas caso esteja no painel ADM
+            if (document.getElementById('painel-detalhe-turma').style.display === 'block') {
+                carregarDetalhesTurma();
+            } else if (document.getElementById('painel-gestao-geral').style.display === 'block') {
+                renderListaTurmasAdm();
             }
         });
 
         // ==========================================
-        // 2. SISTEMA DE LOGIN E NAVEGAÇÃO
+        // 2. LÓGICA DE LOGIN
         // ==========================================
-        function verificarEnterLogin(event) { if (event.key === 'Enter') fazerLogin(); }
-
         function fazerLogin() {
-            const senhaDigitada = document.getElementById("input-login").value.trim();
-            if (!senhaDigitada) return;
+            const senha = document.getElementById('input-login').value.trim();
+            if(!senha) return;
 
-            // 1. Verifica se é a senha de Gerenciamento Fixa
-            if (senhaDigitada === "311201") {
-                abrirTela("tela-gerenciamento");
-                atualizarListasGerenciamento();
+            // ADM / Painel de Gerenciamento
+            if(senha === "311201") {
+                abrirTela('tela-gerenciamento');
+                document.getElementById('painel-gestao-geral').style.display = 'block';
+                document.getElementById('painel-detalhe-turma').style.display = 'none';
+                renderListaTurmasAdm();
                 return;
             }
 
-            // 2. Verifica se é a Senha Mestra do Diretor
-            if (senhaDigitada === dbConfig.senha_diretor) {
-                abrirTela("tela-diretor");
+            // Diretor (Senha Mestra Editável)
+            if(senha === dbConfig.senha_diretor) {
+                abrirTela('tela-diretor');
                 iniciarModoDiretor();
                 return;
             }
 
-            // 3. Verifica se é senha de alguma Turma (Professor)
+            // Professor (Senhas cadastradas dentro de cada turma)
             let turmaEncontrada = null;
             if (dbConfig.turmas) {
-                for (let turma in dbConfig.turmas) {
-                    let senhasDaTurma = dbConfig.turmas[turma].senhas || [];
-                    if (senhasDaTurma.includes(senhaDigitada)) {
-                        turmaEncontrada = turma;
+                for (let t in dbConfig.turmas) {
+                    let senhas = dbConfig.turmas[t].senhas || [];
+                    if (senhas.includes(senha)) {
+                        turmaEncontrada = t;
                         break;
                     }
                 }
             }
 
-            if (turmaEncontrada) {
-                abrirTela("tela-professor");
+            if(turmaEncontrada) {
+                abrirTela('tela-professor');
                 iniciarModoProfessor(turmaEncontrada);
             } else {
-                alert("Senha incorreta ou não cadastrada!");
+                alert("Senha incorreta ou não reconhecida!");
             }
-            document.getElementById("input-login").value = "";
+            document.getElementById('input-login').value = "";
         }
 
         function abrirTela(idTela) {
             document.querySelectorAll('.tela').forEach(t => t.style.display = "none");
             document.getElementById(idTela).style.display = "block";
-            // Desliga a câmera se sair da tela do professor
+            
+            // Para a câmera se o usuário sair da tela de leitura
             if (idTela !== "tela-professor" && html5QrCode) {
-                html5QrCode.stop().catch(e => console.log("Câmera já parada."));
+                html5QrCode.stop().catch(e => console.log(e));
             }
         }
 
         function fazerLogout() {
             document.getElementById("input-login").value = "";
-            if (refAlunosAtuais) refAlunosAtuais.off(); // Para de escutar o banco
+            if (refAlunosAtuais) refAlunosAtuais.off();
             abrirTela("tela-login");
         }
 
         // ==========================================
-        // 3. MÓDULO DE GERENCIAMENTO (ADM)
+        // 3. PAINEL DE GERENCIAMENTO (ADMIN)
         // ==========================================
-        function atualizarListasGerenciamento() {
-            // Atualiza Selects
-            const selectSenhas = document.getElementById('select-turma-senha');
-            const selectAlunos = document.getElementById('select-turma-aluno');
-            const valorAtualSenhas = selectSenhas.value;
-            const valorAtualAlunos = selectAlunos.value;
-
-            selectSenhas.innerHTML = '';
-            selectAlunos.innerHTML = '';
+        function renderListaTurmasAdm() {
+            const container = document.getElementById('lista-turmas-adm');
+            container.innerHTML = "";
+            const turmas = dbConfig.turmas || {};
             
-            const listaTurmas = dbConfig.turmas ? Object.keys(dbConfig.turmas) : [];
-            listaTurmas.forEach(t => {
-                selectSenhas.add(new Option(t, t));
-                selectAlunos.add(new Option(t, t));
+            const chaves = Object.keys(turmas).sort();
+            if(chaves.length === 0) {
+                container.innerHTML = "<p style='color:#888;'>Nenhuma turma cadastrada. Crie uma acima.</p>";
+                return;
+            }
+
+            chaves.forEach(t => {
+                container.innerHTML += `
+                    <div class="card-turma-lista">
+                        <span><strong>Turma:</strong> ${t}</span>
+                        <button onclick="abrirGestaoTurma('${t}')">Gerenciar Turma</button>
+                        <button class="btn-remover" onclick="removerTurma('${t}')">Excluir</button>
+                    </div>`;
             });
-
-            // Mantém as seleções anteriores, se existirem
-            if(valorAtualSenhas && listaTurmas.includes(valorAtualSenhas)) selectSenhas.value = valorAtualSenhas;
-            if(valorAtualAlunos && listaTurmas.includes(valorAtualAlunos)) selectAlunos.value = valorAtualAlunos;
-
-            carregarListaTurmasAdm();
-            carregarSenhasDaTurma();
-            carregarAlunosDaTurma();
         }
 
         function salvarSenhaDiretor() {
-            const novaSenha = document.getElementById('input-senha-diretor').value.trim();
-            if(novaSenha.length < 4) { alert("A senha deve ter pelo menos 4 caracteres."); return; }
-            refConfig.child('senha_diretor').set(novaSenha).then(() => {
-                alert("Senha mestre do Diretor atualizada com sucesso!");
-                document.getElementById('input-senha-diretor').value = '';
+            const nova = document.getElementById('input-senha-diretor').value.trim();
+            if(nova.length < 3) { alert("A senha mestre deve ter pelo menos 3 caracteres."); return;}
+            refConfig.child('senha_diretor').set(nova).then(() => {
+                alert("Senha do Diretor alterada com sucesso!");
+                document.getElementById('input-senha-diretor').value = "";
             });
         }
 
-        // --- Gerenciar Turmas ---
         function adicionarTurma() {
-            let nome = document.getElementById('input-nova-turma').value.trim().toUpperCase();
+            let nome = document.getElementById('input-nova-turma').value.trim().toUpperCase().replace(/ /g, "_");
             if(!nome) return;
-            nome = nome.replace(/ /g, "_"); // Evita espaços no banco
             if(dbConfig.turmas && dbConfig.turmas[nome]) { alert("Esta turma já existe!"); return; }
             
             refConfig.child(`turmas/${nome}`).set({ senhas: [] }).then(() => {
                 document.getElementById('input-nova-turma').value = "";
+                renderListaTurmasAdm();
             });
         }
-        function removerTurma(nome) {
-            if(confirm(`Tem certeza? A turma ${nome} e suas senhas serão excluídas do sistema.`)) {
-                refConfig.child(`turmas/${nome}`).remove();
-                // Opcional: apagar também os alunos da base de dados salas/
-                // database.ref(`salas/${nome}`).remove();
-            }
-        }
-        function carregarListaTurmasAdm() {
-            const ul = document.getElementById('lista-adm-turmas');
-            ul.innerHTML = '';
-            if(dbConfig.turmas) {
-                Object.keys(dbConfig.turmas).forEach(t => {
-                    ul.innerHTML += `<li><strong>${t}</strong> <button class="btn-remover" onclick="removerTurma('${t}')">Apagar Turma</button></li>`;
-                });
+
+        function removerTurma(turma) {
+            if(confirm(`Tem certeza? Isso apagará a turma ${turma}, suas senhas e os alunos contidos nela.`)) {
+                refConfig.child(`turmas/${turma}`).remove();
+                database.ref(`salas/${turma}`).remove();
+                setTimeout(() => {
+                    dbConfig.turmas[turma] = null;
+                    renderListaTurmasAdm();
+                }, 300);
             }
         }
 
-        // --- Gerenciar Senhas ---
-        function carregarSenhasDaTurma() {
-            const turma = document.getElementById('select-turma-senha').value;
-            const ul = document.getElementById('lista-adm-senhas');
-            ul.innerHTML = '';
-            if(!turma || !dbConfig.turmas[turma] || !dbConfig.turmas[turma].senhas) return;
-            
-            const senhas = dbConfig.turmas[turma].senhas;
-            senhas.forEach((s, index) => {
-                ul.innerHTML += `<li>${s} <button class="btn-remover" onclick="removerSenha('${turma}', ${index})">Excluir</button></li>`;
-            });
-        }
-        function adicionarSenhaTurma() {
-            const turma = document.getElementById('select-turma-senha').value;
-            const novaSenha = document.getElementById('input-nova-senha-turma').value.trim();
-            if(!turma || !novaSenha) return;
-            
-            let senhasAtuais = dbConfig.turmas[turma].senhas || [];
-            if(senhasAtuais.length >= 5) {
-                alert("Limite máximo de 5 senhas atingido para esta turma!");
-                return;
-            }
-            if(senhasAtuais.includes(novaSenha)) { alert("Esta senha já existe na turma!"); return; }
-            
-            senhasAtuais.push(novaSenha);
-            refConfig.child(`turmas/${turma}/senhas`).set(senhasAtuais).then(() => {
-                document.getElementById('input-nova-senha-turma').value = '';
-            });
-        }
-        function removerSenha(turma, index) {
-            let senhas = dbConfig.turmas[turma].senhas;
-            senhas.splice(index, 1);
-            refConfig.child(`turmas/${turma}/senhas`).set(senhas);
+        function abrirGestaoTurma(turma) {
+            turmaEmEdicao = turma;
+            document.getElementById('painel-gestao-geral').style.display = 'none';
+            document.getElementById('painel-detalhe-turma').style.display = 'block';
+            document.getElementById('titulo-turma-atual').innerText = `Gerenciando: ${turma}`;
+            carregarDetalhesTurma();
         }
 
-        // --- Gerenciar Alunos ---
-        let refAlunosAdm = null;
-        function carregarAlunosDaTurma() {
-            const turma = document.getElementById('select-turma-aluno').value;
-            if(!turma) return;
+        function voltarParaLista() {
+            document.getElementById('painel-gestao-geral').style.display = 'block';
+            document.getElementById('painel-detalhe-turma').style.display = 'none';
+            renderListaTurmasAdm();
+        }
+
+        function carregarDetalhesTurma() {
+            // Senhas do professor
+            const ulSenhas = document.getElementById('lista-senhas-turma');
+            ulSenhas.innerHTML = "";
+            const senhas = (dbConfig.turmas[turmaEmEdicao] && dbConfig.turmas[turmaEmEdicao].senhas) ? dbConfig.turmas[turmaEmEdicao].senhas : [];
             
-            if(refAlunosAdm) refAlunosAdm.off();
-            refAlunosAdm = database.ref(`salas/${turma}/alunos`);
+            if(senhas.length === 0) ulSenhas.innerHTML = `<li class="item-lista" style="color:#888;">Nenhuma senha criada.</li>`;
             
-            refAlunosAdm.on('value', (snapshot) => {
-                const ul = document.getElementById('lista-adm-alunos');
-                ul.innerHTML = '';
-                const alunos = snapshot.val() || {};
+            senhas.forEach((s, idx) => {
+                ulSenhas.innerHTML += `<li class="item-lista">${s} <button class="btn-remover" onclick="removerSenha(${idx})">X</button></li>`;
+            });
+
+            // Alunos da Turma
+            database.ref(`salas/${turmaEmEdicao}/alunos`).on('value', (snap) => {
+                const ulAlunos = document.getElementById('lista-alunos-turma');
+                ulAlunos.innerHTML = "";
+                const alunos = snap.val() || {};
                 
                 if(Object.keys(alunos).length === 0) {
-                    ul.innerHTML = '<li style="color:#888;">Nenhum aluno cadastrado.</li>';
-                } else {
-                    Object.keys(alunos).sort().forEach(nome => {
-                        ul.innerHTML += `<li>${nome} <button class="btn-remover" onclick="removerAluno('${turma}', '${nome}')">Excluir</button></li>`;
-                    });
+                    ulAlunos.innerHTML = `<li class="item-lista" style="color:#888;">Nenhum aluno matriculado.</li>`;
                 }
+                
+                Object.keys(alunos).sort().forEach(a => {
+                    ulAlunos.innerHTML += `<li class="item-lista">${a} <button class="btn-remover" onclick="removerAluno('${a}')">X</button></li>`;
+                });
             });
         }
-        function adicionarAluno() {
-            const turma = document.getElementById('select-turma-aluno').value;
-            const nome = document.getElementById('input-novo-aluno').value.trim().toUpperCase();
-            if(!turma || !nome) return;
+
+        function adicionarSenha() {
+            const val = document.getElementById('input-nova-senha').value.trim();
+            if(!val) return;
+            let senhas = (dbConfig.turmas[turmaEmEdicao] && dbConfig.turmas[turmaEmEdicao].senhas) ? [...dbConfig.turmas[turmaEmEdicao].senhas] : [];
             
-            database.ref(`salas/${turma}/alunos/${nome}`).set({
-                limite: 2, contador: 0, hora1: "", hora2: ""
-            }).then(() => {
+            if(senhas.length >= 5) { alert("Limite de 5 senhas atingido para esta turma!"); return; }
+            if(senhas.includes(val)) { alert("Essa senha já está cadastrada nesta turma."); return; }
+            
+            senhas.push(val);
+            refConfig.child(`turmas/${turmaEmEdicao}/senhas`).set(senhas).then(() => {
+                document.getElementById('input-nova-senha').value = "";
+                carregarDetalhesTurma();
+            });
+        }
+
+        function removerSenha(idx) {
+            let senhas = [...dbConfig.turmas[turmaEmEdicao].senhas];
+            senhas.splice(idx, 1);
+            refConfig.child(`turmas/${turmaEmEdicao}/senhas`).set(senhas).then(carregarDetalhesTurma);
+        }
+
+        function adicionarAluno() {
+            const nome = document.getElementById('input-novo-aluno').value.trim().toUpperCase();
+            if(!nome) return;
+            database.ref(`salas/${turmaEmEdicao}/alunos/${nome}`).set({ contador: 0, limite: 2, hora1: "", hora2: "" }).then(() => {
                 document.getElementById('input-novo-aluno').value = "";
             });
         }
-        function removerAluno(turma, nome) {
-            if(confirm(`Remover aluno ${nome} da turma?`)) {
-                database.ref(`salas/${turma}/alunos/${nome}`).remove();
+
+        function removerAluno(nome) {
+            if(confirm(`Tem certeza que deseja remover ${nome}?`)) {
+                database.ref(`salas/${turmaEmEdicao}/alunos/${nome}`).remove();
             }
         }
-
 
         // ==========================================
         // 4. MÓDULO DO DIRETOR (MONITORAMENTO)
         // ==========================================
         function iniciarModoDiretor() {
-            const selectDiretor = document.getElementById('select-diretor-turma');
-            selectDiretor.innerHTML = '';
+            const select = document.getElementById('select-diretor-turma');
+            select.innerHTML = '';
             if(dbConfig.turmas) {
-                Object.keys(dbConfig.turmas).forEach(t => selectDiretor.add(new Option(t, t)));
+                Object.keys(dbConfig.turmas).sort().forEach(t => select.add(new Option(t, t)));
             }
             diretorMudarTurma();
         }
 
         function diretorMudarTurma() {
-            turmaAtual = document.getElementById('select-diretor-turma').value;
-            if(!turmaAtual) return;
+            const turma = document.getElementById('select-diretor-turma').value;
+            if(!turma) return;
+            turmaAtualVisao = turma;
 
             if(refAlunosAtuais) refAlunosAtuais.off();
-            refAlunosAtuais = database.ref(`salas/${turmaAtual}/alunos`);
+            refAlunosAtuais = database.ref(`salas/${turma}/alunos`);
             
             refAlunosAtuais.on('value', (snapshot) => {
-                dbAlunos = snapshot.val() || {};
-                renderizarTabelaDiretor();
+                renderTabelaDiretor(snapshot.val() || {});
             });
         }
 
-        function renderizarTabelaDiretor() {
+        function renderTabelaDiretor(alunos) {
             const tbody = document.getElementById('tabela-diretor-corpo');
             tbody.innerHTML = '';
             
-            const alunosArr = Object.keys(dbAlunos).sort();
-            if(alunosArr.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="color:#999;">Sem alunos registrados.</td></tr>';
+            const chaves = Object.keys(alunos).sort();
+            if(chaves.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="color:#999;">Nenhum aluno nesta turma.</td></tr>';
                 return;
             }
 
-            alunosArr.forEach(aluno => {
-                const d = dbAlunos[aluno];
-                const linha = document.createElement('tr');
-                
+            chaves.forEach(aluno => {
+                const d = alunos[aluno];
+                const tr = document.createElement('tr');
                 let classeStatus = d.contador >= d.limite ? 'status-cheio' : 'status-ok';
                 
-                linha.innerHTML = `
+                tr.innerHTML = `
                     <td style="text-align:left;"><strong>${aluno}</strong></td>
                     <td class="${classeStatus}">${d.contador} / ${d.limite}</td>
                     <td style="color:#555;">${d.hora1 || '-'}</td>
                     <td style="color:#555;">${d.hora2 || '-'}</td>
                 `;
-                tbody.appendChild(linha);
+                tbody.appendChild(tr);
             });
         }
 
         function zerarTurmaDiretor() {
-            if(confirm(`Atenção Diretor: Isso zerará a contagem de hoje de TODOS os alunos da turma ${turmaAtual}. Confirmar?`)) {
-                for (let aluno in dbAlunos) {
-                    dbAlunos[aluno].contador = 0;
-                    dbAlunos[aluno].hora1 = "";
-                    dbAlunos[aluno].hora2 = "";
-                }
-                refAlunosAtuais.set(dbAlunos);
+            if(!turmaAtualVisao) return;
+            if(confirm(`Zerar as saídas de todos os alunos do ${turmaAtualVisao}?`)) {
+                database.ref(`salas/${turmaAtualVisao}/alunos`).once('value', (snap) => {
+                    let alunos = snap.val() || {};
+                    for(let a in alunos) {
+                        alunos[a].contador = 0;
+                        alunos[a].hora1 = "";
+                        alunos[a].hora2 = "";
+                    }
+                    database.ref(`salas/${turmaAtualVisao}/alunos`).set(alunos);
+                });
             }
         }
 
+        // ==========================================
+        // 5. MÓDULO DO PROFESSOR (CÂMERA E LEITURA)
+        // ==========================================
+        let alunosProfEncontrados = {};
 
-        // ==========================================
-        // 5. MÓDULO DO PROFESSOR (CÂMERA E OPERAÇÃO)
-        // ==========================================
         function iniciarModoProfessor(turma) {
-            turmaAtual = turma;
+            turmaAtualVisao = turma;
             document.getElementById('titulo-turma-prof').innerText = `Turma: ${turma}`;
             document.getElementById('mensagem').style.display = "none";
             
             if(refAlunosAtuais) refAlunosAtuais.off();
-            refAlunosAtuais = database.ref(`salas/${turmaAtual}/alunos`);
+            refAlunosAtuais = database.ref(`salas/${turma}/alunos`);
             
             refAlunosAtuais.on('value', (snapshot) => {
-                dbAlunos = snapshot.val() || {};
+                alunosProfEncontrados = snapshot.val() || {};
                 renderizarListaProfessor();
             });
 
-            // Inicia a Câmera exclusivamente nesta tela
             iniciarCamera();
         }
 
         function renderizarListaProfessor() {
             const ul = document.getElementById('lista-prof-alunos');
             ul.innerHTML = '';
-            const alunosArr = Object.keys(dbAlunos).sort();
+            const chaves = Object.keys(alunosProfEncontrados).sort();
 
-            if(alunosArr.length === 0) {
-                ul.innerHTML = '<li style="text-align:center;">Turma vazia. Solicite cadastro à diretoria.</li>';
+            if(chaves.length === 0) {
+                ul.innerHTML = '<li style="text-align:center;">Nenhum aluno cadastrado nesta turma.</li>';
                 return;
             }
 
-            alunosArr.forEach(aluno => {
+            chaves.forEach(aluno => {
                 const li = document.createElement('li');
-                const d = dbAlunos[aluno];
+                const d = alunosProfEncontrados[aluno];
                 
                 let horas = "";
-                if (d.contador === 1) horas = `<br><small style="color:#666;">1ª: ${d.hora1}</small>`;
-                else if (d.contador === 2) horas = `<br><small style="color:#666;">1ª: ${d.hora1} | 2ª: ${d.hora2}</small>`;
+                if (d.contador === 1) horas = `<br><small style="color:#666;">⏱ 1ª: ${d.hora1}</small>`;
+                else if (d.contador === 2) horas = `<br><small style="color:#666;">⏱ 1ª: ${d.hora1} | 2ª: ${d.hora2}</small>`;
                 
                 li.innerHTML = `<strong>${aluno}</strong> <span style="float:right;">${d.contador}/${d.limite}</span>${horas}`;
                 if (d.contador >= d.limite) li.className = "limite-atingido";
@@ -534,22 +548,22 @@
 
         function reiniciarContagemProf() {
             if(confirm("Deseja zerar as saídas para começar uma nova aula?")) {
-                for (let aluno in dbAlunos) {
-                    dbAlunos[aluno].contador = 0;
-                    dbAlunos[aluno].hora1 = "";
-                    dbAlunos[aluno].hora2 = "";
+                for (let aluno in alunosProfEncontrados) {
+                    alunosProfEncontrados[aluno].contador = 0;
+                    alunosProfEncontrados[aluno].hora1 = "";
+                    alunosProfEncontrados[aluno].hora2 = "";
                 }
-                refAlunosAtuais.set(dbAlunos); 
+                refAlunosAtuais.set(alunosProfEncontrados); 
                 const msg = document.getElementById('mensagem');
-                msg.innerHTML = "Turma reiniciada!";
+                msg.innerHTML = "Contagem reiniciada com sucesso!";
                 msg.className = "verde";
             }
         }
 
-        // --- Lógica do QR Code ---
+        // Leitura QR Code
         function iniciarCamera() {
             const configCamera = cameraTraseira ? { facingMode: "environment" } : { facingMode: "user" };
-            const configLeitor = { fps: 10, qrbox: { width: 250, height: 250 } };
+            const configLeitor = { fps: 10, qrbox: { width: 200, height: 200 } };
 
             if (html5QrCode) {
                 html5QrCode.stop().then(() => initInstancia(configCamera, configLeitor)).catch(e => console.log(e));
@@ -560,7 +574,7 @@
 
         function initInstancia(configCamera, configLeitor) {
             html5QrCode = new Html5Qrcode("reader");
-            html5QrCode.start(configCamera, configLeitor, aoLerQrCode, () => {}).catch(() => alert("Erro ao acessar a câmera."));
+            html5QrCode.start(configCamera, configLeitor, aoLerQrCode, () => {}).catch(() => {});
         }
 
         function alternarCamera() { cameraTraseira = !cameraTraseira; iniciarCamera(); }
@@ -568,38 +582,37 @@
         function aoLerQrCode(texto) {
             const qrLido = texto.trim().toUpperCase();
 
-            // Evita múltiplas leituras em milissegundos
             if (qrLido === ultimoLido) return;
             ultimoLido = qrLido;
             clearTimeout(tempoEspera);
             tempoEspera = setTimeout(() => { ultimoLido = ""; }, 4000);
 
-            // Ação de zerar rápida por QR Code do educador
+            // Atalho: QR Code "EDUCADOR" zera a turma
             if (qrLido === "EDUCADOR") { reiniciarContagemProf(); return; }
 
             const msgDiv = document.getElementById('mensagem');
 
-            if (dbAlunos[qrLido]) {
-                if (dbAlunos[qrLido].contador < dbAlunos[qrLido].limite) {
-                    dbAlunos[qrLido].contador++;
+            if (alunosProfEncontrados[qrLido]) {
+                if (alunosProfEncontrados[qrLido].contador < alunosProfEncontrados[qrLido].limite) {
+                    alunosProfEncontrados[qrLido].contador++;
                     
                     const agora = new Date();
                     const horaAtual = `${agora.getHours().toString().padStart(2, '0')}:${agora.getMinutes().toString().padStart(2, '0')}`;
 
-                    if (dbAlunos[qrLido].contador === 1) dbAlunos[qrLido].hora1 = horaAtual;
-                    else if (dbAlunos[qrLido].contador === 2) dbAlunos[qrLido].hora2 = horaAtual;
+                    if (alunosProfEncontrados[qrLido].contador === 1) alunosProfEncontrados[qrLido].hora1 = horaAtual;
+                    else if (alunosProfEncontrados[qrLido].contador === 2) alunosProfEncontrados[qrLido].hora2 = horaAtual;
 
-                    // Salva na nuvem instantaneamente
-                    refAlunosAtuais.child(qrLido).set(dbAlunos[qrLido]);
+                    // Salva instantaneamente no firebase
+                    refAlunosAtuais.child(qrLido).set(alunosProfEncontrados[qrLido]);
 
-                    msgDiv.innerHTML = `${qrLido}<br>Saída Liberada (${dbAlunos[qrLido].contador}/2)<br>⏰ ${horaAtual}`;
+                    msgDiv.innerHTML = `${qrLido}<br>Saída Liberada (${alunosProfEncontrados[qrLido].contador}/2)<br>⏰ ${horaAtual}`;
                     msgDiv.className = "verde";
                 } else {
-                    msgDiv.innerHTML = `${qrLido}<br>Saída Negada!<br>Limite atingido.`;
+                    msgDiv.innerHTML = `${qrLido}<br>Saída Negada!<br>Limite diário atingido.`;
                     msgDiv.className = "vermelho";
                 }
             } else {
-                msgDiv.innerHTML = `Atenção: "${qrLido}"<br>Não pertence à turma ${turmaAtual}.`;
+                msgDiv.innerHTML = `Atenção: "${qrLido}"<br>Não pertence à turma atual.`;
                 msgDiv.className = "vermelho";
             }
         }
