@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle de Saída - QR Code (Online)</title>
+    <title>Controle de Saída - QR Code Multiturmas</title>
     
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     
@@ -12,11 +12,18 @@
 
     <style>
         body { font-family: Arial, sans-serif; text-align: center; padding: 10px; background-color: #f4f4f9; margin: 0; }
-        h1 { font-size: 22px; color: #333; }
+        h1 { font-size: 22px; color: #333; margin-bottom: 5px; }
+        #status-db { font-size: 13px; color: #28a745; margin-bottom: 15px; font-weight: bold; }
+        
+        .painel-seletor { max-width: 400px; margin: 0 auto 15px auto; background: #e9ecef; padding: 12px; border-radius: 8px; border: 1px solid #ced4da; text-align: left; }
+        .painel-seletor label { font-weight: bold; font-size: 14px; color: #495057; display: block; margin-bottom: 5px; }
+        .select-turma { width: 100%; padding: 10px; font-size: 16px; font-weight: bold; border-radius: 5px; border: 1px solid #ced4da; background-color: white; color: #333; }
+
         #leitor-container { width: 100%; max-width: 400px; margin: 0 auto; background: white; padding: 10px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
         #reader { width: 100%; }
         button { margin-top: 10px; padding: 12px 20px; font-size: 16px; color: white; border: none; border-radius: 5px; cursor: pointer; width: 100%; max-width: 400px; background-color: #007bff; }
         button:hover { background-color: #0056b3; }
+        
         #mensagem { font-size: 20px; font-weight: bold; margin-top: 20px; padding: 15px; border-radius: 8px; max-width: 400px; margin-left: auto; margin-right: auto; display: none; }
         .verde { color: #155724; background-color: #d4edda; border: 2px solid #c3e6cb; display: block !important; }
         .vermelho { color: #721c24; background-color: #f8d7da; border: 2px solid #f5c6cb; display: block !important; }
@@ -34,13 +41,22 @@
         #lista-historico li { font-size: 13px; padding: 10px; border-bottom: 1px solid #eee; color: #444; line-height: 1.4; }
         .btn-apagar-historico { background-color: #dc3545; margin-top: 15px; padding: 10px; font-size: 14px; }
         .btn-apagar-historico:hover { background-color: #c82333; }
-        .status-conexao { font-size: 12px; color: #28a745; margin-bottom: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <h1>Controle de Saídas da Turma</h1>
-    <div class="status-conexao" id="status-db">Conectando ao banco de dados...</div>
+    <h1>Controle de Saídas</h1>
+    <div id="status-db">Conectando ao servidor...</div>
+
+    <div class="painel-seletor">
+        <label for="sala-select">Selecione a Turma Atual:</label>
+        <select id="sala-select" class="select-turma" onchange="mudarTurma()">
+            <option value="4_ano">4º Ano</option>
+            <option value="5_ano">5º Ano</option>
+            <option value="6_ano">6º Ano</option>
+            <option value="7_ano">7º Ano</option>
+        </select>
+    </div>
 
     <div id="leitor-container">
         <div id="reader"></div>
@@ -55,15 +71,13 @@
     </div>
 
     <div class="painel" id="painel-historico">
-        <h2>Histórico de Saídas Salvo</h2>
+        <h2>Histórico da Turma na Nuvem</h2>
         <ul id="lista-historico"></ul>
-        <button class="btn-apagar-historico" onclick="apagarHistorico()">Apagar Histórico de Todos</button>
+        <button class="btn-apagar-historico" onclick="apagarHistorico()">Apagar Histórico desta Turma</button>
     </div>
 
     <script>
-        // ==========================================
-        // 1. CONFIGURAÇÃO DO FIREBASE (Sincronizado)
-        // ==========================================
+        //Configuração do seu projeto Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyBWB41DNUr-14oi6N3D_8M6KPFqH3yYesU",
             authDomain: "controle-de-saida-54745.firebaseapp.com",
@@ -78,47 +92,74 @@
         // Inicializa o Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
-        const refAlunos = database.ref('turma_alunos');
-        const refHistorico = database.ref('turma_historico');
 
-        // ==========================================
-        // 2. DADOS E LISTA BASE DE ALUNOS
-        // ==========================================
+        // Variáveis de controle de rotas das salas
+        let salaAtual = "4_ano";
+        let refAlunos;
+        let refHistorico;
+
+        // Lista base padrão de alunos (usada para criar novas turmas se a pasta estiver vazia)
         const listaNomesBase = [
-            "IGOR GABRIEL",
+            "DAVI LUIZ", "ELLYSA MARIA", "FRANCISCO ARTHUR", "IGOR GABRIEL",
             "JOAO VITOR", "KAUAN", "KELVEN HALERRANDRO", "KEVILLY", "LUANA",
+            "MARIA APARECIDA", "MARIA EDUARDA", "MATHEUS YAN", "MICAEL",
+            "MIGUEL", "PEDRO HENRIQUE", "SAMUEL LEVY", "SANNY KETLEYN",
             "WALLYSON", "YAN VICTOR"
         ];
 
         let bancoDados = {};
         let historicoGeral = [];
 
-        // Fica escutando as mudanças na nuvem em tempo real (Alunos)
-        refAlunos.on('value', (snapshot) => {
-            const dadosOnline = snapshot.val();
+        // Função responsável por desconectar da sala antiga e escutar a sala nova em tempo real
+        function conectarBancoSala() {
+            document.getElementById('status-db').innerText = "Alterando sala no banco...";
             
-            if (dadosOnline) {
-                bancoDados = dadosOnline;
-                document.getElementById('status-db').innerText = "🟢 Conectado e Sincronizado";
-            } else {
-                // Se o banco estiver vazio na nuvem pela primeira vez, configura a lista base
-                listaNomesBase.forEach(aluno => {
-                    bancoDados[aluno] = { limite: 2, contador: 0, hora1: "", hora2: "" };
-                });
-                refAlunos.set(bancoDados); 
-            }
-            atualizarListaTela();
-        });
+            // Se já existiam conexões antigas ativas, desliga elas primeiro
+            if (refAlunos) refAlunos.off();
+            if (refHistorico) refHistorico.off();
 
-        // Fica escutando as mudanças na nuvem em tempo real (Histórico)
-        refHistorico.on('value', (snapshot) => {
-            const histOnline = snapshot.val();
-            historicoGeral = histOnline ? histOnline : [];
-            atualizarHistoricoTela();
-        });
+            // Aponta para os caminhos da sala escolhida na nuvem
+            refAlunos = database.ref(`salas/${salaAtual}/alunos`);
+            refHistorico = database.ref(`salas/${salaAtual}/historico`);
+
+            // Escuta modificações da lista de alunos da sala atual
+            refAlunos.on('value', (snapshot) => {
+                const dadosOnline = snapshot.val();
+                if (dadosOnline) {
+                    bancoDados = dadosOnline;
+                    const nomeFormatado = document.getElementById('sala-select').options[document.getElementById('sala-select').selectedIndex].text;
+                    document.getElementById('status-db').innerText = `🟢 Conectado: ${nomeFormatado}`;
+                } else {
+                    // Se a sala nunca foi aberta na internet, gera a estrutura do zero para ela
+                    bancoDados = {};
+                    listaNomesBase.forEach(aluno => {
+                        bancoDados[aluno] = { limite: 2, contador: 0, hora1: "", hora2: "" };
+                    });
+                    refAlunos.set(bancoDados); 
+                }
+                atualizarListaTela();
+            });
+
+            // Escuta modificações do histórico da sala atual
+            refHistorico.on('value', (snapshot) => {
+                const histOnline = snapshot.val();
+                historicoGeral = histOnline ? histOnline : [];
+                atualizarHistoricoTela();
+            });
+        }
+
+        // Evento disparado quando o professor altera a sala no topo da tela
+        function mudarTurma() {
+            salaAtual = document.getElementById('sala-select').value;
+            // Limpa mensagens anteriores da tela para não confundir o professor
+            const msgDiv = document.getElementById('mensagem');
+            msgDiv.style.display = "none";
+            
+            conectarBancoSala();
+        }
 
         // ==========================================
-        // 3. FUNÇÕES DE DATA, HORA E ATUALIZAÇÃO DA TELA
+        // FUNÇÕES DE EXIBIÇÃO DE TELAS E DATA/HORA
         // ==========================================
         function obterDataAtual() { return new Date().toLocaleDateString('pt-BR'); }
         function obterHoraAtual() {
@@ -131,7 +172,6 @@
         function atualizarListaTela() {
             const ul = document.getElementById('lista-alunos');
             ul.innerHTML = '';
-            
             const alunosOrdenados = Object.keys(bancoDados).sort();
 
             alunosOrdenados.forEach(aluno => {
@@ -156,7 +196,7 @@
             const ulHist = document.getElementById('lista-historico');
             ulHist.innerHTML = '';
             if (historicoGeral.length === 0) {
-                ulHist.innerHTML = '<li style="text-align:center; color:#999;">Nenhum registro no histórico.</li>';
+                ulHist.innerHTML = '<li style="text-align:center; color:#999;">Nenhum registro nesta turma.</li>';
                 return;
             }
             historicoGeral.forEach(registro => {
@@ -167,7 +207,7 @@
         }
 
         // ==========================================
-        // 4. LÓGICA DE REINICIAR E APAGAR (AÇÕES NA NUVEM)
+        // LÓGICA DE CONTROLE DE DADOS
         // ==========================================
         function reiniciarContagem() {
             for (let aluno in bancoDados) {
@@ -175,24 +215,25 @@
                 bancoDados[aluno].hora1 = "";
                 bancoDados[aluno].hora2 = "";
             }
+            refAlunos.set(bancoDados); 
             
-            refAlunos.set(bancoDados); // Zera para todos os professores ao mesmo tempo
-            
+            const nomeSala = document.getElementById('sala-select').options[document.getElementById('sala-select').selectedIndex].text;
             const msgDiv = document.getElementById('mensagem');
-            msgDiv.innerHTML = "SISTEMA REINICIADO!<br><br>As saídas atuais foram zeradas em todos os aparelhos.";
+            msgDiv.innerHTML = `SISTEMA REINICIADO!<br><br>As saídas do <strong>${nomeSala}</strong> foram zeradas na nuvem.`;
             msgDiv.className = "azul";
         }
 
         function apagarHistorico() {
-            const confirmacao = confirm("Apagar o histórico irá removê-lo da nuvem para todos os professores. Tem certeza?");
+            const nomeSala = document.getElementById('sala-select').options[document.getElementById('sala-select').selectedIndex].text;
+            const confirmacao = confirm(`Apagar o histórico irá removê-lo da nuvem para todos os professores do ${nomeSala}. Tem certeza?`);
             if (confirmacao) {
-                refHistorico.set([]); // Limpa a lista no banco de dados
-                alert("Histórico global apagado.");
+                refHistorico.set([]); 
+                alert("Histórico da turma apagado.");
             }
         }
 
         // ==========================================
-        // 5. CÂMERA E LEITURA DE QR CODE
+        // CONFIGURAÇÕES DA CÂMERA E LEITOR QR CODE
         // ==========================================
         let html5QrCode;
         let cameraTraseira = true;
@@ -244,7 +285,7 @@
                     const textoHistorico = `📅 ${dataAtual} às ⏰ ${horaAtual}<br><strong>${qrLido}</strong> (Utilizou a ${bancoDados[qrLido].contador}ª saída)`;
                     historicoGeral.unshift(textoHistorico);
 
-                    // Salva as atualizações no Firebase (sincroniza na hora para todo mundo)
+                    // Atualiza exclusivamente a pasta da turma ativa
                     refAlunos.set(bancoDados);
                     refHistorico.set(historicoGeral);
 
@@ -255,12 +296,14 @@
                     msgDiv.className = "vermelho";
                 }
             } else {
-                msgDiv.innerHTML = `QR Code: ${qrLido}<br><br>Aluno não encontrado.`;
+                msgDiv.innerHTML = `QR Code: ${qrLido}<br><br>Aluno não encontrado nesta turma.`;
                 msgDiv.className = "amarelo";
             }
         }
 
         window.onload = function() {
+            salaAtual = document.getElementById('sala-select').value;
+            conectarBancoSala(); // Inicia conectado na sala padrão selecionada
             iniciarCamera();
         };
     </script>
