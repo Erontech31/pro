@@ -62,7 +62,7 @@
 
     <script>
         // ==========================================
-        // 1. CONFIGURAÇÃO DO FIREBASE (COLE SEUS DADOS AQUI)
+        // 1. CONFIGURAÇÃO DO FIREBASE (Sincronizado)
         // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyBWB41DNUr-14oi6N3D_8M6KPFqH3yYesU",
@@ -71,7 +71,7 @@
             projectId: "controle-de-saida-54745",
             storageBucket: "controle-de-saida-54745.firebasestorage.app",
             messagingSenderId: "933472401696",
-            appId: "1:933472401696:web:a84d400cd2905c6201ff45"
+            appId: "1:933472401696:web:a84d400cd2905c6201ff45",
             measurementId: "G-73JT4T17N6"
         };
 
@@ -82,7 +82,7 @@
         const refHistorico = database.ref('turma_historico');
 
         // ==========================================
-        // 2. DADOS E SINCRONIZAÇÃO EM TEMPO REAL
+        // 2. DADOS E LISTA BASE DE ALUNOS
         // ==========================================
         const listaNomesBase = [
             "DAVI LUIZ", "ELLYSA MARIA", "FRANCISCO ARTHUR", "IGOR GABRIEL",
@@ -95,7 +95,7 @@
         let bancoDados = {};
         let historicoGeral = [];
 
-        // O SEGREDO DO FIREBASE: Fica "escutando" mudanças na internet 24h por dia
+        // Fica escutando as mudanças na nuvem em tempo real (Alunos)
         refAlunos.on('value', (snapshot) => {
             const dadosOnline = snapshot.val();
             
@@ -103,15 +103,16 @@
                 bancoDados = dadosOnline;
                 document.getElementById('status-db').innerText = "🟢 Conectado e Sincronizado";
             } else {
-                // Se o banco estiver vazio na internet, cria do zero
+                // Se o banco estiver vazio na nuvem pela primeira vez, configura a lista base
                 listaNomesBase.forEach(aluno => {
                     bancoDados[aluno] = { limite: 2, contador: 0, hora1: "", hora2: "" };
                 });
-                refAlunos.set(bancoDados); // Envia para a nuvem
+                refAlunos.set(bancoDados); 
             }
             atualizarListaTela();
         });
 
+        // Fica escutando as mudanças na nuvem em tempo real (Histórico)
         refHistorico.on('value', (snapshot) => {
             const histOnline = snapshot.val();
             historicoGeral = histOnline ? histOnline : [];
@@ -119,7 +120,7 @@
         });
 
         // ==========================================
-        // 3. FUNÇÕES VISUAIS DA TELA
+        // 3. FUNÇÕES DE DATA, HORA E ATUALIZAÇÃO DA TELA
         // ==========================================
         function obterDataAtual() { return new Date().toLocaleDateString('pt-BR'); }
         function obterHoraAtual() {
@@ -133,7 +134,6 @@
             const ul = document.getElementById('lista-alunos');
             ul.innerHTML = '';
             
-            // Transformar o objeto do Firebase num array para ordenar (opcional, aqui mantemos a ordem alfabética)
             const alunosOrdenados = Object.keys(bancoDados).sort();
 
             alunosOrdenados.forEach(aluno => {
@@ -169,7 +169,7 @@
         }
 
         // ==========================================
-        // 4. LÓGICA DE REINICIAR E APAGAR (ENVIA PARA NUVEM)
+        // 4. LÓGICA DE REINICIAR E APAGAR (AÇÕES NA NUVEM)
         // ==========================================
         function reiniciarContagem() {
             for (let aluno in bancoDados) {
@@ -178,7 +178,7 @@
                 bancoDados[aluno].hora2 = "";
             }
             
-            refAlunos.set(bancoDados); // Atualiza todos os celulares ao mesmo tempo
+            refAlunos.set(bancoDados); // Zera para todos os professores ao mesmo tempo
             
             const msgDiv = document.getElementById('mensagem');
             msgDiv.innerHTML = "SISTEMA REINICIADO!<br><br>As saídas atuais foram zeradas em todos os aparelhos.";
@@ -188,7 +188,7 @@
         function apagarHistorico() {
             const confirmacao = confirm("Apagar o histórico irá removê-lo da nuvem para todos os professores. Tem certeza?");
             if (confirmacao) {
-                refHistorico.set([]); // Zera no servidor
+                refHistorico.set([]); // Limpa a lista no banco de dados
                 alert("Histórico global apagado.");
             }
         }
@@ -246,7 +246,7 @@
                     const textoHistorico = `📅 ${dataAtual} às ⏰ ${horaAtual}<br><strong>${qrLido}</strong> (Utilizou a ${bancoDados[qrLido].contador}ª saída)`;
                     historicoGeral.unshift(textoHistorico);
 
-                    // SALVA NO FIREBASE: Isso aciona a atualização na tela de todo mundo instantaneamente!
+                    // Salva as atualizações no Firebase (sincroniza na hora para todo mundo)
                     refAlunos.set(bancoDados);
                     refHistorico.set(historicoGeral);
 
