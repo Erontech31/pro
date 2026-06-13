@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle de Saída - QR Code Multiturmas</title>
+    <title>Controle de Saída - QR Code Seguro</title>
     
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     
@@ -13,13 +13,23 @@
     <style>
         body { font-family: Arial, sans-serif; text-align: center; padding: 10px; background-color: #f4f4f9; margin: 0; }
         h1 { font-size: 22px; color: #333; margin-bottom: 5px; }
+        
+        /* Estilos da Tela de Login */
+        #tela-login { max-width: 350px; margin: 50px auto; background: white; padding: 30px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        #tela-login h2 { margin-top: 0; color: #333; font-size: 20px; margin-bottom: 20px; }
+        #tela-login input { width: 100%; box-sizing: border-box; padding: 12px; font-size: 16px; margin-bottom: 15px; border-radius: 5px; border: 1px solid #ccc; text-align: center; }
+        .btn-login { background-color: #28a745; width: 100%; padding: 12px; font-size: 16px; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-login:hover { background-color: #218838; }
+
+        /* Estilos do App Principal (Oculto inicialmente) */
+        #tela-principal { display: none; }
+        
         #status-db { font-size: 13px; color: #28a745; margin-bottom: 15px; font-weight: bold; }
         
-        .painel-seletor { max-width: 400px; margin: 0 auto 15px auto; background: #e9ecef; padding: 12px; border-radius: 8px; border: 1px solid #ced4da; text-align: left; }
-        .painel-seletor label { font-weight: bold; font-size: 14px; color: #495057; display: block; margin-bottom: 5px; }
+        #painel-seletor-container { max-width: 400px; margin: 0 auto 15px auto; background: #e9ecef; padding: 12px; border-radius: 8px; border: 1px solid #ced4da; text-align: left; }
+        #painel-seletor-container label { font-weight: bold; font-size: 14px; color: #495057; display: block; margin-bottom: 5px; }
         .select-turma { width: 100%; padding: 10px; font-size: 16px; font-weight: bold; border-radius: 5px; border: 1px solid #ced4da; background-color: white; color: #333; }
 
-        /* Estilos do Painel de Cadastro */
         .btn-toggle-cadastro { background-color: #6c757d; margin-bottom: 15px; }
         .btn-toggle-cadastro:hover { background-color: #5a6268; }
         #painel-cadastro { display: none; background: #fff3cd; border: 1px solid #ffeeba; padding: 15px; border-radius: 8px; max-width: 400px; margin: 0 auto 15px auto; text-align: left; }
@@ -58,53 +68,61 @@
 </head>
 <body>
 
-    <h1>Controle de Saídas</h1>
-    <div id="status-db">Conectando ao servidor...</div>
-
-    <div class="painel-seletor">
-        <label for="sala-select">Selecione a Turma Atual:</label>
-        <select id="sala-select" class="select-turma" onchange="mudarTurma()">
-            <option value="1_ano">1º Ano</option>
-            <option value="2_ano">2º Ano</option>
-            <option value="3_ano">3º Ano</option>
-            <option value="4_ano">4º Ano</option>
-            <option value="5_ano">5º Ano</option>
-            <option value="6_ano">6º Ano</option>
-            <option value="7_ano">7º Ano</option>
-            <option value="8_ano">8º Ano</option>
-            <option value="9_ano">9º Ano</option>
-        </select>
+    <div id="tela-login">
+        <h2>Acesso ao Sistema</h2>
+        <input type="password" id="input-senha-login" placeholder="Digite a senha" onkeypress="verificarEnterLogin(event)">
+        <button class="btn-login" onclick="fazerLogin()">Acessar turma</button>
     </div>
 
-    <button class="btn-toggle-cadastro" onclick="alternarPainelCadastro()">⚙️ Gerenciar Alunos da Turma</button>
-    
-    <div id="painel-cadastro">
-        <h3>Cadastrar Novo Aluno</h3>
-        <div class="form-cadastro">
-            <input type="text" id="input-novo-aluno" placeholder="NOME DO ALUNO" onkeypress="verificarEnter(event)">
-            <button onclick="adicionarAluno()">Salvar</button>
+    <div id="tela-principal">
+        <h1>Controle de Saídas</h1>
+        <div id="status-db">Aguardando login...</div>
+
+        <div id="painel-seletor-container">
+            <label for="sala-select">Navegação Mestra (Selecione a Turma):</label>
+            <select id="sala-select" class="select-turma" onchange="mudarTurma()">
+                <option value="1_ano">1º Ano</option>
+                <option value="2_ano">2º Ano</option>
+                <option value="3_ano">3º Ano</option>
+                <option value="4_ano">4º Ano</option>
+                <option value="5_ano">5º Ano</option>
+                <option value="6_ano">6º Ano</option>
+                <option value="7_ano">7º Ano</option>
+                <option value="8_ano">8º Ano</option>
+                <option value="9_ano">9º Ano</option>
+            </select>
         </div>
-        <h3>Alunos Cadastrados</h3>
-        <ul class="lista-gerenciar" id="lista-gerenciar-alunos">
-            </ul>
-    </div>
 
-    <div id="leitor-container">
-        <div id="reader"></div>
-        <button onclick="alternarCamera()">Mudar Câmera (Frente/Trás)</button>
-    </div>
+        <button class="btn-toggle-cadastro" onclick="alternarPainelCadastro()">⚙️ Gerenciar Alunos da Turma</button>
+        
+        <div id="painel-cadastro">
+            <h3>Cadastrar Novo Aluno</h3>
+            <div class="form-cadastro">
+                <input type="text" id="input-novo-aluno" placeholder="NOME DO ALUNO" onkeypress="verificarEnterCadastro(event)">
+                <button onclick="adicionarAluno()">Salvar</button>
+            </div>
+            <h3>Alunos Cadastrados</h3>
+            <ul class="lista-gerenciar" id="lista-gerenciar-alunos">
+                </ul>
+        </div>
 
-    <div id="mensagem"></div>
+        <div id="leitor-container">
+            <div id="reader"></div>
+            <button onclick="alternarCamera()">Mudar Câmera (Frente/Trás)</button>
+        </div>
 
-    <div class="painel" id="painel-alunos">
-        <h2>Status Atual (Limite: 2)</h2>
-        <ul id="lista-alunos"></ul>
-    </div>
+        <div id="mensagem"></div>
 
-    <div class="painel" id="painel-historico">
-        <h2>Histórico da Turma na Nuvem</h2>
-        <ul id="lista-historico"></ul>
-        <button class="btn-apagar-historico" onclick="apagarHistorico()">Apagar Histórico desta Turma</button>
+        <div class="painel" id="painel-alunos">
+            <h2>Status Atual (Limite: 2)</h2>
+            <ul id="lista-alunos"></ul>
+        </div>
+
+        <div class="painel" id="painel-historico">
+            <h2>Histórico da Turma na Nuvem</h2>
+            <ul id="lista-historico"></ul>
+            <button class="btn-apagar-historico" onclick="apagarHistorico()">Apagar Histórico desta Turma</button>
+        </div>
     </div>
 
     <script>
@@ -125,17 +143,76 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
+        // ==========================================
+        // 2. CONFIGURAÇÃO DAS SENHAS
+        // ==========================================
+        const senhaMestra = "311201"; // Abre qualquer turma e permite editar alunos
+        
+        // Mude as palavras entre aspas à esquerda para criar a senha de cada turma
+        const senhasPorTurma = {
+            "senha1": "1_ano",
+            "senha2": "2_ano",
+            "senha3": "3_ano",
+            "senha4": "4_ano",
+            "senha5": "5_ano",
+            "senha6": "6_ano",
+            "senha7": "7_ano",
+            "senha8": "8_ano",
+            "senha9": "9_ano"
+        };
+
+        // ==========================================
+        // 3. LÓGICA DE LOGIN
+        // ==========================================
         let salaAtual = "1_ano";
-        let refAlunos;
-        let refHistorico;
+        
+        function verificarEnterLogin(event) {
+            if (event.key === 'Enter') fazerLogin();
+        }
+
+        function fazerLogin() {
+            const senhaDigitada = document.getElementById("input-senha-login").value.trim();
+            
+            if (senhaDigitada === senhaMestra) {
+                // Acesso Mestre (Libera o Seletor)
+                document.getElementById("tela-login").style.display = "none";
+                document.getElementById("tela-principal").style.display = "block";
+                document.getElementById("painel-seletor-container").style.display = "block";
+                salaAtual = document.getElementById('sala-select').value;
+                iniciarApp();
+
+            } else if (senhasPorTurma[senhaDigitada]) {
+                // Acesso Turma Específica (Oculta o seletor e trava na turma)
+                document.getElementById("tela-login").style.display = "none";
+                document.getElementById("tela-principal").style.display = "block";
+                document.getElementById("painel-seletor-container").style.display = "none";
+                
+                salaAtual = senhasPorTurma[senhaDigitada];
+                
+                // Ajusta o select visualmente, caso seja necessário referenciar depois
+                document.getElementById('sala-select').value = salaAtual;
+                
+                iniciarApp();
+            } else {
+                alert("Senha incorreta! Tente novamente.");
+            }
+        }
+
+        function iniciarApp() {
+            conectarBancoSala();
+            iniciarCamera(); // A câmera só pode iniciar depois que a tela principal estiver visível
+        }
+
+
+        // ==========================================
+        // 4. CONEXÃO E GERENCIAMENTO DAS TURMAS
+        // ==========================================
+        let refAlunos, refHistorico;
         let bancoDados = {};
         let historicoGeral = [];
 
-        // ==========================================
-        // 2. CONEXÃO E GERENCIAMENTO DAS TURMAS
-        // ==========================================
         function conectarBancoSala() {
-            document.getElementById('status-db').innerText = "Alterando sala no banco...";
+            document.getElementById('status-db').innerText = "Conectando ao banco de dados...";
             
             if (refAlunos) refAlunos.off();
             if (refHistorico) refHistorico.off();
@@ -145,10 +222,13 @@
 
             refAlunos.on('value', (snapshot) => {
                 const dadosOnline = snapshot.val();
-                // Se não houver dados, inicia um objeto vazio para a turma
                 bancoDados = dadosOnline ? dadosOnline : {};
                 
-                const nomeFormatado = document.getElementById('sala-select').options[document.getElementById('sala-select').selectedIndex].text;
+                // Pega o nome formatado (ex: "4º Ano") com base no valor atual
+                const selectElement = document.getElementById('sala-select');
+                const opcaoSelecionada = Array.from(selectElement.options).find(opt => opt.value === salaAtual);
+                const nomeFormatado = opcaoSelecionada ? opcaoSelecionada.text : salaAtual;
+                
                 document.getElementById('status-db').innerText = `🟢 Conectado: ${nomeFormatado}`;
                 
                 atualizarListaTela();
@@ -164,23 +244,33 @@
 
         function mudarTurma() {
             salaAtual = document.getElementById('sala-select').value;
-            const msgDiv = document.getElementById('mensagem');
-            msgDiv.style.display = "none";
+            document.getElementById('mensagem').style.display = "none";
             conectarBancoSala();
         }
 
         // ==========================================
-        // 3. FUNÇÕES DE CADASTRO E REMOÇÃO DE ALUNOS
+        // 5. FUNÇÕES DE CADASTRO (PROTEGIDAS POR SENHA)
         // ==========================================
         function alternarPainelCadastro() {
             const painel = document.getElementById('painel-cadastro');
-            painel.style.display = (painel.style.display === 'none' || painel.style.display === '') ? 'block' : 'none';
+            
+            // Se o painel estiver fechado, pede a senha para abrir
+            if (painel.style.display === 'none' || painel.style.display === '') {
+                const senhaDigitada = prompt("Digite a senha de administrador para gerenciar os alunos:");
+                
+                if (senhaDigitada === senhaMestra) {
+                    painel.style.display = 'block';
+                } else if (senhaDigitada !== null) { // null = se o usuário apertar cancelar
+                    alert("Acesso Negado! Senha de administrador incorreta.");
+                }
+            } else {
+                // Se o painel já estiver aberto, apenas fecha ele (sem pedir senha)
+                painel.style.display = 'none';
+            }
         }
 
-        function verificarEnter(event) {
-            if (event.key === 'Enter') {
-                adicionarAluno();
-            }
+        function verificarEnterCadastro(event) {
+            if (event.key === 'Enter') adicionarAluno();
         }
 
         function adicionarAluno() {
@@ -191,24 +281,22 @@
                 alert("Por favor, digite o nome do aluno.");
                 return;
             }
-
             if (bancoDados[nome]) {
                 alert("Este aluno já está cadastrado nesta turma!");
                 return;
             }
 
-            // Adiciona o aluno ao objeto local e salva no Firebase
             bancoDados[nome] = { limite: 2, contador: 0, hora1: "", hora2: "" };
             refAlunos.set(bancoDados).then(() => {
-                input.value = ""; // Limpa o campo após o sucesso
+                input.value = ""; 
             });
         }
 
         function removerAluno(nome) {
             const confirmacao = confirm(`Tem certeza que deseja remover ${nome} desta turma?`);
             if (confirmacao) {
-                delete bancoDados[nome]; // Remove do objeto local
-                refAlunos.set(bancoDados); // Atualiza na nuvem
+                delete bancoDados[nome]; 
+                refAlunos.set(bancoDados); 
             }
         }
 
@@ -217,7 +305,6 @@
             ulGerenciar.innerHTML = '';
             
             const alunosOrdenados = Object.keys(bancoDados).sort();
-
             if (alunosOrdenados.length === 0) {
                 ulGerenciar.innerHTML = '<li>Nenhum aluno cadastrado nesta turma.</li>';
                 return;
@@ -231,7 +318,7 @@
         }
 
         // ==========================================
-        // 4. FUNÇÕES DE EXIBIÇÃO DE TELAS E DATA/HORA
+        // 6. FUNÇÕES DE EXIBIÇÃO DE TELAS E DATA/HORA
         // ==========================================
         function obterDataAtual() { return new Date().toLocaleDateString('pt-BR'); }
         function obterHoraAtual() {
@@ -284,7 +371,7 @@
         }
 
         // ==========================================
-        // 5. LÓGICA DE CONTROLE DE DADOS DA TURMA
+        // 7. LÓGICA DE CONTROLE DE DADOS
         // ==========================================
         function reiniciarContagem() {
             for (let aluno in bancoDados) {
@@ -294,15 +381,13 @@
             }
             refAlunos.set(bancoDados); 
             
-            const nomeSala = document.getElementById('sala-select').options[document.getElementById('sala-select').selectedIndex].text;
             const msgDiv = document.getElementById('mensagem');
-            msgDiv.innerHTML = `SISTEMA REINICIADO!<br><br>As saídas do <strong>${nomeSala}</strong> foram zeradas na nuvem.`;
+            msgDiv.innerHTML = `SISTEMA REINICIADO!<br><br>As saídas da turma atual foram zeradas na nuvem.`;
             msgDiv.className = "azul";
         }
 
         function apagarHistorico() {
-            const nomeSala = document.getElementById('sala-select').options[document.getElementById('sala-select').selectedIndex].text;
-            const confirmacao = confirm(`Apagar o histórico irá removê-lo da nuvem para todos os professores do ${nomeSala}. Tem certeza?`);
+            const confirmacao = confirm(`Tem certeza que deseja apagar o histórico de saídas desta turma?`);
             if (confirmacao) {
                 refHistorico.set([]); 
                 alert("Histórico da turma apagado.");
@@ -310,7 +395,7 @@
         }
 
         // ==========================================
-        // 6. CÂMERA E LEITURA DE QR CODE
+        // 8. CÂMERA E LEITURA DE QR CODE
         // ==========================================
         let html5QrCode;
         let cameraTraseira = true;
@@ -343,6 +428,7 @@
             clearTimeout(tempoEspera);
             tempoEspera = setTimeout(() => { ultimoLido = ""; }, 4000);
 
+            // O cartão do educador zera a contagem
             if (qrLido === "EDUCADOR") {
                 reiniciarContagem();
                 return;
@@ -376,12 +462,6 @@
                 msgDiv.className = "amarelo";
             }
         }
-
-        window.onload = function() {
-            salaAtual = document.getElementById('sala-select').value;
-            conectarBancoSala(); 
-            iniciarCamera();
-        };
     </script>
 </body>
 </html>
