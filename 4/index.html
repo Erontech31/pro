@@ -290,6 +290,10 @@
         </div>
         <input type="password" id="input-login" placeholder="Digite sua senha" onkeypress="verificarEnterLogin(event)" disabled>
         <button id="btn-entrar" onclick="fazerLogin()" disabled>Acessar Sistema</button>
+        
+        <div style="margin-top: 35px; font-size: 11px; color: var(--text-muted); line-height: 1.5; text-align: center; font-weight: 400;">
+            Desenvolvido por <strong>ERONTECH</strong> &copy; 2026.<br>Plataforma de uso gratuito para apoio à gestão escolar.
+        </div>
     </div>
 
     <div id="tela-gerenciamento" class="tela">
@@ -519,7 +523,7 @@
             const novaSenha = document.getElementById('input-senha-diretor').value.trim();
             if(novaSenha.length < 4) { alert("A senha deve ter pelo menos 4 caracteres."); return; }
             refConfig.child('senha_diretor').set(novaSenha).then(() => {
-                alert("Senha mestre do Diretor atualizada!");
+                alert("Senha mestre do Diretor updated!");
                 document.getElementById('input-senha-diretor').value = '';
             });
         }
@@ -741,7 +745,6 @@
         function renderizarListaProfessor() {
             const ul = document.getElementById('lista-prof-alunos');
             ul.innerHTML = '';
-            // AQUI FOI APLICADO O LOCALE COMPARE PARA CORRIGIR A ORDEM ALFABÉTICA COM ACENTOS
             const alunosArr = Object.keys(dbAlunos).sort((a, b) => a.localeCompare(b, 'pt-BR'));
 
             if(alunosArr.length === 0) {
