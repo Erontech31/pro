@@ -53,13 +53,12 @@
             font-family: 'Poppins', sans-serif; 
             text-align: center; 
             padding: 15px; 
-            /* O background do body agora é transparente para vermos o fundo */
             background: transparent; 
             margin: 0; 
             color: var(--text-main); 
             -webkit-font-smoothing: antialiased;
             min-height: 100vh;
-            position: relative; /* Necessário para a logo absoluta */
+            position: relative;
         }
 
         /* --- ESTILOS DO FUNDO (VÍDEO OU FOTOS) --- */
@@ -69,12 +68,12 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            object-fit: cover; /* Para o vídeo */
-            background-size: cover; /* Para a foto */
+            object-fit: cover;
+            background-size: cover;
             background-position: center;
             z-index: -2;
             pointer-events: none;
-            transition: background-image 1s ease-in-out; /* Troca suave de fotos */
+            transition: background-image 1s ease-in-out;
             opacity: 1;
         }
 
@@ -84,7 +83,6 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            /* Cor de fundo original com 85% de opacidade para garantir a leitura perfeita do app */
             background-color: rgba(240, 244, 248, 0.40); 
             z-index: -1;
             pointer-events: none;
@@ -97,8 +95,8 @@
             left: 20px;
             width: 70px;
             height: 70px;
-            border-radius: 50%; /* Garante o formato redondo */
-            object-fit: cover; /* Evita que a imagem fique esticada */
+            border-radius: 50%;
+            object-fit: cover;
             border: 3px solid var(--white);
             box-shadow: var(--shadow-md);
             z-index: 1000;
@@ -317,16 +315,8 @@
 
         /* Ajustes responsivos para não quebrar o layout no celular com a logo */
         @media (max-width: 600px) {
-            .logo-escola {
-                width: 50px;
-                height: 50px;
-                top: 15px;
-                left: 15px;
-                border-width: 2px;
-            }
-            .topo-barra {
-                padding-left: 75px; /* Empurra o conteúdo para não ficar atrás da logo */
-            }
+            .logo-escola { width: 50px; height: 50px; top: 15px; left: 15px; border-width: 2px; }
+            .topo-barra { padding-left: 75px; }
         }
 
         @media print {
@@ -392,8 +382,8 @@
             <h3>👤 Passo 2: Alunos e QR Codes</h3>
             <select id="select-turma-aluno" onchange="carregarAlunosDaTurma()"></select>
             <div class="linha-form">
-                <input type="text" id="input-novo-aluno" placeholder="Nome Completo" style="text-transform: uppercase;" onkeypress="if(event.key === 'Enter') cadastrarAlunoEGerarQR()">
-                <button onclick="cadastrarAlunoEGerarQR()">Adicionar</button>
+                <input type="text" id="input-novo-aluno" placeholder="Nome Completo" style="text-transform: uppercase;" onkeypress="if(event.key === 'Enter') cadastrarAluno()">
+                <button onclick="cadastrarAluno()">Adicionar</button>
             </div>
             
             <button onclick="gerarImpressaoColetiva()" style="width:100%; background: linear-gradient(135deg, var(--purple) 0%, #6d28d9 100%); margin: 10px 0 20px 0;">
@@ -487,8 +477,7 @@
         
         let html5QrCode = null;
         let cameraTraseira = true;
-        let ultimoLido = "";
-        let tempoEspera;
+        let tempoEspera = null;
 
         refConfig.on('value', (snapshot) => {
             if (snapshot.exists()) {
@@ -538,7 +527,7 @@
 
             if (senhaDigitada === dbConfig.senha_diretor) {
                 abrirTela("tela-diretor");
-                iniciarModoDiretor();
+                atualizarSelectDiretor();
                 return;
             }
 
@@ -604,7 +593,7 @@
             const novaSenha = document.getElementById('input-senha-diretor').value.trim();
             if(novaSenha.length < 4) { alert("A senha deve ter pelo menos 4 caracteres."); return; }
             refConfig.child('senha_diretor').set(novaSenha).then(() => {
-                alert("Senha mestre do Diretor updated!");
+                alert("Senha mestre do Diretor atualizada!");
                 document.getElementById('input-senha-diretor').value = '';
             });
         }
@@ -714,332 +703,276 @@
             });
         }
 
+        // ==========================================
+        // 4. FUNÇÕES DE ALUNOS E GERAÇÃO DE QR CODE
+        // ==========================================
+        function cadastrarAluno() {
+            const turma = document.getElementById('select-turma-aluno').value;
+            const inputNovo = document.getElementById('input-novo-aluno');
+            const nome = inputNovo.value.trim().toUpperCase();
+
+            if (!turma || !nome) return;
+
+            database.ref('salas').child(turma).child('alunos').child(nome).set({
+                saidas: 0,
+                historico: []
+            }).then(() => {
+                inputNovo.value = '';
+            });
+        }
+
         function verificarSelecaoAlunos() {
-            const selecionados = document.querySelectorAll('.chk-aluno:checked').length;
-            document.getElementById('btn-remover-selecionados').style.display = selecionados > 0 ? 'block' : 'none';
+            const checkboxes = document.querySelectorAll('.chk-aluno:checked');
+            const btnRemover = document.getElementById('btn-remover-selecionados');
+            if (checkboxes.length > 0) {
+                btnRemover.style.display = 'block';
+                btnRemover.innerText = `🗑️ Remover ${checkboxes.length} Aluno(s)`;
+            } else {
+                btnRemover.style.display = 'none';
+            }
         }
 
         function removerAlunosSelecionados() {
             const turma = document.getElementById('select-turma-aluno').value;
             const checkboxes = document.querySelectorAll('.chk-aluno:checked');
-            if(checkboxes.length === 0 || !turma) return;
-
-            if(confirm(`Tem certeza que deseja excluir os ${checkboxes.length} aluno(s) selecionado(s)?`)) {
+            
+            if (confirm(`Remover ${checkboxes.length} aluno(s) selecionado(s)?`)) {
                 checkboxes.forEach(chk => {
                     database.ref('salas').child(turma).child('alunos').child(chk.value).remove();
                 });
-                document.getElementById('area-acoes-impressao').style.display = "none";
             }
         }
 
         function removerAluno(turma, nome) {
-            if(confirm(`Remover aluno "${nome}"?`)) {
+            if (confirm(`Remover permanentemente o aluno(a) ${nome}?`)) {
                 database.ref('salas').child(turma).child('alunos').child(nome).remove();
-                document.getElementById('area-acoes-impressao').style.display = "none";
             }
-        }
-
-        function cadastrarAlunoEGerarQR() {
-            const turma = document.getElementById('select-turma-aluno').value;
-            const nome = document.getElementById('input-novo-aluno').value.trim().toUpperCase();
-            
-            if(!turma || !nome) { alert("Selecione uma turma e digite o nome!"); return; }
-            
-            database.ref('salas').child(turma).child('alunos').child(nome).set({
-                limite: 2, contador: 0, hora1: "", hora2: ""
-            }).then(() => {
-                document.getElementById('input-novo-aluno').value = "";
-                
-                const divAcoes = document.getElementById('area-acoes-impressao');
-                const areaImprimir = document.getElementById('area-impressao');
-                
-                divAcoes.style.display = "block";
-                areaImprimir.innerHTML = ""; 
-                areaImprimir.appendChild(gerarCartaoQR(nome, turma));
-            });
-        }
-
-        function gerarCartaoQR(nome, turma) {
-            const divCartao = document.createElement('div');
-            divCartao.className = 'cartao-qr';
-            
-            const h3 = document.createElement('h3');
-            h3.innerText = `${nome}\n(${turma})`;
-            divCartao.appendChild(h3);
-
-            const divImg = document.createElement('div');
-            divImg.style.background = "#fff";
-            divImg.style.padding = "5px";
-            divImg.style.borderRadius = "8px";
-            divCartao.appendChild(divImg);
-
-            new QRCode(divImg, {
-                text: nome,
-                width: 120,
-                height: 120,
-                colorDark : "#1e293b",
-                colorLight : "#ffffff"
-            });
-
-            return divCartao;
         }
 
         function gerarImpressaoColetiva() {
             const turma = document.getElementById('select-turma-aluno').value;
-            if(!turma) return;
+            if (!turma) return;
 
-            database.ref('salas').child(turma).child('alunos').once('value').then(snapshot => {
+            database.ref('salas').child(turma).child('alunos').once('value', snapshot => {
                 const alunos = snapshot.val() || {};
-                const nomes = Object.keys(alunos).sort();
-                
-                if(nomes.length === 0) { alert("Turma vazia."); return; }
+                const area = document.getElementById('area-impressao');
+                area.innerHTML = '';
 
-                const divAcoes = document.getElementById('area-acoes-impressao');
-                const areaImprimir = document.getElementById('area-impressao');
+                Object.keys(alunos).sort().forEach(nome => {
+                    const cartao = document.createElement('div');
+                    cartao.className = 'cartao-qr';
+                    
+                    const h3 = document.createElement('h3');
+                    h3.innerText = nome;
+                    
+                    const divQr = document.createElement('div');
+                    
+                    // CORREÇÃO DOS ACENTOS APLICADA AQUI
+                    let nomeCorrigido = unescape(encodeURIComponent(nome));
+                    
+                    new QRCode(divQr, {
+                        text: nomeCorrigido,
+                        width: 120,
+                        height: 120,
+                        colorDark : "#1e293b",
+                        colorLight : "#ffffff"
+                    });
+                    
+                    cartao.appendChild(h3);
+                    cartao.appendChild(divQr);
+                    area.appendChild(cartao);
+                });
+
+                document.getElementById('area-acoes-impressao').style.display = 'block';
+            });
+        }
+
+        // ==========================================
+        // 5. PAINEL DO DIRETOR
+        // ==========================================
+        function atualizarSelectDiretor() {
+            const selectDiretor = document.getElementById('select-diretor-turma');
+            const valorAtual = selectDiretor.value;
+            selectDiretor.innerHTML = '';
+            
+            const listaTurmas = dbConfig && dbConfig.turmas ? Object.keys(dbConfig.turmas) : [];
+            listaTurmas.forEach(t => { selectDiretor.add(new Option(t, t)); });
+
+            if (valorAtual && listaTurmas.includes(valorAtual)) {
+                selectDiretor.value = valorAtual;
+            }
+            diretorMudarTurma();
+        }
+
+        function diretorMudarTurma() {
+            const turma = document.getElementById('select-diretor-turma').value;
+            const tbody = document.getElementById('tabela-diretor-corpo');
+            if (!turma) { tbody.innerHTML = ''; return; }
+
+            if (refAlunosAtuais) refAlunosAtuais.off();
+            refAlunosAtuais = database.ref('salas').child(turma).child('alunos');
+            
+            refAlunosAtuais.on('value', snapshot => {
+                tbody.innerHTML = '';
+                const alunos = snapshot.val() || {};
                 
-                divAcoes.style.display = "block";
-                areaImprimir.innerHTML = ""; 
-                
-                nomes.forEach(nome => {
-                    areaImprimir.appendChild(gerarCartaoQR(nome, turma));
+                Object.keys(alunos).sort().forEach(nome => {
+                    const dados = alunos[nome];
+                    const tr = document.createElement('tr');
+                    
+                    let statusClass = dados.saidas >= 2 ? 'badge-cheio' : 'badge-ok';
+                    let statusText = dados.saidas >= 2 ? 'ESGOTADO' : `${dados.saidas || 0}/2`;
+                    
+                    let h1 = dados.historico && dados.historico[0] ? dados.historico[0] : '-';
+                    let h2 = dados.historico && dados.historico[1] ? dados.historico[1] : '-';
+
+                    tr.innerHTML = `
+                        <td style="font-weight: 500;">${nome}</td>
+                        <td style="text-align:center;"><span class="badge ${statusClass}">${statusText}</span></td>
+                        <td>${h1}</td>
+                        <td>${h2}</td>
+                    `;
+                    tbody.appendChild(tr);
                 });
             });
         }
 
-        // ==========================================
-        // 4. MÓDULO DO DIRETOR
-        // ==========================================
-        function iniciarModoDiretor() {
-            atualizarSelectDiretor();
-        }
-
-        function atualizarSelectDiretor() {
-            const selectDiretor = document.getElementById('select-diretor-turma');
-            if (!selectDiretor) return;
-            const valorAtual = selectDiretor.value;
-            selectDiretor.innerHTML = '';
-            if(dbConfig && dbConfig.turmas) {
-                Object.keys(dbConfig.turmas).forEach(t => selectDiretor.add(new Option(t, t)));
-            }
-            if (valorAtual && dbConfig.turmas && dbConfig.turmas[valorAtual]) {
-                selectDiretor.value = valorAtual;
-            } else {
-                diretorMudarTurma();
-            }
-        }
-
-        function diretorMudarTurma() {
-            turmaAtual = document.getElementById('select-diretor-turma').value;
-            if(!turmaAtual) {
-                document.getElementById('tabela-diretor-corpo').innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:20px;">Nenhuma turma selecionada.</td></tr>';
-                return;
-            }
-
-            if(refAlunosAtuais) refAlunosAtuais.off();
-            refAlunosAtuais = database.ref('salas').child(turmaAtual).child('alunos');
-            
-            refAlunosAtuais.on('value', (snapshot) => {
-                dbAlunos = snapshot.val() || {};
-                renderizarTabelaDiretor();
-            });
-        }
-
-        function renderizarTabelaDiretor() {
-            const tbody = document.getElementById('tabela-diretor-corpo');
-            if(!tbody) return;
-            tbody.innerHTML = '';
-            
-            const alunosArr = Object.keys(dbAlunos).sort();
-            if(alunosArr.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:20px;">Sem alunos nesta turma.</td></tr>';
-                return;
-            }
-
-            alunosArr.forEach(aluno => {
-                const d = dbAlunos[aluno];
-                const linha = document.createElement('tr');
-                
-                let contagemHTML = d.contador >= d.limite 
-                    ? `<span class="badge badge-cheio">${d.contador} / ${d.limite}</span>` 
-                    : `<span class="badge badge-ok">${d.contador} / ${d.limite}</span>`;
-                
-                linha.innerHTML = `
-                    <td><strong>${aluno}</strong></td>
-                    <td style="text-align:center;">${contagemHTML}</td>
-                    <td style="color:var(--text-muted); font-size:13px;">${d.hora1 || '--:--'}</td>
-                    <td style="color:var(--text-muted); font-size:13px;">${d.hora2 || '--:--'}</td>
-                `;
-                tbody.appendChild(linha);
-            });
-        }
-
         function zerarTurmaDiretor() {
-            if(!turmaAtual) return;
-            if(confirm(`Zerar a contagem de TODOS os alunos da turma ${turmaAtual}?`)) {
-                for (let aluno in dbAlunos) {
-                    dbAlunos[aluno].contador = 0;
-                    dbAlunos[aluno].hora1 = "";
-                    dbAlunos[aluno].hora2 = "";
-                }
-                refAlunosAtuais.set(dbAlunos);
+            const turma = document.getElementById('select-diretor-turma').value;
+            if (!turma) return;
+            
+            if (confirm(`Tem certeza? Isso vai zerar as saídas de TODOS os alunos da turma ${turma} hoje.`)) {
+                database.ref('salas').child(turma).child('alunos').once('value', snapshot => {
+                    let alunos = snapshot.val();
+                    if(alunos) {
+                        for(let key in alunos) {
+                            alunos[key].saidas = 0;
+                            alunos[key].historico = [];
+                        }
+                        database.ref('salas').child(turma).child('alunos').set(alunos);
+                    }
+                });
             }
         }
 
         // ==========================================
-        // 5. MÓDULO DO PROFESSOR
+        // 6. PAINEL DO PROFESSOR / LEITOR QR CODE
         // ==========================================
         function iniciarModoProfessor(turma) {
             turmaAtual = turma;
             document.getElementById('titulo-turma-prof').innerText = `🏫 Turma: ${turma}`;
-            document.getElementById('mensagem').style.display = "none";
             
             if(refAlunosAtuais) refAlunosAtuais.off();
-            refAlunosAtuais = database.ref('salas').child(turmaAtual).child('alunos');
+            refAlunosAtuais = database.ref('salas').child(turma).child('alunos');
             
-            refAlunosAtuais.on('value', (snapshot) => {
+            refAlunosAtuais.on('value', snapshot => {
                 dbAlunos = snapshot.val() || {};
-                renderizarListaProfessor();
+                atualizarListaProfessor();
             });
 
             iniciarCamera();
         }
 
-        function renderizarListaProfessor() {
-            const ul = document.getElementById('lista-prof-alunos');
-            if(!ul) return;
-            ul.innerHTML = '';
-            const alunosArr = Object.keys(dbAlunos).sort((a, b) => a.localeCompare(b, 'pt-BR'));
+        function iniciarCamera() {
+            if(html5QrCode) {
+                html5QrCode.stop().catch(e => console.log(e));
+            }
+            
+            html5QrCode = new Html5Qrcode("reader");
+            const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+            const facingMode = cameraTraseira ? "environment" : "user";
 
-            if(alunosArr.length === 0) {
-                ul.innerHTML = '<li style="text-align:center; color:var(--text-muted); box-shadow:none; background:transparent; border:none;">Turma vazia.</li>';
+            html5QrCode.start({ facingMode: facingMode }, config, onScanSuccess)
+            .catch(err => {
+                console.log(err);
+                mostrarMensagem("Erro ao acessar câmera. Verifique as permissões.", "vermelho");
+            });
+        }
+
+        function alternarCamera() {
+            cameraTraseira = !cameraTraseira;
+            iniciarCamera();
+        }
+
+        function onScanSuccess(decodedText, decodedResult) {
+            if (tempoEspera) return; // Evita múltiplas leituras simultâneas
+
+            // CORREÇÃO DOS ACENTOS APLICADA AQUI NA LEITURA
+            let nomeLido = decodedText;
+            try {
+                nomeLido = decodeURIComponent(escape(decodedText));
+            } catch(e) {
+                console.error("Erro na decodificação do acento", e);
+            }
+
+            registrarSaida(nomeLido);
+            
+            tempoEspera = setTimeout(() => {
+                tempoEspera = null;
+            }, 3000); // Aguarda 3 segundos antes da próxima leitura
+        }
+
+        function registrarSaida(nome) {
+            if (!dbAlunos || !dbAlunos[nome]) {
+                mostrarMensagem(`❌ Aluno(a) "${nome}" não cadastrado(a) nesta turma.`, 'vermelho');
                 return;
             }
 
-            alunosArr.forEach(aluno => {
-                const li = document.createElement('li');
-                const d = dbAlunos[aluno];
-                
-                let horas = "";
-                if (d.contador === 1) horas = `<span class="aluno-horas">1ª saída: <strong>${d.hora1}</strong></span>`;
-                else if (d.contador === 2) horas = `<span class="aluno-horas">1ª: <strong>${d.hora1}</strong> &nbsp;|&nbsp; 2ª: <strong>${d.hora2}</strong></span>`;
-                
-                let badgeClass = d.contador >= d.limite ? 'badge-cheio' : 'badge-ok';
+            let saidasAtuais = dbAlunos[nome].saidas || 0;
+            if (saidasAtuais >= 2) {
+                mostrarMensagem(`🚨 LIMITE ATINGIDO! ${nome} já atingiu 2 saídas.`, 'vermelho');
+                return;
+            }
 
+            let novaSaida = saidasAtuais + 1;
+            let horaAtual = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            
+            let historico = dbAlunos[nome].historico || [];
+            historico.push(horaAtual);
+
+            refAlunosAtuais.child(nome).update({
+                saidas: novaSaida,
+                historico: historico
+            }).then(() => {
+                mostrarMensagem(`✅ Saída ${novaSaida} registrada para ${nome} (${horaAtual})`, 'verde');
+            });
+        }
+
+        function atualizarListaProfessor() {
+            const ul = document.getElementById('lista-prof-alunos');
+            ul.innerHTML = '';
+            
+            Object.keys(dbAlunos).sort().forEach(nome => {
+                const dados = dbAlunos[nome];
+                const li = document.createElement('li');
+                
+                if (dados.saidas >= 2) {
+                    li.classList.add('limite-atingido');
+                }
+                
+                let historicoHtml = (dados.historico || []).map(h => `<span class="aluno-horas">🕒 ${h}</span>`).join(' ');
+                
                 li.innerHTML = `
                     <div class="aluno-header">
-                        <span class="aluno-nome">${aluno}</span>
-                        <span class="badge ${badgeClass}">${d.contador}/${d.limite}</span>
+                        <span class="aluno-nome">${nome}</span>
+                        <strong>${dados.saidas || 0}/2</strong>
                     </div>
-                    ${horas ? `<div>${horas}</div>` : ''}
+                    ${historicoHtml ? `<div style="margin-top:4px;">${historicoHtml}</div>` : ''}
                 `;
-                
-                if (d.contador >= d.limite) li.classList.add('limite-atingido');
                 ul.appendChild(li);
             });
         }
 
-        function iniciarCamera() {
-            const configCamera = cameraTraseira ? { facingMode: "environment" } : { facingMode: "user" };
-            const configLeitor = { fps: 12, qrbox: { width: 250, height: 250 } };
-
-            if (html5QrCode) {
-                html5QrCode.stop().then(() => initInstancia(configCamera, configLeitor)).catch(e => console.log(e));
-            } else {
-                initInstancia(configCamera, configLeitor);
-            }
+        function mostrarMensagem(texto, tipo) {
+            const div = document.getElementById('mensagem');
+            div.className = tipo;
+            div.innerHTML = texto;
+            
+            setTimeout(() => {
+                div.className = '';
+                div.style.display = 'none';
+            }, 3500);
         }
-
-        function initInstancia(configCamera, configLeitor) {
-            html5QrCode = new Html5Qrcode("reader");
-            html5QrCode.start(configCamera, configLeitor, aoLerQrCode, () => {}).catch(() => alert("Erro ao acessar a câmera."));
-        }
-
-        function alternarCamera() { cameraTraseira = !cameraTraseira; iniciarCamera(); }
-
-        function aoLerQrCode(texto) {
-            const qrLido = texto.trim().toUpperCase();
-
-            if (qrLido === ultimoLido) return;
-            ultimoLido = qrLido;
-            clearTimeout(tempoEspera);
-            tempoEspera = setTimeout(() => { ultimoLido = ""; }, 4000);
-
-            const msgDiv = document.getElementById('mensagem');
-
-            // --- COMANDO SECRETO PARA REINICIAR TURMA ---
-            if (qrLido === "EDUCADOR") {
-                if (navigator.vibrate) navigator.vibrate([200, 100, 200]); 
-
-                if (Object.keys(dbAlunos).length === 0) {
-                    msgDiv.innerHTML = "Comando lido, mas a turma está vazia.";
-                    msgDiv.className = "vermelho";
-                    return;
-                }
-
-                for (let aluno in dbAlunos) {
-                    dbAlunos[aluno].contador = 0;
-                    dbAlunos[aluno].hora1 = "";
-                    dbAlunos[aluno].hora2 = "";
-                }
-                
-                refAlunosAtuais.set(dbAlunos);
-                msgDiv.innerHTML = "🔄 <strong>Turma Reiniciada!</strong><br>As contagens voltaram a zero.";
-                msgDiv.className = "verde";
-                return;
-            }
-
-            // --- FLUXO NORMAL DO ALUNO ---
-            if (dbAlunos[qrLido]) {
-                if (dbAlunos[qrLido].contador < dbAlunos[qrLido].limite) {
-                    dbAlunos[qrLido].contador++;
-                    
-                    const agora = new Date();
-                    const horaAtual = `${agora.getHours().toString().padStart(2, '0')}:${agora.getMinutes().toString().padStart(2, '0')}`;
-
-                    if (dbAlunos[qrLido].contador === 1) dbAlunos[qrLido].hora1 = horaAtual;
-                    else if (dbAlunos[qrLido].contador === 2) dbAlunos[qrLido].hora2 = horaAtual;
-
-                    refAlunosAtuais.child(qrLido).set(dbAlunos[qrLido]);
-
-                    if (navigator.vibrate) navigator.vibrate(100); 
-
-                    msgDiv.innerHTML = `✅ <strong>${qrLido}</strong><br>Saída Liberada (${dbAlunos[qrLido].contador}/2)<br>⏰ Horário: ${horaAtual}`;
-                    msgDiv.className = "verde";
-                } else {
-                    if (navigator.vibrate) navigator.vibrate([150, 100, 150]); 
-
-                    msgDiv.innerHTML = `❌ <strong>${qrLido}</strong><br>Saída Negada! Limite atingido.`;
-                    msgDiv.className = "vermelho";
-                }
-            } else {
-                if (navigator.vibrate) navigator.vibrate([150, 100, 150]); 
-                msgDiv.innerHTML = `⚠️ <strong>Atenção:</strong> "${qrLido}"<br>Não pertence à turma.`;
-                msgDiv.className = "vermelho";
-            }
-        }
-
-        // ==========================================
-        // 6. TROCA DE FOTOS DE FUNDO POR HORA (Desativado devido ao vídeo de fundo)
-        // ==========================================
-        /*
-        const imagensFundo = [
-            "0.jpg", "1.jpg", "2.jpg", "3.jpg", "4.jpg",
-            "5.jpg", "6.jpg", "7.jpg", "8.jpg", "9.jpg"
-        ];
-
-        function atualizarFundoPorHora() {
-            const divFundo = document.getElementById('fundo-imagens');
-            if(divFundo) {
-                const horaAtual = new Date().getHours();
-                const indiceImagem = horaAtual % imagensFundo.length;
-                divFundo.style.backgroundImage = `url('${imagensFundo[indiceImagem]}')`;
-            }
-        }
-
-        atualizarFundoPorHora();
-        setInterval(atualizarFundoPorHora, 60000);
-        */
-
     </script>
 </body>
 </html>
