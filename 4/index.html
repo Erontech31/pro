@@ -325,17 +325,113 @@
                 border-width: 2px;
             }
             .topo-barra {
-                padding-left: 75px; /* Empurra o conteúdo para não ficar atrás da logo */
+                padding-left: 75px;
             }
         }
 
+        /* ==========================================
+           CORREÇÃO: SISTEMA DE IMPRESSÃO
+        ========================================== */
         @media print {
-            body * { visibility: hidden; }
-            #area-impressao, #area-impressao * { visibility: visible; }
-            #area-impressao { position: absolute; left: 0; top: 0; width: 100%; border: none; padding: 0; justify-content: flex-start; gap: 10px; }
-            .cartao-qr { border: 1px solid #000; padding: 15px; margin: 5px; page-break-inside: avoid; background: white; border-radius: 0; box-shadow: none; transform: none !important; }
-            .btn-imprimir, .logo-escola { display: none !important; }
-            body { background: white; }
+            /* Oculta o fundo animado, overlays, logo e barra superior */
+            .fundo-midia, .overlay-fundo, .logo-escola, .topo-barra {
+                display: none !important;
+            }
+
+            /* Reseta o body para o formato folha branca */
+            body { 
+                background: white !important; 
+                margin: 0; 
+                padding: 0; 
+                min-height: auto;
+            }
+
+            /* Oculta as demais telas */
+            .tela { display: none !important; }
+            
+            /* Habilita apenas a tela de gerenciamento */
+            #tela-gerenciamento { 
+                display: block !important; 
+                max-width: 100% !important; 
+                margin: 0 !important; 
+                padding: 0 !important; 
+                animation: none !important; 
+            }
+
+            /* Esconde os dois primeiros cards (Senha Mestra e Criar Turma) */
+            #tela-gerenciamento > .card:nth-child(2),
+            #tela-gerenciamento > .card:nth-child(3) { 
+                display: none !important; 
+            }
+
+            /* Retira todo formato visual do card principal de alunos para não ter bordas na folha */
+            .card {
+                border: none !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                background: transparent !important;
+            }
+
+            /* Oculta inputs, selects, botões e listas para imprimir SÓ os cartões */
+            #tela-gerenciamento .card h3,
+            #tela-gerenciamento .card select,
+            #tela-gerenciamento .card .linha-form,
+            #tela-gerenciamento .card button,
+            #tela-gerenciamento .card ul,
+            #btn-remover-selecionados {
+                display: none !important;
+            }
+
+            /* Força a área de ações a ficar visível limpa */
+            #area-acoes-impressao {
+                display: block !important;
+                border: none !important;
+                background: transparent !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            /* Formata a área de impressão para fluxo correto entre páginas */
+            #area-impressao { 
+                display: flex !important; 
+                flex-wrap: wrap !important; 
+                justify-content: flex-start !important; 
+                gap: 15px !important; 
+                position: relative !important; 
+                width: 100% !important; 
+            }
+
+            /* Ajuste preciso dos cartões para o papel A4 (pode imprimir vários) */
+            .cartao-qr { 
+                border: 1px dashed #000 !important; 
+                padding: 15px !important; 
+                margin: 5px !important; 
+                page-break-inside: avoid !important; /* Impede que o cartão seja cortado ao meio entre duas folhas */
+                background: white !important; 
+                border-radius: 0 !important; 
+                box-shadow: none !important; 
+                transform: none !important; 
+                width: 160px !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+            }
+
+            .cartao-qr h3 {
+                display: block !important;
+                color: #000 !important;
+                font-size: 14px !important;
+                margin: 0 0 10px 0 !important;
+                text-align: center !important;
+            }
+
+            /* Garante a renderização do próprio elemento Canvas ou Img que gera o QR Code */
+            .cartao-qr img, .cartao-qr canvas {
+                display: block !important;
+                max-width: 100% !important;
+                height: auto !important;
+            }
         }
     </style>
 </head>
