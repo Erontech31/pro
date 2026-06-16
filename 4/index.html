@@ -53,52 +53,23 @@
             font-family: 'Poppins', sans-serif; 
             text-align: center; 
             padding: 15px; 
-            /* O background do body agora é transparente para vermos o fundo */
-            background: transparent; 
+            background: var(--bg-body); 
             margin: 0; 
             color: var(--text-main); 
             -webkit-font-smoothing: antialiased;
             min-height: 100vh;
-            position: relative; /* Necessário para a logo absoluta */
-        }
-
-        /* --- ESTILOS DO FUNDO (VÍDEO OU FOTOS) --- */
-        .fundo-midia {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            object-fit: cover; /* Para o vídeo */
-            background-size: cover; /* Para a foto */
-            background-position: center;
-            z-index: -2;
-            pointer-events: none;
-            transition: background-image 1s ease-in-out; /* Troca suave de fotos */
-            opacity: 1;
-        }
-
-        .overlay-fundo {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            /* Cor de fundo original com 85% de opacidade para garantir a leitura perfeita do app */
-            background-color: rgba(240, 244, 248, 0.40); 
-            z-index: -1;
-            pointer-events: none;
+            position: relative;
         }
         
-        /* --- LOGO DA ESCOLA --- */
+        /* --- LOGO DA ESCOLA REDONDA --- */
         .logo-escola {
             position: absolute;
             top: 20px;
             left: 20px;
             width: 70px;
             height: 70px;
-            border-radius: 50%; /* Garante o formato redondo */
-            object-fit: cover; /* Evita que a imagem fique esticada */
+            border-radius: 50%;
+            object-fit: cover;
             border: 3px solid var(--white);
             box-shadow: var(--shadow-md);
             z-index: 1000;
@@ -315,18 +286,10 @@
         .cartao-qr:hover { transform: translateY(-5px); border-color: var(--primary); box-shadow: var(--shadow-sm); }
         .cartao-qr h3 { margin: 0 0 15px 0; color: var(--text-main); font-size: 14px; font-weight: 700; line-height: 1.3; }
 
-        /* Ajustes responsivos para não quebrar o layout no celular com a logo */
+        /* Ajustes de tela para a logo no celular */
         @media (max-width: 600px) {
-            .logo-escola {
-                width: 50px;
-                height: 50px;
-                top: 15px;
-                left: 15px;
-                border-width: 2px;
-            }
-            .topo-barra {
-                padding-left: 75px; /* Empurra o conteúdo para não ficar atrás da logo */
-            }
+            .logo-escola { width: 50px; height: 50px; top: 15px; left: 15px; border-width: 2px; }
+            .topo-barra { padding-left: 75px; }
         }
 
         @media print {
@@ -341,12 +304,6 @@
 </head>
 <body>
 
-    <video autoplay muted loop playsinline class="fundo-midia" id="video-fundo">
-        <source src="video.mp4" type="video/mp4">
-        Seu navegador não suporta a reprodução de vídeos HTML5.
-    </video>
-
-    <div class="overlay-fundo"></div>
     <img src="logo.png" alt="Logo da Escola" class="logo-escola">
 
     <div id="tela-login" class="tela">
@@ -359,7 +316,7 @@
         <button id="btn-entrar" onclick="fazerLogin()" disabled>Acessar Sistema</button>
         
         <div style="margin-top: 35px; font-size: 11px; color: var(--text-muted); line-height: 1.5; text-align: center; font-weight: 400;">
-            Desenvolvido por <strong>Eronildo Tavares</strong> &copy; 2026.<br>Plataforma de uso gratuito para apoio à gestão escolar.
+            Desenvolvido por <strong>ERONTECH</strong> &copy; 2026.<br>Plataforma de uso gratuito para apoio à gestão escolar.
         </div>
     </div>
 
@@ -487,21 +444,19 @@
         
         let html5QrCode = null;
         let cameraTraseira = true;
-        let ultimoLido = "";
-        let tempoEspera;
+        
+        // --- CONTROLES DE TEMPO DO LEITOR (GLOBAL) ---
+        let ultimaLeituraGeral = 0; // Guarda o timestamp da última leitura bem-sucedida de qualquer aluno
+        let bloqueioCamera = false; // Trava antiduplicação rápida de 2 segundos
 
         refConfig.on('value', (snapshot) => {
             if (snapshot.exists()) {
                 dbConfig = snapshot.val();
             } else {
-                dbConfig = {
-                    senha_diretor: "diretor123",
-                    turmas: {}
-                };
+                dbConfig = { senha_diretor: "diretor123", turmas: {} };
                 refConfig.set(dbConfig);
             }
             
-            // Atualiza UI de Login
             const dot = document.getElementById('dot-conexao');
             const texto = document.getElementById('texto-conexao');
             if (dot && texto) {
@@ -513,9 +468,7 @@
             if (document.getElementById('input-login')) document.getElementById('input-login').disabled = false;
             if (document.getElementById('btn-entrar')) document.getElementById('btn-entrar').disabled = false;
 
-            // Mantém as listas sincronizadas em tempo real
             atualizarListasGerenciamento();
-            
             if (document.getElementById('tela-diretor').style.display === 'block') {
                 atualizarSelectDiretor();
             }
@@ -588,9 +541,7 @@
             selectAlunos.innerHTML = '';
             
             const listaTurmas = dbConfig && dbConfig.turmas ? Object.keys(dbConfig.turmas) : [];
-            listaTurmas.forEach(t => {
-                selectAlunos.add(new Option(t, t));
-            });
+            listaTurmas.forEach(t => selectAlunos.add(new Option(t, t)));
 
             if(valorAtualAlunos && listaTurmas.includes(valorAtualAlunos)) {
                 selectAlunos.value = valorAtualAlunos;
@@ -613,7 +564,7 @@
             let nome = document.getElementById('input-nova-turma').value.trim().toUpperCase();
             let senha = document.getElementById('input-senha-turma').value.trim();
             
-            if(!nome || !senha) { alert("Preencha o nome da turma E a senha do professor!"); return; }
+            if(!nome || !senha) { alert("Preencha o nome da turma E a senha!"); return; }
             if(dbConfig.turmas && dbConfig.turmas[nome]) { alert("Esta turma já existe!"); return; }
             
             refConfig.child('turmas').child(nome).set({ senhas: [senha] }).then(() => {
@@ -623,7 +574,7 @@
         }
 
         function removerTurma(nome) {
-            if(confirm(`Tem certeza? A turma "${nome}" e TODOS os seus alunos serão excluídos permanentemente.`)) {
+            if(confirm(`Tem certeza? A turma "${nome}" e TODOS os alunos serão apagados.`)) {
                 refConfig.child('turmas').child(nome).remove();
                 database.ref('salas').child(nome).remove(); 
                 document.getElementById('area-acoes-impressao').style.display = "none";
@@ -638,17 +589,12 @@
             if(dbConfig && dbConfig.turmas) {
                 Object.keys(dbConfig.turmas).forEach(t => {
                     let senhaDestaTurma = dbConfig.turmas[t].senhas ? dbConfig.turmas[t].senhas[0] : "Sem senha";
-                    
                     const li = document.createElement('li');
-                    const span = document.createElement('span');
-                    span.innerHTML = `<strong>${t}</strong> <small style="color:var(--text-muted); margin-left:8px;">(Senha: ${senhaDestaTurma})</small>`;
-                    
+                    li.innerHTML = `<span><strong>${t}</strong> <small style="color:var(--text-muted); margin-left:8px;">(Senha: ${senhaDestaTurma})</small></span>`;
                     const btn = document.createElement('button');
                     btn.className = 'btn-remover';
                     btn.innerText = 'Apagar';
                     btn.onclick = function() { removerTurma(t); };
-                    
-                    li.appendChild(span);
                     li.appendChild(btn);
                     ul.appendChild(li);
                 });
@@ -659,10 +605,7 @@
             const turma = document.getElementById('select-turma-aluno').value;
             const ul = document.getElementById('lista-adm-alunos');
             if(!ul) return;
-            
             ul.innerHTML = '';
-            const btnRemoverSel = document.getElementById('btn-remover-selecionados');
-            if (btnRemoverSel) btnRemoverSel.style.display = 'none';
 
             if(!turma) {
                 ul.innerHTML = '<li style="justify-content:center; color:var(--text-muted); border:none; background:transparent;">Nenhuma turma selecionada.</li>';
@@ -674,8 +617,6 @@
             
             refAlunosAdm.on('value', (snapshot) => {
                 ul.innerHTML = '';
-                if (btnRemoverSel) btnRemoverSel.style.display = 'none';
-
                 const alunos = snapshot.val() || {};
                 const chavesAlunos = Object.keys(alunos);
                 
@@ -692,7 +633,7 @@
                         chk.type = 'checkbox';
                         chk.className = 'chk-aluno';
                         chk.value = nome;
-                        chk.style.cssText = "width:18px !important; min-width:18px !important; height:18px !important; padding:0 !important; margin:0 !important; cursor:pointer; box-shadow:none;";
+                        chk.style.cssText = "width:18px !important; min-width:18px !important; height:18px !important; padding:0 !important; margin:0 !important; box-shadow:none;";
                         chk.onchange = verificarSelecaoAlunos;
                         
                         const spanNome = document.createElement('span');
@@ -724,7 +665,7 @@
             const checkboxes = document.querySelectorAll('.chk-aluno:checked');
             if(checkboxes.length === 0 || !turma) return;
 
-            if(confirm(`Tem certeza que deseja excluir os ${checkboxes.length} aluno(s) selecionado(s)?`)) {
+            if(confirm(`Excluir os ${checkboxes.length} aluno(s) selecionado(s)?`)) {
                 checkboxes.forEach(chk => {
                     database.ref('salas').child(turma).child('alunos').child(chk.value).remove();
                 });
@@ -749,10 +690,8 @@
                 limite: 2, contador: 0, hora1: "", hora2: ""
             }).then(() => {
                 document.getElementById('input-novo-aluno').value = "";
-                
                 const divAcoes = document.getElementById('area-acoes-impressao');
                 const areaImprimir = document.getElementById('area-impressao');
-                
                 divAcoes.style.display = "block";
                 areaImprimir.innerHTML = ""; 
                 areaImprimir.appendChild(gerarCartaoQR(nome, turma));
@@ -762,25 +701,17 @@
         function gerarCartaoQR(nome, turma) {
             const divCartao = document.createElement('div');
             divCartao.className = 'cartao-qr';
-            
             const h3 = document.createElement('h3');
             h3.innerText = `${nome}\n(${turma})`;
             divCartao.appendChild(h3);
 
             const divImg = document.createElement('div');
-            divImg.style.background = "#fff";
-            divImg.style.padding = "5px";
-            divImg.style.borderRadius = "8px";
+            divImg.style.background = "#fff"; divImg.style.padding = "5px"; divImg.style.borderRadius = "8px";
             divCartao.appendChild(divImg);
 
             new QRCode(divImg, {
-                text: nome,
-                width: 120,
-                height: 120,
-                colorDark : "#1e293b",
-                colorLight : "#ffffff"
+                text: nome, width: 120, height: 120, colorDark : "#1e293b", colorLight : "#ffffff"
             });
-
             return divCartao;
         }
 
@@ -791,12 +722,10 @@
             database.ref('salas').child(turma).child('alunos').once('value').then(snapshot => {
                 const alunos = snapshot.val() || {};
                 const nomes = Object.keys(alunos).sort();
-                
                 if(nomes.length === 0) { alert("Turma vazia."); return; }
 
                 const divAcoes = document.getElementById('area-acoes-impressao');
                 const areaImprimir = document.getElementById('area-impressao');
-                
                 divAcoes.style.display = "block";
                 areaImprimir.innerHTML = ""; 
                 
@@ -809,9 +738,7 @@
         // ==========================================
         // 4. MÓDULO DO DIRETOR
         // ==========================================
-        function iniciarModoDiretor() {
-            atualizarSelectDiretor();
-        }
+        function iniciarModoDiretor() { atualizarSelectDiretor(); }
 
         function atualizarSelectDiretor() {
             const selectDiretor = document.getElementById('select-diretor-turma');
@@ -831,13 +758,11 @@
         function diretorMudarTurma() {
             turmaAtual = document.getElementById('select-diretor-turma').value;
             if(!turmaAtual) {
-                document.getElementById('tabela-diretor-corpo').innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:20px;">Nenhuma turma selecionada.</td></tr>';
+                document.getElementById('tabela-diretor-corpo').innerHTML = '<tr><td colspan="4">Nenhuma turma selecionada.</td></tr>';
                 return;
             }
-
             if(refAlunosAtuais) refAlunosAtuais.off();
             refAlunosAtuais = database.ref('salas').child(turmaAtual).child('alunos');
-            
             refAlunosAtuais.on('value', (snapshot) => {
                 dbAlunos = snapshot.val() || {};
                 renderizarTabelaDiretor();
@@ -846,47 +771,35 @@
 
         function renderizarTabelaDiretor() {
             const tbody = document.getElementById('tabela-diretor-corpo');
-            if(!tbody) return;
-            tbody.innerHTML = '';
-            
+            if(!tbody) return; tbody.innerHTML = '';
             const alunosArr = Object.keys(dbAlunos).sort();
             if(alunosArr.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:20px;">Sem alunos nesta turma.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px;">Sem alunos.</td></tr>';
                 return;
             }
-
             alunosArr.forEach(aluno => {
                 const d = dbAlunos[aluno];
                 const linha = document.createElement('tr');
-                
                 let contagemHTML = d.contador >= d.limite 
                     ? `<span class="badge badge-cheio">${d.contador} / ${d.limite}</span>` 
                     : `<span class="badge badge-ok">${d.contador} / ${d.limite}</span>`;
-                
-                linha.innerHTML = `
-                    <td><strong>${aluno}</strong></td>
-                    <td style="text-align:center;">${contagemHTML}</td>
-                    <td style="color:var(--text-muted); font-size:13px;">${d.hora1 || '--:--'}</td>
-                    <td style="color:var(--text-muted); font-size:13px;">${d.hora2 || '--:--'}</td>
-                `;
+                linha.innerHTML = `<td><strong>${aluno}</strong></td><td style="text-align:center;">${contagemHTML}</td><td>${d.hora1 || '--:--'}</td><td>${d.hora2 || '--:--'}</td>`;
                 tbody.appendChild(linha);
             });
         }
 
         function zerarTurmaDiretor() {
             if(!turmaAtual) return;
-            if(confirm(`Zerar a contagem de TODOS os alunos da turma ${turmaAtual}?`)) {
+            if(confirm(`Zerar contagem de toda a turma ${turmaAtual}?`)) {
                 for (let aluno in dbAlunos) {
-                    dbAlunos[aluno].contador = 0;
-                    dbAlunos[aluno].hora1 = "";
-                    dbAlunos[aluno].hora2 = "";
+                    dbAlunos[aluno].contador = 0; dbAlunos[aluno].hora1 = ""; dbAlunos[aluno].hora2 = "";
                 }
                 refAlunosAtuais.set(dbAlunos);
             }
         }
 
         // ==========================================
-        // 5. MÓDULO DO PROFESSOR
+        // 5. MÓDULO DO PROFESSOR (COM BANCO GLOBAL DE 10 MINUTOS)
         // ==========================================
         function iniciarModoProfessor(turma) {
             turmaAtual = turma;
@@ -895,44 +808,30 @@
             
             if(refAlunosAtuais) refAlunosAtuais.off();
             refAlunosAtuais = database.ref('salas').child(turmaAtual).child('alunos');
-            
             refAlunosAtuais.on('value', (snapshot) => {
                 dbAlunos = snapshot.val() || {};
                 renderizarListaProfessor();
             });
-
             iniciarCamera();
         }
 
         function renderizarListaProfessor() {
             const ul = document.getElementById('lista-prof-alunos');
-            if(!ul) return;
-            ul.innerHTML = '';
+            if(!ul) return; ul.innerHTML = '';
             const alunosArr = Object.keys(dbAlunos).sort((a, b) => a.localeCompare(b, 'pt-BR'));
 
             if(alunosArr.length === 0) {
-                ul.innerHTML = '<li style="text-align:center; color:var(--text-muted); box-shadow:none; background:transparent; border:none;">Turma vazia.</li>';
+                ul.innerHTML = '<li style="text-align:center; color:var(--text-muted); background:transparent; border:none;">Turma vazia.</li>';
                 return;
             }
-
             alunosArr.forEach(aluno => {
                 const li = document.createElement('li');
                 const d = dbAlunos[aluno];
-                
                 let horas = "";
                 if (d.contador === 1) horas = `<span class="aluno-horas">1ª saída: <strong>${d.hora1}</strong></span>`;
                 else if (d.contador === 2) horas = `<span class="aluno-horas">1ª: <strong>${d.hora1}</strong> &nbsp;|&nbsp; 2ª: <strong>${d.hora2}</strong></span>`;
-                
                 let badgeClass = d.contador >= d.limite ? 'badge-cheio' : 'badge-ok';
-
-                li.innerHTML = `
-                    <div class="aluno-header">
-                        <span class="aluno-nome">${aluno}</span>
-                        <span class="badge ${badgeClass}">${d.contador}/${d.limite}</span>
-                    </div>
-                    ${horas ? `<div>${horas}</div>` : ''}
-                `;
-                
+                li.innerHTML = `<div class="aluno-header"><span class="aluno-nome">${aluno}</span><span class="badge ${badgeClass}">${d.contador}/${d.limite}</span></div>${horas ? `<div>${horas}</div>` : ''}`;
                 if (d.contador >= d.limite) li.classList.add('limite-atingido');
                 ul.appendChild(li);
             });
@@ -941,7 +840,6 @@
         function iniciarCamera() {
             const configCamera = cameraTraseira ? { facingMode: "environment" } : { facingMode: "user" };
             const configLeitor = { fps: 12, qrbox: { width: 250, height: 250 } };
-
             if (html5QrCode) {
                 html5QrCode.stop().then(() => initInstancia(configCamera, configLeitor)).catch(e => console.log(e));
             } else {
@@ -951,50 +849,66 @@
 
         function initInstancia(configCamera, configLeitor) {
             html5QrCode = new Html5Qrcode("reader");
-            html5QrCode.start(configCamera, configLeitor, aoLerQrCode, () => {}).catch(() => alert("Erro ao acessar a câmera."));
+            html5QrCode.start(configCamera, configLeitor, aoLerQrCode, () => {}).catch(() => alert("Erro na câmera."));
         }
 
         function alternarCamera() { cameraTraseira = !cameraTraseira; iniciarCamera(); }
 
+        // --- SISTEMA CORRIGIDO COM TRAVA TOTAL DO LEITOR ---
         function aoLerQrCode(texto) {
+            if (bloqueioCamera) return; // Evita leitura duplicada acidental imediata
+            
             const qrLido = texto.trim().toUpperCase();
-
-            if (qrLido === ultimoLido) return;
-            ultimoLido = qrLido;
-            clearTimeout(tempoEspera);
-            tempoEspera = setTimeout(() => { ultimoLido = ""; }, 4000);
-
             const msgDiv = document.getElementById('mensagem');
+            const agora = Date.now();
+
+            // Ativa o bloqueio antiduplicação de 2 segundos para o processo respirar
+            bloqueioCamera = true;
+            setTimeout(() => { bloqueioCamera = false; }, 2000);
 
             // --- COMANDO SECRETO PARA REINICIAR TURMA ---
             if (qrLido === "EDUCADOR") {
                 if (navigator.vibrate) navigator.vibrate([200, 100, 200]); 
-
                 if (Object.keys(dbAlunos).length === 0) {
                     msgDiv.innerHTML = "Comando lido, mas a turma está vazia.";
                     msgDiv.className = "vermelho";
                     return;
                 }
-
                 for (let aluno in dbAlunos) {
-                    dbAlunos[aluno].contador = 0;
-                    dbAlunos[aluno].hora1 = "";
-                    dbAlunos[aluno].hora2 = "";
+                    dbAlunos[aluno].contador = 0; dbAlunos[aluno].hora1 = ""; dbAlunos[aluno].hora2 = "";
                 }
                 
+                ultimaLeituraGeral = 0; // Libera o cronômetro geral de 10 minutos também
                 refAlunosAtuais.set(dbAlunos);
-                msgDiv.innerHTML = "🔄 <strong>Turma Reiniciada!</strong><br>As contagens voltaram a zero.";
+                msgDiv.innerHTML = "🔄 <strong>Turma Reiniciada!</strong><br>As contagens e o tempo de espera zeraram.";
                 msgDiv.className = "verde";
                 return;
             }
 
-            // --- FLUXO NORMAL DO ALUNO ---
+            // --- TESTE DA TRAVA GLOBAL DE 10 MINUTOS ---
+            const tempoDeEsperaMinutos = 10;
+            const tempoDeEsperaMs = tempoDeEsperaMinutos * 60 * 1000;
+
+            if (ultimaLeituraGeral && (agora - ultimaLeituraGeral < tempoDeEsperaMs)) {
+                // Calcula os minutos que ainda restam para liberar o leitor de novo
+                const tempoRestante = Math.ceil((tempoDeEsperaMs - (agora - ultimaLeituraGeral)) / 60000);
+                
+                if (navigator.vibrate) navigator.vibrate([150, 50, 150]); 
+                msgDiv.innerHTML = `⏳ <strong>Leitor Bloqueado Temporariamente</strong><br>A última saída foi recente. Aguarde mais ${tempoRestante} minuto(s) para a próxima leitura.`;
+                msgDiv.className = "vermelho";
+                return; // Bloqueia e impede qualquer leitura de aluno
+            }
+
+            // --- FLUXO DO ALUNO ---
             if (dbAlunos[qrLido]) {
                 if (dbAlunos[qrLido].contador < dbAlunos[qrLido].limite) {
                     dbAlunos[qrLido].contador++;
                     
-                    const agora = new Date();
-                    const horaAtual = `${agora.getHours().toString().padStart(2, '0')}:${agora.getMinutes().toString().padStart(2, '0')}`;
+                    // IMPORTANTE: Atualiza o marco temporal global! Trava o leitor por 10 minutos a partir de agora.
+                    ultimaLeituraGeral = agora; 
+                    
+                    const dataHora = new Date();
+                    const horaAtual = `${dataHora.getHours().toString().padStart(2, '0')}:${dataHora.getMinutes().toString().padStart(2, '0')}`;
 
                     if (dbAlunos[qrLido].contador === 1) dbAlunos[qrLido].hora1 = horaAtual;
                     else if (dbAlunos[qrLido].contador === 2) dbAlunos[qrLido].hora2 = horaAtual;
@@ -1003,43 +917,19 @@
 
                     if (navigator.vibrate) navigator.vibrate(100); 
 
-                    msgDiv.innerHTML = `✅ <strong>${qrLido}</strong><br>Saída Liberada (${dbAlunos[qrLido].contador}/2)<br>⏰ Horário: ${horaAtual}`;
+                    msgDiv.innerHTML = `✅ <strong>${qrLido}</strong><br>Saída Liberada (${dbAlunos[qrLido].contador}/2)<br>⏰ Horário: ${horaAtual}<br><small>🚨 Leitor trancado por 10 minutos.</small>`;
                     msgDiv.className = "verde";
                 } else {
                     if (navigator.vibrate) navigator.vibrate([150, 100, 150]); 
-
                     msgDiv.innerHTML = `❌ <strong>${qrLido}</strong><br>Saída Negada! Limite atingido.`;
                     msgDiv.className = "vermelho";
                 }
             } else {
                 if (navigator.vibrate) navigator.vibrate([150, 100, 150]); 
-                msgDiv.innerHTML = `⚠️ <strong>Atenção:</strong> "${qrLido}"<br>Não pertence à turma.`;
+                msgDiv.innerHTML = `⚠️ <strong>Atenção:</strong> "${qrLido}"<br>Não pertence a esta turma.`;
                 msgDiv.className = "vermelho";
             }
         }
-
-        // ==========================================
-        // 6. TROCA DE FOTOS DE FUNDO POR HORA (Desativado devido ao vídeo de fundo)
-        // ==========================================
-        /*
-        const imagensFundo = [
-            "0.jpg", "1.jpg", "2.jpg", "3.jpg", "4.jpg",
-            "5.jpg", "6.jpg", "7.jpg", "8.jpg", "9.jpg"
-        ];
-
-        function atualizarFundoPorHora() {
-            const divFundo = document.getElementById('fundo-imagens');
-            if(divFundo) {
-                const horaAtual = new Date().getHours();
-                const indiceImagem = horaAtual % imagensFundo.length;
-                divFundo.style.backgroundImage = `url('${imagensFundo[indiceImagem]}')`;
-            }
-        }
-
-        atualizarFundoPorHora();
-        setInterval(atualizarFundoPorHora, 60000);
-        */
-
     </script>
 </body>
 </html>
