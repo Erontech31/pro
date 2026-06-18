@@ -777,9 +777,9 @@
             divImg.style.borderRadius = "8px";
             divCartao.appendChild(divImg);
 
-            // CORREÇÃO DOS ACENTOS APLICADA AQUI (Geração)
+            // CODIFICAÇÃO FORTE APLICADA AQUI (O QR é gerado em ASCII puro)
             new QRCode(divImg, {
-                text: unescape(encodeURIComponent(nome)),
+                text: encodeURIComponent(nome), 
                 width: 120,
                 height: 120,
                 colorDark : "#1e293b",
@@ -964,12 +964,17 @@
         function alternarCamera() { cameraTraseira = !cameraTraseira; iniciarCamera(); }
 
         function aoLerQrCode(texto) {
-            // CORREÇÃO DOS ACENTOS APLICADA AQUI (Leitura)
+            // DECODIFICAÇÃO FORTE APLICADA AQUI
             let qrDecodificado = texto;
             try {
-                qrDecodificado = decodeURIComponent(escape(texto));
+                // Tenta decodificar o novo formato (ASCII puro) ou o formato antigo como fallback
+                if (texto.includes('%')) {
+                    qrDecodificado = decodeURIComponent(texto);
+                } else {
+                    qrDecodificado = decodeURIComponent(escape(texto));
+                }
             } catch(e) {
-                console.error("Erro na decodificação do acento", e);
+                console.error("Erro na decodificação", e);
             }
 
             const qrLido = qrDecodificado.trim().toUpperCase();
