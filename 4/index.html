@@ -11,6 +11,7 @@
     
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
@@ -313,11 +314,6 @@
 
         /* --- MODO IMPRESSÃO CORRIGIDO --- */
         @media print {
-            @page {
-                size: A4 portrait;
-                margin: 10mm;
-            }
-
             .fundo-midia, .overlay-fundo, .logo-escola, .topo-barra { display: none !important; }
             body { background: white !important; margin: 0; padding: 0; min-height: auto; }
             .tela { display: none !important; }
@@ -347,47 +343,26 @@
             }
 
             #area-impressao { 
-                display: grid !important; 
-                grid-template-columns: repeat(4, 1fr) !important; 
-                grid-auto-rows: 50mm !important; 
-                gap: 5mm !important; 
-                width: 100% !important; 
+                display: flex !important; flex-wrap: wrap !important; 
+                justify-content: flex-start !important; gap: 15px !important; 
+                position: relative !important; width: 100% !important; 
             }
 
             .cartao-qr { 
-                border: 1px dashed #000 !important; 
-                padding: 5px !important; 
-                margin: 0 !important; 
-                page-break-inside: avoid !important; 
-                background: white !important; 
-                border-radius: 0 !important; 
-                box-shadow: none !important; 
-                transform: none !important; 
-                width: 100% !important;
-                height: 100% !important;
-                display: flex !important; 
-                flex-direction: column !important; 
-                align-items: center !important;
-                justify-content: center !important;
-                box-sizing: border-box !important;
+                border: 1px dashed #000 !important; padding: 15px !important; margin: 5px !important; 
+                page-break-inside: avoid !important; background: white !important; 
+                border-radius: 0 !important; box-shadow: none !important; 
+                transform: none !important; width: 160px !important;
+                display: flex !important; flex-direction: column !important; align-items: center !important;
             }
 
             .cartao-qr h3 {
-                display: block !important; color: #000 !important; font-size: 11px !important;
-                margin: 0 0 5px 0 !important; text-align: center !important;
-                line-height: 1.1 !important;
+                display: block !important; color: #000 !important; font-size: 14px !important;
+                margin: 0 0 10px 0 !important; text-align: center !important;
             }
 
             .cartao-qr img, .cartao-qr canvas {
-                display: block !important; 
-                max-width: 100% !important; 
-                max-height: 32mm !important; 
-                width: auto !important;
-                height: auto !important;
-            }
-
-            .cartao-qr:nth-child(20n) {
-                page-break-after: always !important;
+                display: block !important; max-width: 100% !important; height: auto !important;
             }
         }
     </style>
@@ -655,7 +630,7 @@
             const novaSenha = document.getElementById('input-senha-diretor').value.trim();
             if(novaSenha.length < 4) { alert("A senha deve ter pelo menos 4 caracteres."); return; }
             refConfig.child('senha_diretor').set(novaSenha).then(() => {
-                alert("Senha mestre do Diretor atualizada!");
+                alert("Senha mestre do Diretor updated!");
                 document.getElementById('input-senha-diretor').value = '';
             });
         }
@@ -789,13 +764,20 @@
         }
 
         // ==========================================
-        // NOVA LÓGICA DE CRIAÇÃO DO QR CODE (CORREÇÃO DE LAYOUT)
+        // NOVA LÓGICA DE CRIAÇÃO DO QR CODE (COM DOWNLOAD AUTOMÁTICO EM PNG)
         // ==========================================
         function adicionarCartaoNaTela(nome, turma) {
             const areaImprimir = document.getElementById('area-impressao');
             
             const divCartao = document.createElement('div');
             divCartao.className = 'cartao-qr';
+            divCartao.style.cursor = 'pointer'; 
+            divCartao.setAttribute('title', 'Clique para baixar este cartão em PNG');
+            
+            // Evento modificado para realizar o download automático ao tocar/clicar no cartão
+            divCartao.onclick = function() {
+                baixarCartaoComoPNG(divCartao, nome, turma);
+            };
             
             const h3 = document.createElement('h3');
             h3.innerText = `${nome}\n(${turma})`;
@@ -824,6 +806,26 @@
                     console.error("Falha ao gerar o QR de " + nome, e);
                 }
             }, 50);
+        }
+
+        // Função responsável por converter o cartão em PNG de alta definição e baixá-lo
+        function baixarCartaoComoPNG(elemento, nomeAluno, turmaAluno) {
+            const opcoes = {
+                scale: 2, 
+                backgroundColor: "#ffffff",
+                useCORS: true
+            };
+
+            html2canvas(elemento, opcoes).then(canvas => {
+                const link = document.createElement('a');
+                // Salva o arquivo com o nome formatado do aluno e sua respectiva turma
+                const nomeArquivo = `QR_${nomeAluno.replace(/\s+/g, '_')}_${turmaAluno.replace(/\s+/g, '_')}.png`;
+                link.download = nomeArquivo;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            }).catch(err => {
+                console.error("Falha ao exportar cartão como PNG", err);
+            });
         }
 
         function cadastrarAlunoEGerarQR() {
@@ -1054,7 +1056,7 @@
                 
                 refAlunosAtuais.set(dbAlunos);
                 ultimoScanGlobal = 0; 
-                ultimosScansAlunos = {}; 
+                textosScansAlunos = {}; 
                 
                 msgDiv.innerHTML = "🔄 <strong>Turma Reiniciada!</strong><br>As contagens e os tempos voltaram a zero.";
                 msgDiv.className = "verde";
