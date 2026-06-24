@@ -14,72 +14,44 @@
     .tela{display:none}
     .tela.ativa{display:block}
 
-    /* ✨ FUNDO PERSONALIZADO NA TELA INICIAL */
-    #fundo-inicio{
-        position:fixed; inset:0; z-index:-2;
-        background-size:cover;
-        background-position:center;
-        background-repeat:no-repeat;
-        background-attachment:fixed;
-        transition:opacity .5s ease;
+    /* ========== IMAGEM DE FUNDO NA TELA INICIAL ========== */
+    /* Tenta PNG primeiro, depois JPG, depois JPEG — se nenhuma existir, usa o gradiente */
+    .fundo-inicial{
+        min-height:100vh;
+        background-image:
+            linear-gradient(135deg, rgba(88,28,135,0.78), rgba(219,39,119,0.72), rgba(251,146,60,0.65)),
+            url("imagem.png"),
+            url("imagem.jpg"),
+            url("imagem.jpeg");
+        background-size: cover;
+        background-position: center center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
     }
-    /* Camada escura para texto ficar legível em qualquer imagem */
-    #camada-escura{
-        position:fixed; inset:0; z-index:-1;
-        background: linear-gradient(135deg, rgba(88,28,135,.78), rgba(219,39,119,.72), rgba(251,146,60,.68));
+    /* Demais telas mantém fundo colorido original */
+    .fundo-padrao{
+        min-height:100vh;
+        background: linear-gradient(135deg, #4c1d95 0%, #db2777 50%, #fb923c 100%);
     }
-    /* Fundo normal nas outras telas */
-    .tela:not(#t1) ~ #fundo-inicio, .tela:not(#t1) ~ #camada-escura{ display:none; }
-    body.tela-ativa-inicio{ background:transparent !important; }
 </style>
 </head>
-<body class="bg-gradient-to-br from-purple-700 via-pink-500 to-orange-400 min-h-screen text-white">
+<body class="text-white">
 
-<!-- ✨ ELEMENTOS DO FUNDO -->
-<div id="fundo-inicio"></div>
-<div id="camada-escura"></div>
-
+<!-- A classe muda sozinha: fundo-inicial só na tela 1 -->
+<div id="corpo" class="fundo-inicial">
 <div class="container mx-auto px-4 py-5 max-w-md">
 
-    <!-- TELA 1 - INÍCIO ✅ AGORA COM OPÇÃO DE IMAGEM -->
+    <!-- TELA 1 - INÍCIO ✅ COM IMAGEM DE FUNDO ✅ -->
     <div id="t1" class="tela ativa">
-        <h1 class="text-4xl font-black text-center mb-1 drop-shadow-lg">🎮 ADEDONHA</h1>
-        <p class="text-center mb-6 opacity-90 text-sm">Jogue online com amigos</p>
-
-        <input id="nome" maxlength="14" placeholder="✏️ Seu nome"
-            class="w-full px-4 py-4 rounded-2xl bg-white/20 border border-white/30 placeholder-white/70 text-lg mb-4 backdrop-blur">
-
-        <button onclick="criarSala()"
-            class="w-full py-4 rounded-2xl bg-white text-purple-700 font-bold text-lg shadow-xl mb-4 active:scale-95">
-            ➕ CRIAR SALA
-        </button>
-
-        <div class="flex gap-2 mb-5">
-            <input id="codigo" maxlength="6" placeholder="CÓDIGO"
-                class="flex-1 px-4 py-4 rounded-2xl bg-white/20 border border-white/30 text-center text-xl uppercase tracking-widest backdrop-blur">
-            <button onclick="entrarSala()"
-                class="px-5 rounded-2xl bg-green-400 text-green-900 font-bold shadow-xl active:scale-95">ENTRAR</button>
+        <h1 class="text-4xl font-black text-center mb-1 drop-shadow-[0_3px_8px_rgba(0,0,0,0.55)]">🎮 ADEDONHA</h1>
+        <p class="text-center mb-10 opacity-95 text-sm drop-shadow">Jogue online com amigos</p>
+        <input id="nome" maxlength="14" placeholder="✏️ Seu nome" class="w-full px-4 py-4 rounded-2xl bg-white/20 backdrop-blur border border-white/30 placeholder-white/75 text-lg mb-4">
+        <button onclick="criarSala()" class="w-full py-4 rounded-2xl bg-white text-purple-700 font-bold text-lg shadow-xl mb-4 active:scale-95">➕ CRIAR SALA</button>
+        <div class="flex gap-2">
+            <input id="codigo" maxlength="6" placeholder="CÓDIGO" class="flex-1 px-4 py-4 rounded-2xl bg-white/20 backdrop-blur border border-white/30 text-center text-xl uppercase tracking-widest">
+            <button onclick="entrarSala()" class="px-5 rounded-2xl bg-green-400 text-green-900 font-bold shadow-xl active:scale-95">ENTRAR</button>
         </div>
-
-        <!-- 🖼️ PAINEL DE IMAGEM DE FUNDO -->
-        <details class="bg-white/10 backdrop-blur rounded-2xl p-3 text-sm">
-            <summary class="cursor-pointer select-none font-bold">🖼️ Alterar imagem de fundo</summary>
-            <div class="mt-2 space-y-2">
-                <input id="urlImagem" type="url" placeholder="https://exemplo.com/minha-imagem.jpg"
-                    class="w-full px-3 py-2 rounded-xl bg-white/20 border border-white/30 text-sm">
-                <div class="flex gap-2">
-                    <button onclick="aplicarFundo()"
-                        class="flex-1 py-2 rounded-xl bg-blue-400 text-blue-950 font-bold active:scale-95">Aplicar</button>
-                    <button onclick="removerFundo()"
-                        class="flex-1 py-2 rounded-xl bg-white/20 font-bold active:scale-95">Padrão</button>
-                </div>
-                <p class="text-[11px] opacity-75 text-center">
-                    Dica: use Imgur, Postimage ou GitHub para hospedar grátis
-                </p>
-            </div>
-        </details>
-
-        <p id="aviso" class="text-center mt-5 text-yellow-200 text-sm min-h-[1.5rem]"></p>
+        <p id="aviso" class="text-center mt-5 text-yellow-200 text-sm min-h-[1.5rem] drop-shadow"></p>
     </div>
 
     <!-- TELA 2 - SALA DE ESPERA -->
@@ -128,7 +100,7 @@ Marca</textarea>
         <button onclick="prox()" id="btnProx" class="w-full mt-4 py-3 rounded-2xl bg-white text-purple-700 font-bold shadow-xl active:scale-95 hidden">➡️ PRÓXIMA RODADA</button>
     </div>
 
-    <!-- TELA 5 - FIM -->
+    <!-- TELA 5 - FIM DE JOGO -->
     <div id="t5" class="tela text-center">
         <h2 class="text-3xl font-black mb-5">🏆 FIM DE JOGO!</h2>
         <div id="ranking" class="space-y-2"></div>
@@ -136,6 +108,7 @@ Marca</textarea>
         <button onclick="location.reload()" class="w-full mt-3 py-3 rounded-2xl bg-white/20 font-bold active:scale-95">🏠 VOLTAR AO INÍCIO</button>
     </div>
 
+</div>
 </div>
 
 <script>
@@ -153,42 +126,15 @@ firebase.initializeApp(firebaseConfig);
 const DB = firebase.database();
 const ALFA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-// 🖼️ URL PADRÃO — se quiser que TODOS já entrem com essa imagem, coloque aqui
-// const IMAGEM_PADRAO = "https://i.imgur.com/EXEMPLO.jpg";
-const IMAGEM_PADRAO = ""; 
-
 let sala="", meuId="", dono=false, cats=[], crono=null, tempo=60;
+const corpo = document.getElementById("corpo");
 const aviso = m => document.getElementById("aviso").innerText=m;
 
-// ✨ FUNÇÕES DO FUNDO
-function aplicarFundo(url){
-    const endereco = url || document.getElementById("urlImagem").value.trim();
-    if(!endereco) return aviso("Cole o link da imagem primeiro!");
-    document.getElementById("fundo-inicio").style.backgroundImage = `url("${endereco}")`;
-    localStorage.setItem("adedonha_fundo", endereco);
-    aviso("✅ Imagem aplicada!");
-}
-function removerFundo(){
-    document.getElementById("fundo-inicio").style.backgroundImage = "none";
-    localStorage.removeItem("adedonha_fundo");
-    document.getElementById("urlImagem").value = "";
-    if(IMAGEM_PADRAO) aplicarFundo(IMAGEM_PADRAO);
-}
-function carregarFundoSalvo(){
-    const salva = localStorage.getItem("adedonha_fundo");
-    if(salva){
-        document.getElementById("urlImagem").value = salva;
-        aplicarFundo(salva);
-    } else if(IMAGEM_PADRAO){
-        aplicarFundo(IMAGEM_PADRAO);
-    }
-}
-
-// Controle para só mostrar fundo na tela 1
+// Troca fundo automaticamente: imagem só na tela inicial
 const ir = n => {
     document.querySelectorAll(".tela").forEach(t=>t.classList.remove("ativa"));
     document.getElementById("t"+n).classList.add("ativa");
-    document.body.classList.toggle("tela-ativa-inicio", n===1);
+    corpo.className = n===1 ? "fundo-inicial" : "fundo-padrao";
 };
 
 const gerarCod = () => Array.from({length:6},()=>ALFA[~~(Math.random()*26)]).join("");
@@ -231,7 +177,7 @@ function ouvirSala(){
         const j=Object.entries(s.val()||{}).map(([id,v])=>({id,...v}));
         document.getElementById("qtd").innerText=j.length;
         document.getElementById("jogadores").innerHTML=j.map(x=>`
-            <li class="px-4 py-3 rounded-xl bg-white/20 flex justify-between">
+            <li class="px-4 py-3 rounded-xl bg-white/20 backdrop-blur flex justify-between">
                 <span>${x.nome}</span><span>${x.pontos||0} pts ${x.id===salaDono?'👑':''}</span>
             </li>`).join("");
     });
@@ -261,7 +207,7 @@ function carregaRodada(){
         document.getElementById("btnStop").disabled=false;
         document.getElementById("btnStop").innerText="✋ STOP / PAREI";
         document.getElementById("respostas").innerHTML=cats.map((c,i)=>`
-            <div class="bg-white/15 rounded-xl px-3 py-2">
+            <div class="bg-white/15 backdrop-blur rounded-xl px-3 py-2">
                 <label class="text-xs opacity-80">${c}</label>
                 <input data-i="${i}" oninput="DB.ref('salas/${sala}/respostas/${meuId}/${i}').set(this.value.toUpperCase().trim())"
                     class="w-full bg-transparent text-lg" autocomplete="off">
@@ -294,7 +240,7 @@ function carregaCorrecao(){
     DB.ref("salas/"+sala).get().then(d=>{
         const s=d.val(); document.getElementById("lC").innerText=s.letra;
         document.getElementById("correcao").innerHTML=cats.map((c,i)=>{
-            let html=`<div class="bg-white/15 rounded-xl p-3"><p class="font-bold mb-1">📌 ${c}</p>`;
+            let html=`<div class="bg-white/15 backdrop-blur rounded-xl p-3"><p class="font-bold mb-1">📌 ${c}</p>`;
             Object.entries(s.jogadores||{}).forEach(([id,j])=>{
                 const t=s.respostas?.[id]?.[i]||"";
                 const cor=t.startsWith(s.letra)?"text-green-300":"text-red-300";
@@ -326,7 +272,7 @@ function carregaFim(){
         const arr=Object.values(d.val()||{}).sort((a,b)=>b.pontos-a.pontos);
         const m=["🥇","🥈","🥉"];
         document.getElementById("ranking").innerHTML=arr.map((j,i)=>`
-            <div class="px-4 py-3 rounded-xl bg-white/20 flex justify-between text-lg">
+            <div class="px-4 py-3 rounded-xl bg-white/20 backdrop-blur flex justify-between text-lg">
                 <span>${m[i]||`#${i+1}`} ${j.nome}</span><b>${j.pontos||0} pts</b>
             </div>`).join("");
         if(dono) document.getElementById("btnReiniciar").classList.remove("hidden");
@@ -339,9 +285,6 @@ function reiniciar(){
     });
     ir(2);
 }
-
-// ✨ CARREGA TUDO AO ABRIR
-carregarFundoSalvo();
 </script>
 </body>
 </html>
