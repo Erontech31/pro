@@ -24,6 +24,7 @@
             color: #f1f5f9;
             -webkit-tap-highlight-color: transparent;
             overflow-x: hidden;
+            transition: background-image 0.3s ease;
         }
         
         .bg-efeito {
@@ -110,10 +111,22 @@
                 <button onclick="entrarSala()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl py-4 font-bold text-lg transition-colors shadow-lg shadow-emerald-600/10">
                     Entrar na Sala Pronta ➡️
                 </button>
+
+                <div class="mt-4 pt-4 border-t border-slate-800">
+                    <label class="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-widest text-center">Imagem de Fundo Personalizada</label>
+                    <input type="file" id="fundo" accept=".png, .jpg, .jpeg" class="block w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-slate-800 file:text-indigo-400 hover:file:bg-slate-700 transition-colors cursor-pointer">
+                </div>
+            </div>
+
+            <div class="mt-6 text-center text-slate-500 text-xs font-semibold tracking-wider">
+                Desenvolvido por Eronildo Tavares &copy; 2026
             </div>
         </div>
 
         <div id="tela-lobby" class="tela max-w-5xl mx-auto">
+            <button onclick="abandonarPartida()" class="mb-4 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl px-4 py-2 font-bold text-sm transition-colors border border-slate-700 shadow-md">
+                ⬅️ Voltar
+            </button>
             <div class="cartao-glass rounded-3xl p-6 md:p-8 relative overflow-hidden">
                 <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
                 
@@ -175,6 +188,9 @@ Objeto</textarea>
         </div>
 
         <div id="tela-jogo" class="tela max-w-5xl mx-auto">
+            <button onclick="abandonarPartida()" class="mb-4 bg-rose-900/50 hover:bg-rose-800 text-rose-300 rounded-xl px-4 py-2 font-bold text-sm transition-colors border border-rose-900 shadow-md">
+                🚪 Abandonar Partida
+            </button>
             <div class="flex justify-between items-center mb-6">
                 <div class="cartao-glass px-6 py-3 rounded-2xl border-l-4 border-indigo-500">
                     <p class="text-xs text-slate-400 font-bold tracking-wider">LETRA</p>
@@ -199,6 +215,9 @@ Objeto</textarea>
         </div>
 
         <div id="tela-votacao" class="tela max-w-6xl mx-auto">
+            <button onclick="abandonarPartida()" class="mb-4 bg-rose-900/50 hover:bg-rose-800 text-rose-300 rounded-xl px-4 py-2 font-bold text-sm transition-colors border border-rose-900 shadow-md">
+                🚪 Abandonar Partida
+            </button>
             <div class="text-center mb-6">
                 <h2 class="text-3xl font-black mb-1">⚖️ Tribunal de Validação</h2>
                 <p class="text-slate-400 text-sm">Avalie as respostas para a letra <span id="letraVotacao" class="text-amber-400 font-bold text-2xl"></span></p>
@@ -229,7 +248,7 @@ Objeto</textarea>
                 🔄 Começar Nova Partida
             </button>
             
-            <button onclick="location.reload()" class="bg-slate-800 hover:bg-slate-700 w-full text-slate-300 rounded-2xl py-4 font-bold transition-colors">
+            <button onclick="abandonarPartida()" class="bg-slate-800 hover:bg-slate-700 w-full text-slate-300 rounded-2xl py-4 font-bold transition-colors">
                 🏠 Voltar ao Início
             </button>
         </div>
@@ -268,6 +287,43 @@ Objeto</textarea>
     let scannerQr = null;
 
     const ALFABETO = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    // ==========================================
+    // LÓGICA DO FUNDO PERSONALIZADO
+    // ==========================================
+    document.addEventListener('DOMContentLoaded', () => {
+        const inputFundo = document.getElementById('fundo');
+        if (inputFundo) {
+            inputFundo.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        document.body.style.backgroundImage = `url(${event.target.result})`;
+                        document.body.style.backgroundSize = 'cover';
+                        document.body.style.backgroundPosition = 'center';
+                        document.body.style.backgroundAttachment = 'fixed';
+                        document.body.classList.remove('bg-efeito'); // Remove o gradiente animado
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+    });
+
+    // ==========================================
+    // LÓGICA DE ABANDONAR PARTIDA / VOLTAR
+    // ==========================================
+    async function abandonarPartida() {
+        if (db && salaAtual && meuId) {
+            try {
+                await db.ref(`salas/${salaAtual}/jogadores/${meuId}`).remove();
+            } catch (e) {
+                console.error("Erro ao remover jogador da sala", e);
+            }
+        }
+        location.reload(); // Recarrega a página para resetar todos os estados
+    }
 
     function emitirAviso(titulo, texto, tipo = 'error') {
         if (typeof Swal !== 'undefined') {
