@@ -33,12 +33,6 @@
             animation: moverGradiente 12s ease infinite;
         }
 
-        @keyframes moverGradiente {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
         /* NOVA CLASSE DE FUNDO COM IMAGEM */
         .bg-custom-fundo {
             /* Se a sua imagem for PNG, troque 'fundo.jpg' para 'fundo.png' abaixo */
@@ -151,7 +145,7 @@
                             <p class="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-3">⚙️ Configurações do Jogo</p>
                             
                             <label class="block text-xs font-semibold mb-1 text-slate-400">Categorias (uma por linha)</label>
-                            <textarea id="inputCategorias" rows="4" class="input-premium w-full rounded-xl p-3 text-sm mb-3 text-white">Nome
+                            <textarea id="inputCategorias" rows="8" class="input-premium w-full rounded-xl p-3 text-sm mb-3 text-white">Nome
 Animal
 Cor
 Objeto
@@ -220,8 +214,7 @@ Profissão</textarea>
             <div id="areaInputs" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 max-h-[55vh] overflow-y-auto no-scrollbar pb-4">
                 </div>
 
-            <!-- Adicionado classe "hidden" aqui inicialmente -->
-            <button onclick="submeterRespostasStop(false)" id="btnStop" class="hidden w-full bg-rose-600 hover:bg-rose-500 disabled:bg-slate-800 text-white rounded-2xl py-5 font-black text-2xl tracking-widest uppercase transition-colors shadow-lg">
+            <button onclick="submeterRespostasStop()" id="btnStop" class="hidden w-full bg-rose-600 hover:bg-rose-500 disabled:bg-slate-800 text-white rounded-2xl py-5 font-black text-2xl tracking-widest uppercase transition-colors shadow-lg">
                 🚨 STOP!
             </button>
         </div>
@@ -544,7 +537,7 @@ Profissão</textarea>
         cronometro = setInterval(() => {
             const restante = Math.max(0, Math.ceil((dados.endTime - Date.now()) / 1000));
             document.getElementById("tempoRestante").innerText = restante;
-            if (restante <= 0) submeterRespostasStop(true); 
+            if (restante <= 0) submeterRespostasStop(); // Chama a função que agora sempre avança
         }, 1000);
     }
 
@@ -566,7 +559,8 @@ Profissão</textarea>
         }
     }
 
-    async function submeterRespostasStop(porTempoEsgotado = false) {
+    // Função ajustada para não receber mais parâmetros: sempre avança a sala para votação
+    async function submeterRespostasStop() {
         clearInterval(cronometro);
         document.getElementById("btnStop").innerText = "Enviando...";
         document.getElementById("btnStop").disabled = true;
@@ -579,9 +573,8 @@ Profissão</textarea>
 
         await db.ref(`salas/${salaAtual}/respostas/${meuId}`).set(respostasColetadas);
 
-        if (!porTempoEsgotado) {
-            await db.ref(`salas/${salaAtual}/status`).set('votacao');
-        }
+        // Ao acabar o tempo ou clicar no botão, a sala entra em votação imediatamente
+        await db.ref(`salas/${salaAtual}/status`).set('votacao');
     }
 
     // ==========================================
