@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>🎮 ADEDONHA ONLINE</title>
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
+<style>
+    *{-webkit-tap-highlight-color:transparent}
+    input:focus,textarea:focus{outline:none}
+    .letra-gigante{font-size:5.5rem;font-weight:900;line-height:1}
+    .tela{display:none}
+    .tela.ativa{display:block}
+</style>
+</head>
+<body class="bg-gradient-to-br from-purple-700 via-pink-500 to-orange-400 min-h-screen text-white">
+
+<div class="container mx-auto px-4 py-5 max-w-md">
+
+    <!-- TELA 1 - INÍCIO -->
+    <div id="t1" class="tela ativa">
+        <h1 class="text-4xl font-black text-center mb-1 drop-shadow-lg">🎮 ADEDONHA</h1>
+        <p class="text-center mb-10 opacity-90 text-sm">Jogue online com amigos</p>
+        <input id="nome" maxlength="14" placeholder="✏️ Seu nome" class="w-full px-4 py-4 rounded-2xl bg-white/20 border border-white/30 placeholder-white/70 text-lg mb-4">
+        <button onclick="criarSala()" class="w-full py-4 rounded-2xl bg-white text-purple-700 font-bold text-lg shadow-xl mb-4 active:scale-95">➕ CRIAR SALA</button>
+        <div class="flex gap-2">
+            <input id="codigo" maxlength="6" placeholder="CÓDIGO" class="flex-1 px-4 py-4 rounded-2xl bg-white/20 border border-white/30 text-center text-xl uppercase tracking-widest">
+            <button onclick="entrarSala()" class="px-5 rounded-2xl bg-green-400 text-green-900 font-bold shadow-xl active:scale-95">ENTRAR</button>
+        </div>
+        <p id="aviso" class="text-center mt-5 text-yellow-200 text-sm min-h-[1.5rem]"></p>
+    </div>
+
+    <!-- TELA 2 - SALA -->
+    <div id="t2" class="tela">
+        <div class="text-center mb-5">
+            <p class="text-xs opacity-80">CÓDIGO DA SALA</p>
+            <p id="mostraCodigo" class="letra-gigante text-yellow-300 tracking-[0.3em]"></p>
+        </div>
+        <h3 class="font-bold mb-2">👥 Jogadores: <span id="qtd">0</span></h3>
+        <ul id="jogadores" class="space-y-2 mb-5"></ul>
+        <div id="painelDono" class="hidden space-y-3">
+            <label class="block text-sm">⏱️ Tempo: <span id="vt">60</span>s
+                <input type="range" id="tempo" min="30" max="180" step="10" value="60" class="w-full" oninput="mudaTempo()">
+            </label>
+            <label class="block text-sm">📋 Categorias
+                <textarea id="cats" rows="6" class="w-full mt-1 px-3 py-2 rounded-xl bg-white/20 border border-white/30 text-sm">Nome
+Cor
+Fruta
+Lugar
+Animal
+Profissão
+Comida
+Marca</textarea>
+            </label>
+            <button onclick="iniciar()" class="w-full py-4 rounded-2xl bg-green-400 text-green-900 font-bold text-lg shadow-xl active:scale-95">▶️ INICIAR JOGO</button>
+        </div>
+        <p id="avisoSala" class="text-center mt-3 text-yellow-200 text-sm">Aguardando o dono começar...</p>
+    </div>
+
+    <!-- TELA 3 - JOGO -->
+    <div id="t3" class="tela">
+        <div class="flex justify-between items-center mb-2">
+            <div><p class="text-xs opacity-80">LETRA</p><p id="letra" class="letra-gigante text-yellow-300"></p></div>
+            <div class="text-right"><p class="text-xs opacity-80">TEMPO</p><p id="crono" class="text-5xl font-black"></p></div>
+        </div>
+        <p class="text-center text-xs mb-3">Rodada <span id="nr">1</span></p>
+        <div id="respostas" class="space-y-2 max-h-[54vh] overflow-y-auto"></div>
+        <button onclick="stop()" id="btnStop" class="w-full mt-4 py-3 rounded-2xl bg-red-500 font-bold shadow-xl active:scale-95">✋ STOP / PAREI</button>
+    </div>
+
+    <!-- TELA 4 - CORREÇÃO -->
+    <div id="t4" class="tela">
+        <h2 class="text-2xl font-bold text-center mb-2">✅ CORREÇÃO</h2>
+        <p class="text-center mb-4">Letra: <b id="lC" class="text-yellow-300"></b></p>
+        <div id="correcao" class="space-y-3 max-h-[60vh] overflow-y-auto"></div>
+        <button onclick="prox()" id="btnProx" class="w-full mt-4 py-3 rounded-2xl bg-white text-purple-700 font-bold shadow-xl active:scale-95 hidden">➡️ PRÓXIMA RODADA</button>
+    </div>
+
+    <!-- TELA 5 - FIM -->
+    <div id="t5" class="tela text-center">
+        <h2 class="text-3xl font-black mb-5">🏆 FIM DE JOGO!</h2>
+        <div id="ranking" class="space-y-2"></div>
+        <button onclick="reiniciar()" id="btnReiniciar" class="w-full mt-7 py-4 rounded-2xl bg-white text-purple-700 font-bold shadow-xl active:scale-95 hidden">🔄 JOGAR NOVAMENTE</button>
+        <button onclick="location.reload()" class="w-full mt-3 py-3 rounded-2xl bg-white/20 font-bold active:scale-95">🏠 VOLTAR AO INÍCIO</button>
+    </div>
+
+</div>
+
+<script>
+// 👇 COLE AQUI SUAS CONFIGURAÇÕES DO FIREBASE (VER PASSO A PASSO ABAIXO)
+const firebaseConfig = {
+  apiKey: "SUA_CHAVE_AQUI",
+  authDomain: "SEU_PROJETO.firebaseapp.com",
+  databaseURL: "https://SEU_PROJETO-default-rtdb.firebaseio.com",
+  projectId: "SEU_PROJETO",
+  storageBucket: "SEU_PROJETO.appspot.com",
+  messagingSenderId: "000000000000",
+  appId: "1:000000000000:web:xxxxxxxxxxxxxx"
+};
+firebase.initializeApp(firebaseConfig);
+const DB = firebase.database();
+const ALFA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+let sala="", meuId="", dono=false, cats=[], crono=null, tempo=60;
+const aviso = m => document.getElementById("aviso").innerText=m;
+const ir = n => {document.querySelectorAll(".tela").forEach(t=>t.classList.remove("ativa"));document.getElementById("t"+n).classList.add("ativa")};
+const gerarCod = () => Array.from({length:6},()=>ALFA[~~(Math.random()*26)]).join("");
+
+function criarSala(){
+    const n=document.getElementById("nome").value.trim();
+    if(!n) return aviso("Digite seu nome!");
+    sala=gerarCod(); meuId=DB.ref("salas/"+sala).push().key; dono=true;
+    DB.ref("salas/"+sala).set({
+        dono:meuId, status:"aguardando", tempo:60, rodada:1, rodadas:5, letra:"",
+        letrasUsadas:[], categorias:document.getElementById("cats").value, parou:"", respostas:{}
+    });
+    DB.ref("salas/"+sala+"/jogadores/"+meuId).set({nome:n,pontos:0});
+    abrirSala();
+}
+function entrarSala(){
+    const n=document.getElementById("nome").value.trim(), c=document.getElementById("codigo").value.trim().toUpperCase();
+    if(!n) return aviso("Digite seu nome!");
+    if(c.length!==6) return aviso("Código tem 6 letras");
+    DB.ref("salas/"+c).get().then(s=>{
+        if(!s.exists()) return aviso("Sala não existe");
+        if(s.val().status!=="aguardando") return aviso("Jogo já começou");
+        sala=c; meuId=DB.ref("salas/"+sala).push().key; dono=s.val().dono===meuId;
+        DB.ref("salas/"+sala+"/jogadores/"+meuId).set({nome:n,pontos:0});
+        abrirSala();
+    });
+}
+function abrirSala(){
+    ir(2); document.getElementById("mostraCodigo").innerText=sala;
+    if(dono){document.getElementById("painelDono").classList.remove("hidden");document.getElementById("avisoSala").classList.add("hidden")}
+    ouvirSala();
+}
+function mudaTempo(){
+    const v=document.getElementById("tempo").value;
+    document.getElementById("vt").innerText=v;
+    DB.ref("salas/"+sala).update({tempo:+v, categorias:document.getElementById("cats").value});
+}
+function ouvirSala(){
+    DB.ref("salas/"+sala+"/jogadores").on("value",s=>{
+        const j=Object.entries(s.val()||{}).map(([id,v])=>({id,...v}));
+        document.getElementById("qtd").innerText=j.length;
+        document.getElementById("jogadores").innerHTML=j.map(x=>`
+            <li class="px-4 py-3 rounded-xl bg-white/20 flex justify-between">
+                <span>${x.nome}</span><span>${x.pontos||0} pts ${x.id===salaDono?'👑':''}</span>
+            </li>`).join("");
+    });
+    DB.ref("salas/"+sala+"/dono").on("value",s=>{dono=s.val()===meuId});
+    DB.ref("salas/"+sala+"/status").on("value",s=>{
+        if(s.val()==="jogando") carregaRodada();
+        if(s.val()==="correcao") carregaCorrecao();
+        if(s.val()==="fim") carregaFim();
+    });
+}
+function iniciar(){
+    let l; const s=DB.ref("salas/"+sala);
+    s.get().then(d=>{
+        const usadas=d.val().letrasUsadas||[];
+        do l=ALFA[~~(Math.random()*26)]; while(usadas.includes(l));
+        s.update({status:"jogando",rodada:1,letra:l,letrasUsadas:[...usadas,l],parou:"",tempoRestante:d.val().tempo,respostas:{}});
+    });
+}
+function carregaRodada(){
+    DB.ref("salas/"+sala).get().then(d=>{
+        const s=d.val();
+        cats=s.categorias.split("\n").map(c=>c.trim()).filter(Boolean);
+        tempo=s.tempo; ir(3);
+        document.getElementById("letra").innerText=s.letra;
+        document.getElementById("nr").innerText=s.rodada;
+        document.getElementById("crono").innerText=tempo;
+        document.getElementById("btnStop").disabled=false;
+        document.getElementById("btnStop").innerText="✋ STOP / PAREI";
+        document.getElementById("respostas").innerHTML=cats.map((c,i)=>`
+            <div class="bg-white/15 rounded-xl px-3 py-2">
+                <label class="text-xs opacity-80">${c}</label>
+                <input data-i="${i}" oninput="DB.ref('salas/${sala}/respostas/${meuId}/${i}').set(this.value.toUpperCase().trim())"
+                    class="w-full bg-transparent text-lg" autocomplete="off">
+            </div>`).join("");
+        clearInterval(crono);
+        crono=setInterval(()=>{
+            tempo--;
+            document.getElementById("crono").innerText=tempo;
+            DB.ref("salas/"+sala+"/tempoRestante").set(tempo);
+            if(tempo<=0){clearInterval(crono);DB.ref("salas/"+sala).update({status:"correcao"})}
+        },1000);
+        DB.ref("salas/"+sala+"/parou").on("value",p=>{
+            if(p.val() && p.val()!==meuId){
+                clearInterval(crono);
+                document.getElementById("btnStop").disabled=true;
+                document.getElementById("btnStop").innerText="⏸ ALGUÉM PAROU!";
+                setTimeout(()=>DB.ref("salas/"+sala).update({status:"correcao"}),3000);
+            }
+        });
+    });
+}
+function stop(){
+    clearInterval(crono);
+    DB.ref("salas/"+sala+"/parou").set(meuId);
+    document.getElementById("btnStop").disabled=true;
+    document.getElementById("btnStop").innerText="⏸ VOCÊ PAROU";
+}
+function carregaCorrecao(){
+    clearInterval(crono); ir(4);
+    DB.ref("salas/"+sala).get().then(d=>{
+        const s=d.val(); document.getElementById("lC").innerText=s.letra;
+        document.getElementById("correcao").innerHTML=cats.map((c,i)=>{
+            let html=`<div class="bg-white/15 rounded-xl p-3"><p class="font-bold mb-1">📌 ${c}</p>`;
+            Object.entries(s.jogadores||{}).forEach(([id,j])=>{
+                const t=s.respostas?.[id]?.[i]||"";
+                const cor=t.startsWith(s.letra)?"text-green-300":"text-red-300";
+                html+=`<div class="flex justify-between text-sm py-1"><span>${j.nome}</span><span class="${cor}">${t||'—'}</span></div>`;
+            });
+            return html+"</div>";
+        }).join("");
+        if(dono){
+            Object.entries(s.jogadores||{}).forEach(([id,j])=>{
+                let pts=0;
+                cats.forEach((_,i)=>{if((s.respostas?.[id]?.[i]||"").startsWith(s.letra)) pts+=10});
+                DB.ref(`salas/${sala}/jogadores/${id}/pontos`).set((j.pontos||0)+pts);
+            });
+            document.getElementById("btnProx").classList.remove("hidden");
+        }
+    });
+}
+function prox(){
+    DB.ref("salas/"+sala).get().then(d=>{
+        const s=d.val(), prox=s.rodada+1;
+        if(prox>s.rodadas) return DB.ref("salas/"+sala).update({status:"fim"});
+        let l; do l=ALFA[~~(Math.random()*26)]; while(s.letrasUsadas.includes(l));
+        DB.ref("salas/"+sala).update({status:"jogando",rodada:prox,letra:l,letrasUsadas:[...s.letrasUsadas,l],parou:"",tempoRestante:s.tempo,respostas:{}});
+    });
+}
+function carregaFim(){
+    ir(5);
+    DB.ref("salas/"+sala+"/jogadores").get().then(d=>{
+        const arr=Object.values(d.val()||{}).sort((a,b)=>b.pontos-a.pontos);
+        const m=["🥇","🥈","🥉"];
+        document.getElementById("ranking").innerHTML=arr.map((j,i)=>`
+            <div class="px-4 py-3 rounded-xl bg-white/20 flex justify-between text-lg">
+                <span>${m[i]||`#${i+1}`} ${j.nome}</span><b>${j.pontos||0} pts</b>
+            </div>`).join("");
+        if(dono) document.getElementById("btnReiniciar").classList.remove("hidden");
+    });
+}
+function reiniciar(){
+    DB.ref("salas/"+sala).update({status:"aguardando",rodada:1,letra:"",letrasUsadas:[],respostas:{},parou:""});
+    DB.ref("salas/"+sala+"/jogadores").get().then(d=>{
+        d.forEach(j=>DB.ref(`salas/${sala}/jogadores/${j.key}/pontos`).set(0));
+    });
+    ir(2);
+}
+</script>
+</body>
+</html>
