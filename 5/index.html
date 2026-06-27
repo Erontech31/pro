@@ -74,19 +74,18 @@
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<!-- Ajustei o body para flex-col e removi o items-center para permitir rolagem nativa de página longa -->
 <body class="bg-custom-fundo min-h-screen flex flex-col p-4 md:p-8">
 
-    <div class="w-full mx-auto my-auto">
+    <div class="w-full mx-auto my-auto relative">
 
         <div id="status-conexao" class="hidden max-w-md mx-auto mb-4 p-3 bg-rose-500/20 border border-rose-500/40 rounded-2xl text-center text-sm font-semibold text-rose-300">
             ⚠️ Erro de gravação no Firebase. Verifique suas regras no console.
         </div>
 
-        <div id="tela-inicio" class="tela ativa max-w-md mx-auto relative">
+        <div id="tela-inicio" class="tela ativa max-w-md mx-auto">
             
-            <div class="fixed top-2 left-4 z-[100]">
-                <select onchange="mudarTema(this.value)" class="bg-slate-900/80 text-xs font-bold text-slate-300 border border-slate-700 rounded-xl px-2 py-1.5 outline-none backdrop-blur-md cursor-pointer shadow-lg">
+            <div class="fixed top-2 left-2 z-[100]">
+                <select onchange="mudarTema(this.value)" class="bg-slate-900/80 text-[10px] sm:text-xs font-bold text-slate-300 border border-slate-700 rounded-lg px-2 py-1.5 outline-none backdrop-blur-md cursor-pointer shadow-lg">
                     <option value="atual">🎨 Atual</option>
                     <option value="ciano">🎨 Ciano</option>
                     <option value="verde_menta">🎨 Verde Menta</option>
@@ -96,7 +95,7 @@
                 </select>
             </div>
 
-            <div class="text-center mb-8 pt-6">
+            <div class="text-center mb-8 pt-8">
                 <h1 class="text-5xl font-black mb-2 tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 font-extrabold">Adedonha</h1>
                 <p class="text-slate-400 font-medium text-sm tracking-wide">Jogo Online de Palavras • Máx. 10 Amigos</p>
             </div>
@@ -201,41 +200,38 @@ Profissão</textarea>
             </div>
         </div>
 
-        <!-- ======================= -->
-        <!-- TELA DO JOGO ATUALIZADA -->
-        <!-- ======================= -->
-        <div id="tela-jogo" class="tela max-w-5xl mx-auto relative w-full">
+        <div id="tela-jogo" class="tela w-full">
             
-            <!-- CABEÇALHO FIXO NO TOPO (Sticky) -->
-            <div class="sticky top-2 z-50 cartao-glass p-3 sm:p-4 rounded-3xl mb-6 shadow-2xl shadow-black/60 border border-slate-700/50 backdrop-blur-xl">
-                <div class="flex justify-between items-center mb-3">
-                    <div class="text-xs font-bold tracking-widest text-slate-300 uppercase">
-                        Rodada <span id="rodadaAtualL" class="text-indigo-400 text-sm"></span>/<span id="rodadasTotalL"></span>
+            <div class="fixed top-0 left-0 right-0 z-[80] cartao-glass rounded-b-3xl border-b border-slate-700/50 shadow-2xl px-4 py-3 sm:px-8">
+                <div class="max-w-5xl mx-auto flex flex-col gap-2.5">
+                    <div class="flex justify-between items-center">
+                        <div class="text-[10px] sm:text-xs font-bold tracking-widest text-slate-300 uppercase">
+                            Rodada <span id="rodadaAtualL" class="text-indigo-400 text-sm sm:text-base"></span>/<span id="rodadasTotalL"></span>
+                        </div>
+                        <button onclick="abandonarPartida()" class="px-3 py-1.5 bg-rose-500/10 text-rose-400 rounded-xl text-[10px] sm:text-xs font-bold border border-rose-500/20 hover:bg-rose-500 hover:text-white transition-all shadow-sm">
+                            🚪 Abandonar
+                        </button>
                     </div>
-                    <!-- Botão Abandonar Movidinho para cá para ficar sempre visível -->
-                    <button onclick="abandonarPartida()" class="px-3 py-1.5 bg-rose-500/10 text-rose-400 rounded-xl text-[10px] sm:text-xs font-bold border border-rose-500/20 hover:bg-rose-500 hover:text-white transition-all shadow-sm">
-                        🚪 Abandonar
-                    </button>
-                </div>
-                
-                <div class="flex justify-between items-center gap-3">
-                    <div class="bg-slate-900/60 px-4 py-2 sm:px-6 sm:py-3 rounded-2xl border-l-4 border-indigo-500 flex-1 shadow-inner">
-                        <p class="text-[10px] sm:text-xs text-slate-400 font-bold tracking-wider">LETRA</p>
-                        <p id="letraSorteada" class="text-3xl sm:text-4xl font-black text-amber-400 font-extrabold"></p>
-                    </div>
-                    <div class="bg-slate-900/60 px-4 py-2 sm:px-6 sm:py-3 rounded-2xl text-right border-r-4 border-rose-500 flex-1 shadow-inner">
-                        <p class="text-[10px] sm:text-xs text-slate-400 font-bold tracking-wider">TEMPO</p>
-                        <p id="tempoRestante" class="text-3xl sm:text-4xl font-black text-rose-400 font-extrabold">60</p>
+                    
+                    <div class="flex justify-between items-center gap-3">
+                        <div class="bg-slate-900/60 px-4 py-2 sm:px-6 sm:py-3 rounded-2xl border-l-4 border-indigo-500 flex-1 shadow-inner flex flex-col items-center">
+                            <p class="text-[10px] sm:text-xs text-slate-400 font-bold tracking-wider mb-0.5">LETRA</p>
+                            <p id="letraSorteada" class="text-3xl sm:text-4xl font-black text-amber-400 font-extrabold leading-none"></p>
+                        </div>
+                        <div class="bg-slate-900/60 px-4 py-2 sm:px-6 sm:py-3 rounded-2xl border-r-4 border-rose-500 flex-1 shadow-inner flex flex-col items-center">
+                            <p class="text-[10px] sm:text-xs text-slate-400 font-bold tracking-wider mb-0.5">TEMPO</p>
+                            <p id="tempoRestante" class="text-3xl sm:text-4xl font-black text-rose-400 font-extrabold leading-none">60</p>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- ÁREA DE INPUTS (Sem barra de rolagem interna, rolando nativamente com a página. O mb-28 protege do botão STOP na base) -->
-            <div id="areaInputs" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-28">
+            <div class="max-w-5xl mx-auto w-full pt-[130px] sm:pt-[140px]">
+                <div id="areaInputs" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-28">
+                </div>
             </div>
 
-            <!-- BOTÃO STOP FIXADO NA PARTE INFERIOR DA TELA -->
-            <div class="fixed bottom-4 left-4 right-4 z-50 pointer-events-none">
+            <div class="fixed bottom-4 left-0 right-0 z-50 pointer-events-none px-4">
                 <div class="max-w-5xl mx-auto pointer-events-auto">
                     <button onclick="submeterRespostasStop()" id="btnStop" class="hidden w-full bg-rose-600 hover:bg-rose-500 disabled:bg-slate-800 text-white rounded-2xl py-4 sm:py-5 font-black text-xl sm:text-2xl tracking-widest uppercase transition-colors shadow-2xl shadow-rose-600/40 border-2 border-rose-400/50">
                         🚨 STOP!
@@ -863,7 +859,6 @@ Profissão</textarea>
     }
 
     function mudarTema(tema) {
-        // Atualizado para manter a nova estrutura do body
         let classesBase = "bg-custom-fundo min-h-screen flex flex-col p-4 md:p-8";
         if (tema !== "atual") {
             classesBase += ` ${tema}`;
