@@ -27,14 +27,12 @@
         }
         
         .bg-custom-fundo {
-            /* Fundo atual mantido fixo */
             background-image: linear-gradient(rgba(11, 15, 25, 0.5), rgba(11, 15, 25, 0.7)), url('fundo.jpg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
         }
 
-        /* Classes dos temas adicionais alterando APENAS o container (cartao-glass) */
         body.ciano .cartao-glass { background: rgba(6, 182, 212, 0.4) !important; }
         body.verde_menta .cartao-glass { background: rgba(16, 185, 129, 0.4) !important; }
         body.azul_claro .cartao-glass { background: rgba(56, 189, 248, 0.4) !important; }
@@ -76,9 +74,10 @@
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="bg-custom-fundo min-h-screen flex items-center justify-center p-4 md:p-8">
+<!-- Ajustei o body para flex-col e removi o items-center para permitir rolagem nativa de página longa -->
+<body class="bg-custom-fundo min-h-screen flex flex-col p-4 md:p-8">
 
-    <div class="w-full mx-auto">
+    <div class="w-full mx-auto my-auto">
 
         <div id="status-conexao" class="hidden max-w-md mx-auto mb-4 p-3 bg-rose-500/20 border border-rose-500/40 rounded-2xl text-center text-sm font-semibold text-rose-300">
             ⚠️ Erro de gravação no Firebase. Verifique suas regras no console.
@@ -86,7 +85,6 @@
 
         <div id="tela-inicio" class="tela ativa max-w-md mx-auto relative">
             
-            <!-- Seletor com o "top-2" para ficar um pouco mais para cima -->
             <div class="fixed top-2 left-4 z-[100]">
                 <select onchange="mudarTema(this.value)" class="bg-slate-900/80 text-xs font-bold text-slate-300 border border-slate-700 rounded-xl px-2 py-1.5 outline-none backdrop-blur-md cursor-pointer shadow-lg">
                     <option value="atual">🎨 Atual</option>
@@ -196,41 +194,54 @@ Profissão</textarea>
                                 <span class="text-xs font-bold px-3 py-1 bg-slate-900 rounded-full text-indigo-300"><span id="qtdJogadores">0</span>/10</span>
                             </div>
                             <ul id="listaJogadores" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-64 md:max-h-[400px] overflow-y-auto no-scrollbar">
-                                </ul>
+                            </ul>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div id="tela-jogo" class="tela max-w-5xl mx-auto">
-            <div class="flex justify-end mb-4">
-                <button onclick="abandonarPartida()" class="px-4 py-2 bg-rose-500/10 text-rose-400 rounded-xl text-xs font-bold border border-rose-500/20 hover:bg-rose-500 hover:text-white transition-all shadow-sm">
-                    🚪 Abandonar Partida
-                </button>
-            </div>
+        <!-- ======================= -->
+        <!-- TELA DO JOGO ATUALIZADA -->
+        <!-- ======================= -->
+        <div id="tela-jogo" class="tela max-w-5xl mx-auto relative w-full">
             
-            <div class="flex justify-between items-center mb-6">
-                <div class="cartao-glass px-6 py-3 rounded-2xl border-l-4 border-indigo-500">
-                    <p class="text-xs text-slate-400 font-bold tracking-wider">LETRA</p>
-                    <p id="letraSorteada" class="text-4xl font-black text-amber-400 font-extrabold"></p>
+            <!-- CABEÇALHO FIXO NO TOPO (Sticky) -->
+            <div class="sticky top-2 z-50 cartao-glass p-3 sm:p-4 rounded-3xl mb-6 shadow-2xl shadow-black/60 border border-slate-700/50 backdrop-blur-xl">
+                <div class="flex justify-between items-center mb-3">
+                    <div class="text-xs font-bold tracking-widest text-slate-300 uppercase">
+                        Rodada <span id="rodadaAtualL" class="text-indigo-400 text-sm"></span>/<span id="rodadasTotalL"></span>
+                    </div>
+                    <!-- Botão Abandonar Movidinho para cá para ficar sempre visível -->
+                    <button onclick="abandonarPartida()" class="px-3 py-1.5 bg-rose-500/10 text-rose-400 rounded-xl text-[10px] sm:text-xs font-bold border border-rose-500/20 hover:bg-rose-500 hover:text-white transition-all shadow-sm">
+                        🚪 Abandonar
+                    </button>
                 </div>
-                <div class="cartao-glass px-6 py-3 rounded-2xl text-right border-r-4 border-rose-500">
-                    <p class="text-xs text-slate-400 font-bold tracking-wider">TEMPO</p>
-                    <p id="tempoRestante" class="text-4xl font-black text-rose-400 font-extrabold">60</p>
+                
+                <div class="flex justify-between items-center gap-3">
+                    <div class="bg-slate-900/60 px-4 py-2 sm:px-6 sm:py-3 rounded-2xl border-l-4 border-indigo-500 flex-1 shadow-inner">
+                        <p class="text-[10px] sm:text-xs text-slate-400 font-bold tracking-wider">LETRA</p>
+                        <p id="letraSorteada" class="text-3xl sm:text-4xl font-black text-amber-400 font-extrabold"></p>
+                    </div>
+                    <div class="bg-slate-900/60 px-4 py-2 sm:px-6 sm:py-3 rounded-2xl text-right border-r-4 border-rose-500 flex-1 shadow-inner">
+                        <p class="text-[10px] sm:text-xs text-slate-400 font-bold tracking-wider">TEMPO</p>
+                        <p id="tempoRestante" class="text-3xl sm:text-4xl font-black text-rose-400 font-extrabold">60</p>
+                    </div>
                 </div>
             </div>
 
-            <div class="text-center mb-4 text-xs font-bold tracking-widest text-slate-400 uppercase">
-                Rodada <span id="rodadaAtualL" class="text-indigo-400"></span> de <span id="rodadasTotalL"></span>
+            <!-- ÁREA DE INPUTS (Sem barra de rolagem interna, rolando nativamente com a página. O mb-28 protege do botão STOP na base) -->
+            <div id="areaInputs" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-28">
             </div>
 
-            <div id="areaInputs" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 max-h-[55vh] overflow-y-auto no-scrollbar pb-4">
+            <!-- BOTÃO STOP FIXADO NA PARTE INFERIOR DA TELA -->
+            <div class="fixed bottom-4 left-4 right-4 z-50 pointer-events-none">
+                <div class="max-w-5xl mx-auto pointer-events-auto">
+                    <button onclick="submeterRespostasStop()" id="btnStop" class="hidden w-full bg-rose-600 hover:bg-rose-500 disabled:bg-slate-800 text-white rounded-2xl py-4 sm:py-5 font-black text-xl sm:text-2xl tracking-widest uppercase transition-colors shadow-2xl shadow-rose-600/40 border-2 border-rose-400/50">
+                        🚨 STOP!
+                    </button>
                 </div>
-
-            <button onclick="submeterRespostasStop()" id="btnStop" class="hidden w-full bg-rose-600 hover:bg-rose-500 disabled:bg-slate-800 text-white rounded-2xl py-5 font-black text-2xl tracking-widest uppercase transition-colors shadow-lg">
-                🚨 STOP!
-            </button>
+            </div>
         </div>
 
         <div id="tela-votacao" class="tela max-w-6xl mx-auto">
@@ -246,7 +257,7 @@ Profissão</textarea>
             </div>
 
             <div id="areaVotacao" class="grid grid-cols-1 lg:grid-cols-2 gap-6 max-h-[58vh] overflow-y-auto no-scrollbar pb-4">
-                </div>
+            </div>
 
             <div class="max-w-md mx-auto mt-4">
                 <button id="btnApurar" onclick="marcarPronto()" class="hidden btn-gradiente w-full rounded-2xl py-4 font-bold text-lg text-white shadow-lg">
@@ -264,7 +275,7 @@ Profissão</textarea>
             </div>
 
             <div id="areaPodio" class="cartao-glass rounded-3xl p-6 space-y-3 mb-6">
-                </div>
+            </div>
 
             <button id="btnJogarNovamente" onclick="reiniciarPartidaCompleta()" class="hidden w-full bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl py-4 font-bold text-lg mb-3 shadow-md">
                 🔄 Começar Nova Partida
@@ -311,7 +322,7 @@ Profissão</textarea>
     let scannerQr = null;
     let jogadoresRegistrados = null;
     let lastRespostasHash = ""; 
-    let apurandoResultados = false; // NOVA VARIÁVEL: Previne cálculo duplicado
+    let apurandoResultados = false; 
 
     window.addEventListener('DOMContentLoaded', () => {
         const nomeSalvo = localStorage.getItem('adedonhaNomeJogador');
@@ -456,7 +467,6 @@ Profissão</textarea>
                     construirAmbienteVotacao(dados);
                 }
 
-                // LÓGICA ATUALIZADA: Todos precisam confirmar para avançar
                 const totalJogadores = Object.keys(dados.jogadores || {}).length;
                 const totalProntos = Object.keys(dados.prontosVotacao || {}).length;
                 
@@ -477,7 +487,6 @@ Profissão</textarea>
                     btnApurar.classList.remove("opacity-50");
                 }
 
-                // Se todos estiverem prontos e este cliente for o dono, roda a apuração centralizada
                 if (totalProntos > 0 && totalProntos === totalJogadores && isDono && !apurandoResultados) {
                     apurandoResultados = true;
                     executarApuracaoEAvancar(dados).finally(() => { apurandoResultados = false; });
@@ -844,10 +853,6 @@ Profissão</textarea>
             scannerQr.stop().then(() => { scannerQr.clear(); document.getElementById("leitor-qr").classList.add("hidden"); }).catch(() => {});
         } else { document.getElementById("leitor-qr").classList.add("hidden"); }
     }
-
-    // ==========================================
-    // NOVAS FUNÇÕES (TEMAS E BOTÃO N/S)
-    // ==========================================
     
     function marcarNS(idx) {
         const campo = document.getElementById(`resposta_campo_${idx}`);
@@ -858,7 +863,8 @@ Profissão</textarea>
     }
 
     function mudarTema(tema) {
-        let classesBase = "bg-custom-fundo min-h-screen flex items-center justify-center p-4 md:p-8";
+        // Atualizado para manter a nova estrutura do body
+        let classesBase = "bg-custom-fundo min-h-screen flex flex-col p-4 md:p-8";
         if (tema !== "atual") {
             classesBase += ` ${tema}`;
         }
