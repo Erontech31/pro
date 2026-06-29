@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exploração Interativa 3D do Sistema Solar</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <style>
+        /* Variáveis e Configurações Globais */
+        :root {
+            --bg-dark: #02050a;
+            --text-light: #e0e6ed;
+            --neon-blue: #00f3ff;
+            --glass-bg: rgba(10, 15, 30, 0.7);
+            --glass-border: rgba(0, 243, 255, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* Fundo Estrelado (CSS puro para telas 2D) */
+        #stars-background {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -1;
+            background: radial-gradient(circle at center, #051024 0%, #000000 100%);
+        }
+
+        .star {
+            position: absolute;
+            background-color: #fff;
+            border-radius: 50%;
+            animation: twinkle infinite alternate ease-in-out;
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0.2; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* Telas e Transições */
+        .screen {
+            position: absolute;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .screen.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* TELA INICIAL */
+        #home-screen { align-items: center; justify-content: center; z-index: 10; }
+
+        .title {
+            font-size: 4rem;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            text-shadow: 0 0 20px var(--neon-blue);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #8da3b8;
+            margin-bottom: 50px;
+            text-align: center;
+        }
+
+        .cards-container { display: flex; gap: 30px; }
+
+        .card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            padding: 40px;
+            border-radius: 15px;
+            width: 300px;
+            text-align: center;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(0, 243, 255, 0.3);
+            border-color: var(--neon-blue);
+        }
+
+        .card h2 { color: var(--neon-blue); margin-bottom: 15px; font-size: 2rem; }
+
+        /* BOTÃO DE VOLTAR */
+        .back-btn {
+            position: absolute;
+            top: 20px; left: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            z-index: 100;
+            transition: background 0.3s;
+        }
+
+        .back-btn:hover { background: rgba(255, 255, 255, 0.3); }
+
+        /* MODO EXPLORAR - SISTEMA SOLAR 3D */
+        #explore-screen { background: #000; } /* Fundo preto para 3D */
+        #webgl-canvas { width: 100vw; height: 100vh; display: block; }
+        
+        #tooltip {
+            position: absolute;
+            color: white;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 5px 10px;
+            border-radius: 5px;
+            pointer-events: none;
+            display: none;
+            z-index: 50;
+            font-size: 14px;
+            border: 1px solid var(--neon-blue);
+        }
+
+        /* PAINEL LATERAL */
+        #side-panel {
+            position: absolute;
+            right: -400px;
+            top: 0;
+            width: 380px;
+            height: 100%;
+            background: rgba(5, 10, 20, 0.9);
+            border-left: 2px solid var(--neon-blue);
+            backdrop-filter: blur(15px);
+            padding: 30px;
+            transition: right 0.4s ease-out;
+            z-index: 100;
+            overflow-y: auto;
+        }
+
+        #side-panel:not(.hidden) { right: 0; }
+
+        #close-panel {
+            position: absolute;
+            top: 15px; right: 20px;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        #panel-color-indicator {
+            width: 100%; height: 150px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; color: rgba(255,255,255,0.5);
+            background: #222;
+        }
+
+        #panel-title { color: var(--neon-blue); font-size: 2rem; margin-bottom: 10px; }
+        .desc-text { font-size: 0.95rem; line-height: 1.5; margin-bottom: 20px; color: #b3c5d6; }
+
+        .data-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;
+        }
+
+        .data-item {
+            background: rgba(255, 255, 255, 0.05); padding: 10px;
+            border-radius: 6px; font-size: 0.85rem;
+        }
+
+        .data-item span { display: block; color: var(--neon-blue); font-weight: bold; margin-bottom: 3px;}
+
+        /* CONTROLES INFERIORES */
+        #bottom-controls {
+            position: absolute;
+            bottom: 20px; left: 50%;
+            transform: translateX(-50%);
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            padding: 15px 30px;
+            border-radius: 30px;
+            display: flex; gap: 20px; align-items: center;
+            backdrop-filter: blur(10px);
+            z-index: 90;
+        }
+
+        button {
+            background: transparent; border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white; padding: 8px 15px; border-radius: 20px;
+            cursor: pointer; font-size: 0.9rem; transition: all 0.2s;
+        }
+
+        button:hover { background: rgba(255,255,255,0.1); border-color: var(--neon-blue); }
+        button.active-speed { background: var(--neon-blue); color: #000; border-color: var(--neon-blue); font-weight: bold; }
+
+        .speed-controls {
+            display: flex; gap: 5px; border-left: 1px solid rgba(255,255,255,0.2);
+            border-right: 1px solid rgba(255,255,255,0.2); padding: 0 20px;
+        }
+
+        /* MODO SAIBA MAIS (WIKIPÉDIA) */
+        #wiki-screen { overflow-y: auto; background-color: var(--bg-dark); z-index: 10;}
+
+        .wiki-title {
+            text-align: center; margin: 40px 0; font-size: 3rem; color: var(--neon-blue);
+            text-shadow: 0 0 15px var(--neon-blue);
+        }
+
+        .wiki-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px; padding: 0 50px 50px 50px; max-width: 1400px; margin: 0 auto;
+        }
+
+        .wiki-card {
+            background: rgba(15, 22, 38, 0.8); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px; overflow: hidden; transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .wiki-card:hover {
+            transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0, 243, 255, 0.15);
+            border-color: rgba(0, 243, 255, 0.5);
+        }
+        
+        .wiki-color-header { height: 10px; width: 100%; }
+        
+        /* NOVO: Espaço para as Fotos dos Astros */
+        .wiki-photo-container {
+            width: 100%;
+            height: 200px;
+            background-color: #0b0f19;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.9rem;
+        }
+
+        .wiki-photo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .wiki-card:hover .wiki-photo-container img {
+            transform: scale(1.05);
+        }
+
+        .wiki-content { padding: 20px; }
+        .wiki-content h2 { color: var(--neon-blue); margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;}
+        .wiki-content p { font-size: 0.9rem; color: #cbd5e1; margin-bottom: 10px; line-height: 1.4;}
+        .wiki-content strong { color: #fff; }
+
+        /* RESPONSIVIDADE */
+        @media (max-width: 768px) {
+            .title { font-size: 2.5rem; }
+            .cards-container { flex-direction: column; }
+            #bottom-controls { flex-wrap: wrap; justify-content: center; border-radius: 15px; bottom: 10px; width: 95%; padding: 10px;}
+            #side-panel { width: 100%; right: -100%; }
+            .speed-controls { border: none; padding: 10px 0; width: 100%; justify-content: center; }
+            .wiki-grid { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="stars-background"></div>
+
+    <section id="home-screen" class="screen active">
+        <h1 class="title">Sistema Solar</h1>
+        <p class="subtitle">Uma jornada 3D interativa pelo nosso cosmos</p>
+        <div class="cards-container">
+            <div class="card" id="btn-explore">
+                <h2>Explorar 3D</h2>
+                <p>Navegue pelo espaço em uma simulação 3D realista.</p>
+            </div>
+            <div class="card" id="btn-wiki">
+                <h2>Saiba Mais</h2>
+                <p>Acesse a enciclopédia completa dos astros.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="explore-screen" class="screen hidden">
+        <button class="back-btn" onclick="showScreen('home-screen')">← Voltar</button>
+        
+        <canvas id="webgl-canvas"></canvas>
+        <div id="tooltip">Planeta</div>
+
+        <aside id="side-panel" class="hidden">
+            <button id="close-panel" onclick="closeSidePanel()">×</button>
+            <div id="panel-color-indicator">Visualização</div>
+            <h2 id="panel-title">Nome do Astro</h2>
+            <div class="panel-content">
+                <p id="panel-desc" class="desc-text"></p>
+                <div id="panel-data" class="data-grid"></div>
+                <h3>Curiosidades</h3>
+                <p id="panel-trivia"></p>
+            </div>
+        </aside>
+
+        <nav id="bottom-controls">
+            <button id="btn-play-pause">⏸ Pausar</button>
+            <div class="speed-controls">
+                <button onclick="setSpeed(0.2)">Lento</button>
+                <button onclick="setSpeed(1)" class="active-speed">Normal</button>
+                <button onclick="setSpeed(4)">Rápido</button>
+            </div>
+            <button id="btn-toggle-orbits">Ocultar Órbitas</button>
+            <button id="btn-reset">Resetar Câmera</button>
+        </nav>
+    </section>
+
+    <section id="wiki-screen" class="screen hidden">
+        <button class="back-btn" onclick="showScreen('home-screen')">← Voltar</button>
+        <h1 class="wiki-title">Enciclopédia Cósmica</h1>
+        <div id="wiki-grid" class="wiki-grid"></div>
+    </section>
+
+    <script>
+        // ==========================================
+        // DADOS DOS CORPOS CELESTES
+        // ==========================================
+        const celestialData = [
+            { id: 'sol', name: 'Sol', type: 'Estrela', distance: 0, radius: 20, speed: 0.005, color: 0xffcc00, emissive: 0xffaa00, desc: 'O Sol é a estrella no centro do Sistema Solar. É uma esfera quase perfeita de plasma quente.', wiki: { Tipo: 'Estrela Anã Amarela', Diâmetro: '1.392.700 km', Temperatura: '5.500 °C' }, trivia: 'A luz do Sol leva cerca de 8 minutos e 20 segundos para chegar à Terra.', img: 'https://images.unsplash.com/photo-1506318137071-a8e063b4bec0?w=500&auto=format&fit=crop&q=80' },
+            { id: 'mercurio', name: 'Mercúrio', type: 'Planeta', distance: 40, radius: 2, speed: 0.04, color: 0xa8a8a8, desc: 'O menor e mais interno planeta. Não possui atmosfera significativa.', wiki: { 'Distância': '57.9M km', Diâmetro: '4.879 km', Temperatura: '-173°C a 427°C' }, trivia: 'Não é o planeta mais quente, apesar de ser o mais próximo do Sol.', img: 'https://images.unsplash.com/photo-1614313913007-2b4ae8ce32d6?w=500&auto=format&fit=crop&q=80' },
+            { id: 'venus', name: 'Vênus', type: 'Planeta', distance: 55, radius: 4, speed: 0.025, color: 0xe08f43, desc: 'O mais quente devido ao seu denso efeito estufa atmosférico.', wiki: { 'Distância': '108.2M km', Diâmetro: '12.104 km', Temperatura: '462°C' }, trivia: 'Gira em seu eixo na direção oposta à da maioria dos planetas.', img: 'https://images.unsplash.com/photo-1614314107768-6018061b5b72?w=500&auto=format&fit=crop&q=80' },
+            { id: 'terra', name: 'Terra', type: 'Planeta', distance: 75, radius: 4.5, speed: 0.015, color: 0x2b82c9, desc: 'Nosso lar. O único planeta conhecido por abrigar vida.', wiki: { 'Distância': '149.6M km', Diâmetro: '12.742 km', Temperatura: 'Média de 15°C' }, trivia: 'A atmosfera é principalmente de nitrogênio (78%) e oxigênio (21%).', img: 'https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?w=500&auto=format&fit=crop&q=80' },
+            { id: 'lua', name: 'Lua', type: 'Satélite', parentId: 'terra', distance: 8, radius: 1.2, speed: 0.08, color: 0xd9d9d9, desc: 'O único satélite natural da Terra.', wiki: { 'Distância da Terra': '384.400 km', Diâmetro: '3.474 km' }, trivia: 'Está se afastando da Terra a 3,8 cm por ano.', img: 'https://images.unsplash.com/photo-1532667449560-72a95c8d381b?w=500&auto=format&fit=crop&q=80' },
+            { id: 'marte', name: 'Marte', type: 'Planeta', distance: 100, radius: 3, speed: 0.012, color: 0xc1440e, desc: 'O Planeta Vermelho, lar do maior vulcão do Sistema Solar.', wiki: { 'Distância': '227.9M km', Diâmetro: '6.779 km', Temperatura: '-60°C' }, trivia: 'A cor avermelhada vem do óxido de ferro (ferrugem).', img: 'https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=500&auto=format&fit=crop&q=80' },
+            { id: 'jupiter', name: 'Júpiter', type: 'Planeta', distance: 150, radius: 12, speed: 0.006, color: 0xc88b3a, desc: 'O maior planeta, um gigante gasoso com uma grande tempestade.', wiki: { 'Distância': '778.5M km', Diâmetro: '139.820 km', Luas: '95 conhecidas' }, trivia: 'Mais de 1.300 Terras caberiam dentro dele.', img: 'https://images.unsplash.com/photo-1630839437035-dac17da580d0?w=500&auto=format&fit=crop&q=80' },
+            { id: 'saturno', name: 'Saturno', type: 'Planeta', distance: 210, radius: 10, speed: 0.004, color: 0xeaddb1, hasRings: true, desc: 'Famoso por seu sistema de anéis espetacular.', wiki: { 'Distância': '1.434M km', Diâmetro: '116.460 km', Luas: '146 conhecidas' }, trivia: 'Sua densidade é tão baixa que flutuaria na água.', img: 'https://images.unsplash.com/photo-1543722530-d2c3201371e7?w=500&auto=format&fit=crop&q=80' },
+            { id: 'urano', name: 'Urano', type: 'Planeta', distance: 270, radius: 7, speed: 0.0025, color: 0x4b70dd, desc: 'Um gigante de gelo que gira de lado.', wiki: { 'Distância': '2.871M km', Diâmetro: '50.724 km', Temperatura: '-195°C' }, trivia: 'Possui o eixo de rotação mais inclinado (98 graus).', img: 'https://images.unsplash.com/photo-1614314107768-6018061b5b72?w=500&auto=format&fit=crop&q=80' },
+            { id: 'netuno', name: 'Netuno', type: 'Planeta', distance: 320, radius: 6.8, speed: 0.002, color: 0x274687, desc: 'O planeta mais distante, com ventos supersônicos.', wiki: { 'Distância': '4.495M km', Diâmetro: '49.244 km', Temperatura: '-201°C' }, trivia: 'Descoberto através de previsões matemáticas, não visualização.', img: 'https://images.unsplash.com/photo-1506318137071-a8e063b4bec0?w=500&auto=format&fit=crop&q=80' }
+        ];
+
+        // ==========================================
+        // CONFIGURAÇÃO DO THREE.JS (3D)
+        // ==========================================
+        let scene, camera, renderer, controls;
+        let planetMeshes = {};
+        let orbits = [];
+        let isPlaying = true;
+        let speedMultiplier = 1;
+        let raycaster, mouse;
+        let tooltip = document.getElementById('tooltip');
+
+        function init3D() {
+            const canvas = document.getElementById('webgl-canvas');
+            
+            // Cena e Câmera
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 2000);
+            camera.position.set(0, 200, 350);
+
+            // Renderizador
+            renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+
+            // Controles de Órbita (Mouse/Touch)
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.maxDistance = 1000;
+            controls.minDistance = 25;
+
+            // Iluminação Realista
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.05);
+            scene.add(ambientLight);
+
+            const sunLight = new THREE.PointLight(0xffffff, 2.5, 1000);
+            scene.add(sunLight);
+
+            // Criar Corpos Celestiais
+            celestialData.forEach(astro => {
+                astro.angle = Math.random() * Math.PI * 2;
+
+                // Geometria e Material base
+                const geometry = new THREE.SphereGeometry(astro.radius, 32, 32);
+                let material;
+
+                if (astro.id === 'sol') {
+                    material = new THREE.MeshBasicMaterial({ color: astro.color });
+                    
+                    const glowGeo = new THREE.SphereGeometry(astro.radius * 1.2, 32, 32);
+                    const glowMat = new THREE.MeshBasicMaterial({ color: astro.color, transparent: true, opacity: 0.2 });
+                    const glow = new THREE.Mesh(glowGeo, glowMat);
+                    scene.add(glow);
+                } else {
+                    material = new THREE.MeshStandardMaterial({ 
+                        color: astro.color,
+                        roughness: 0.6,
+                        metalness: 0.1
+                    });
+                }
+
+                const mesh = new THREE.Mesh(geometry, material);
+                mesh.userData = astro;
+                scene.add(mesh);
+                planetMeshes[astro.id] = mesh;
+
+                if (astro.hasRings) {
+                    const ringGeo = new THREE.RingGeometry(astro.radius * 1.3, astro.radius * 2.2, 64);
+                    const ringMat = new THREE.MeshStandardMaterial({ 
+                        color: 0xeaddb1, side: THREE.DoubleSide, transparent: true, opacity: 0.8
+                    });
+                    const ring = new THREE.Mesh(ringGeo, ringMat);
+                    ring.rotation.x = Math.PI / 2 + 0.3;
+                    mesh.add(ring);
+                }
+
+                if (astro.distance > 0 && !astro.parentId) {
+                    const orbitGeo = new THREE.BufferGeometry();
+                    const points = [];
+                    for(let i = 0; i <= 64; i++) {
+                        const theta = (i / 64) * Math.PI * 2;
+                        points.push(new THREE.Vector3(Math.cos(theta) * astro.distance, 0, Math.sin(theta) * astro.distance));
+                    }
+                    orbitGeo.setFromPoints(points);
+                    const orbitMat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.15 });
+                    const orbitLine = new THREE.Line(orbitGeo, orbitMat);
+                    scene.add(orbitLine);
+                    orbits.push(orbitLine);
+                }
+            });
+
+            const starsGeometry = new THREE.BufferGeometry();
+            const starsMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 0.5 });
+            const starsPoints = [];
+            for (let i = 0; i < 2000; i++) {
+                const x = THREE.MathUtils.randFloatSpread(2000);
+                const y = THREE.MathUtils.randFloatSpread(2000);
+                const z = THREE.MathUtils.randFloatSpread(2000);
+                starsPoints.push(x, y, z);
+            }
+            starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starsPoints, 3));
+            const starField = new THREE.Points(starsGeometry, starsMaterial);
+            scene.add(starField);
+
+            raycaster = new THREE.Raycaster();
+            mouse = new THREE.Vector2();
+
+            window.addEventListener('mousemove', onMouseMove);
+            window.addEventListener('click', onClick);
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function onMouseMove(event) {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(Object.values(planetMeshes));
+
+            if (intersects.length > 0) {
+                document.body.style.cursor = 'pointer';
+                tooltip.style.display = 'block';
+                tooltip.style.left = event.clientX + 15 + 'px';
+                tooltip.style.top = event.clientY + 15 + 'px';
+                tooltip.innerText = intersects[0].object.userData.name;
+            } else {
+                document.body.style.cursor = 'default';
+                tooltip.style.display = 'none';
+            }
+        }
+
+        function onClick(event) {
+            if(event.clientX > window.innerWidth - 400 && !document.getElementById('side-panel').classList.contains('hidden')) return;
+            if(event.clientY > window.innerHeight - 80) return;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(Object.values(planetMeshes));
+
+            if (intersects.length > 0) {
+                const astro = intersects[0].object.userData;
+                openSidePanel(astro);
+                
+                const pos = intersects[0].object.position;
+                controls.target.set(pos.x, pos.y, pos.z);
+                
+                const offset = astro.radius * 5;
+                camera.position.set(pos.x + offset, pos.y + (offset/2), pos.z + offset);
+            }
+        }
+
+        function animate3D() {
+            requestAnimationFrame(animate3D);
+
+            if (isPlaying) {
+                celestialData.forEach(astro => {
+                    const mesh = planetMeshes[astro.id];
+                    mesh.rotation.y += 0.01;
+
+                    if (astro.speed > 0) {
+                        astro.angle += astro.speed * speedMultiplier;
+                        
+                        let x = 0; let z = 0;
+                        if (astro.parentId) {
+                            const parentMesh = planetMeshes[astro.parentId];
+                            x = parentMesh.position.x + Math.cos(astro.angle) * astro.distance;
+                            z = parentMesh.position.z + Math.sin(astro.angle) * astro.distance;
+                        } else {
+                            x = Math.cos(astro.angle) * astro.distance;
+                            z = Math.sin(astro.angle) * astro.distance;
+                        }
+                        
+                        mesh.position.set(x, 0, z);
+                    }
+                });
+            }
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        // ==========================================
+        // LÓGICA DA INTERFACE 2D (DOM)
+        // ==========================================
+        
+        function createStars2D() {
+            const starsContainer = document.getElementById('stars-background');
+            for (let i = 0; i < 150; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                star.style.width = `${Math.random() * 3}px`;
+                star.style.height = star.style.width;
+                star.style.top = `${Math.random() * 100}vh`;
+                star.style.left = `${Math.random() * 100}vw`;
+                star.style.animationDuration = `${Math.random() * 3 + 1}s`;
+                starsContainer.appendChild(star);
+            }
+        }
+
+        function generateWiki() {
+            const grid = document.getElementById('wiki-grid');
+            celestialData.forEach(astro => {
+                const card = document.createElement('div');
+                card.className = 'wiki-card';
+                
+                // Geração dinâmica com container e tratamento de erro caso mude o link futuramente
+                let wikiHTML = `
+                    <div class="wiki-color-header" style="background-color: #${astro.color.toString(16).padStart(6, '0')}"></div>
+                    <div class="wiki-photo-container">
+                        <img src="${astro.img}" alt="Foto de ${astro.name}" onerror="this.style.display='none'; this.parentNode.innerText='[Espaço para Foto de ${astro.name}]'">
+                    </div>
+                    <div class="wiki-content">
+                        <h2>${astro.name}</h2>
+                        <p><strong>Descrição:</strong> ${astro.desc}</p>
+                `;
+                for (const [key, value] of Object.entries(astro.wiki)) {
+                    wikiHTML += `<p><strong>${key}:</strong> ${value}</p>`;
+                }
+                wikiHTML += `<p><strong>Curiosidade:</strong> ${astro.trivia}</p></div>`;
+                card.innerHTML = wikiHTML;
+                grid.appendChild(card);
+            });
+        }
+
+        function openSidePanel(astro) {
+            const panel = document.getElementById('side-panel');
+            document.getElementById('panel-title').innerText = astro.name;
+            document.getElementById('panel-desc').innerText = astro.desc;
+            document.getElementById('panel-trivia').innerText = astro.trivia;
+            
+            const hexColor = '#' + astro.color.toString(16).padStart(6, '0');
+            const ind = document.getElementById('panel-color-indicator');
+            ind.style.background = `radial-gradient(circle at 30% 30%, ${hexColor}, #000)`;
+            ind.innerText = astro.name;
+
+            const dataGrid = document.getElementById('panel-data');
+            dataGrid.innerHTML = '';
+            for (const [key, value] of Object.entries(astro.wiki)) {
+                dataGrid.innerHTML += `<div class="data-item"><span>${key}</span>${value}</div>`;
+            }
+
+            panel.classList.remove('hidden');
+        }
+
+        function closeSidePanel() {
+            document.getElementById('side-panel').classList.add('hidden');
+        }
+
+        document.getElementById('btn-play-pause').addEventListener('click', (e) => {
+            isPlaying = !isPlaying;
+            e.target.innerText = isPlaying ? '⏸ Pausar' : '▶ Continuar';
+        });
+
+        function setSpeed(mult) {
+            speedMultiplier = mult;
+            document.querySelectorAll('.speed-controls button').forEach(btn => btn.classList.remove('active-speed'));
+            if(window.event && window.event.target) window.event.target.classList.add('active-speed');
+        }
+
+        document.getElementById('btn-toggle-orbits').addEventListener('click', (e) => {
+            const areVisible = orbits[0].visible;
+            orbits.forEach(orbit => orbit.visible = !areVisible);
+            e.target.innerText = areVisible ? 'Mostrar Órbitas' : 'Ocultar Órbitas';
+        });
+
+        document.getElementById('btn-reset').addEventListener('click', () => {
+            controls.target.set(0, 0, 0);
+            camera.position.set(0, 200, 350);
+            closeSidePanel();
+        });
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => {
+                s.classList.remove('active');
+                setTimeout(() => s.classList.add('hidden'), 800);
+            });
+            
+            const target = document.getElementById(screenId);
+            target.classList.remove('hidden');
+            setTimeout(() => target.classList.add('active'), 50);
+
+            if (screenId === 'explore-screen' && !scene) {
+                init3D();
+                animate3D();
+            }
+        }
+
+        document.getElementById('btn-explore').addEventListener('click', () => showScreen('explore-screen'));
+        document.getElementById('btn-wiki').addEventListener('click', () => showScreen('wiki-screen'));
+
+        window.onload = () => {
+            createStars2D();
+            generateWiki();
+        };
+    </script>
+</body>
+</html>
