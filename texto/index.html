@@ -15,7 +15,9 @@
             padding: 0;
         }
 
-        /* TELA INICIAL (HOME) */
+        /* ==================================================
+           TELA INICIAL - APARÊNCIA DE VIDRO COMPLETA
+           ================================================== */
         .home-screen {
             position: fixed;
             top: 0;
@@ -27,88 +29,157 @@
             align-items: center;
             justify-content: center;
             z-index: 1000;
+            overflow: hidden;
         }
         
-        /* Configuração da Imagem de Fundo com 80% de visibilidade */
+        /* Imagem de fundo com ajuste para o vidro refletir bem */
         .bg-image {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-image: url('fundo.jpg'); /* Coloque a imagem na mesma pasta com este nome */
+            background-image: url('fundo.jpg');
             background-size: cover;
             background-position: center;
-            opacity: 0.8; /* 80% de visibilidade */
-            z-index: -1;
+            opacity: 0.92;
+            z-index: -2;
             background-color: #f4f6f9;
+            transform: scale(1.05); /* Evita bordas pretas no desfoque */
         }
 
-        /* CARD COM EFEITO VIDRO FOSCO (GLASSMORPHISM) */
+        /* Camada de vidro sutil sobre TODO o fundo da tela */
+        .home-screen::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: -1;
+        }
+
+        /* CARD PRINCIPAL - VIDRO FOSCO AVANÇADO */
         .home-content {
-            background: rgba(255, 255, 255, 0.28); /* Fundo branco bem transparente */
-            padding: 50px 40px;
-            border-radius: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.55); /* Borda clara simulando reflexo */
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12); /* Sombra suave e difusa */
-            backdrop-filter: blur(18px) saturate(180%); /* Desfoque forte + saturação para vidro */
-            -webkit-backdrop-filter: blur(18px) saturate(180%); /* Compatibilidade Safari */
+            position: relative;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.08));
+            padding: 55px 45px;
+            border-radius: 28px;
+            border: 1.5px solid rgba(255, 255, 255, 0.6);
+            border-bottom-color: rgba(255, 255, 255, 0.35);
+            border-right-color: rgba(255, 255, 255, 0.35);
+            box-shadow: 
+                0 12px 40px rgba(0, 0, 0, 0.18), /* Sombra externa profunda */
+                inset 0 1px 0 rgba(255, 255, 255, 0.8), /* Brilho superior reflexo */
+                inset 0 -1px 0 rgba(0, 0, 0, 0.05); /* Sombra interna inferior */
+            backdrop-filter: blur(22px) saturate(190%);
+            -webkit-backdrop-filter: blur(22px) saturate(190%);
             text-align: center;
             max-width: 90%;
-            width: 600px;
+            width: 620px;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        /* Efeito de levitação e brilho extra ao passar o mouse */
+        .home-content:hover {
+            transform: translateY(-6px);
+            box-shadow: 
+                0 20px 55px rgba(0, 0, 0, 0.22),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.05);
+        }
+
+        /* Brilho diagonal sutil no canto superior do vidro */
+        .home-content::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(180deg, rgba(255,255,255,0.25), transparent);
+            border-radius: 28px 28px 0 0;
+            pointer-events: none;
         }
 
         .home-content h1 {
-            font-size: 2.2rem;
-            color: #1a365d; /* Tom mais escuro para manter legibilidade no vidro */
+            position: relative;
+            z-index: 1;
+            font-size: 2.3rem;
+            color: #1a365d;
             margin-top: 0;
-            margin-bottom: 40px;
+            margin-bottom: 45px;
             line-height: 1.2;
-            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.6); /* Sombra leve no texto */
+            font-weight: 900;
+            text-shadow: 
+                0 1px 0 rgba(255, 255, 255, 0.7),
+                0 2px 8px rgba(0, 0, 0, 0.15);
         }
 
         .home-buttons {
+            position: relative;
+            z-index: 1;
             display: flex;
             gap: 20px;
             justify-content: center;
             flex-wrap: wrap;
         }
 
+        /* BOTÕES - TAMBÉM COM EFEITO DE VIDRO */
         .app-btn {
             flex: 1;
             min-width: 220px;
-            background: rgba(255, 255, 255, 0.6); /* Botões também com leve transparência */
-            border: 2px solid rgba(49, 130, 206, 0.7);
-            color: #2b6cb0;
-            padding: 25px 20px;
-            font-size: 1.2rem;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.2));
+            border: 1.5px solid rgba(255, 255, 255, 0.7);
+            border-bottom-color: rgba(255, 255, 255, 0.4);
+            color: #234e7c;
+            padding: 28px 22px;
+            font-size: 1.25rem;
             font-weight: 900;
-            border-radius: 16px;
+            border-radius: 20px;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 15px;
-            box-shadow: 0 4px 15px rgba(49, 130, 206, 0.15);
+            box-shadow: 
+                0 6px 20px rgba(49, 130, 206, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
             font-family: inherit;
-            backdrop-filter: blur(6px); /* Leve desfoque nos botões também */
+            backdrop-filter: blur(12px) saturate(160%);
+            -webkit-backdrop-filter: blur(12px) saturate(160%);
         }
 
         .app-btn:hover {
-            background: rgba(49, 130, 206, 0.9);
+            background: linear-gradient(135deg, rgba(49, 130, 206, 0.85), rgba(49, 130, 206, 0.7));
             color: #ffffff;
-            transform: translateY(-8px);
-            box-shadow: 0 12px 25px rgba(49, 130, 206, 0.35);
-            border-color: rgba(255, 255, 255, 0.8);
+            transform: translateY(-10px) scale(1.02);
+            border-color: rgba(255, 255, 255, 0.85);
+            box-shadow: 
+                0 18px 35px rgba(49, 130, 206, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+        }
+
+        .app-btn:active {
+            transform: translateY(-4px) scale(0.99);
         }
 
         .btn-icon {
-            font-size: 3rem;
+            font-size: 3.2rem;
             line-height: 1;
-            filter: drop-shadow(0 1px 2px rgba(0,0,0,0.15));
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+            transition: transform 0.3s ease;
         }
 
+        .app-btn:hover .btn-icon {
+            transform: scale(1.1) rotate(-3deg);
+        }
+
+        /* RODAPÉ - TAMBÉM INTEGRADO AO VIDRO */
         .home-footer {
             position: absolute;
             bottom: 25px;
@@ -117,12 +188,21 @@
             font-size: 0.95rem;
             color: #1a202c;
             font-weight: 900;
-            text-shadow: 0px 0px 10px rgba(255, 255, 255, 1), 0px 0px 5px rgba(255, 255, 255, 0.8);
-            padding: 0 20px;
+            padding: 10px 20px;
+            margin: 0 20px;
+            max-width: calc(100% - 40px);
             box-sizing: border-box;
+            background: rgba(255, 255, 255, 0.18);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.6);
         }
 
-        /* CONTAINER DO APLICATIVO PRINCIPAL */
+        /* ==================================================
+           DEMAIS TELAS E FUNCIONALIDADES - SEM ALTERAÇÕES
+           ================================================== */
         .main-wrapper {
             padding: 20px;
             min-height: 100vh;
@@ -168,7 +248,6 @@
             margin-bottom: 25px;
         }
         
-        /* Formulários */
         .form-group { margin-bottom: 18px; }
         label { font-weight: 700; display: block; margin-bottom: 8px; color: #4a5568; font-size: 0.95rem; }
         input[type="text"], textarea { 
@@ -207,7 +286,6 @@
         }
         button.print-btn:hover { background: #38a169; }
 
-        /* Controles de Modo (Dinâmico vs Formal) */
         .mode-selector {
             display: flex;
             gap: 10px;
@@ -235,7 +313,6 @@
             border-color: #4a5568;
         }
 
-        /* Área de Resultados Geral */
         .result-area {
             margin-top: 25px;
             padding: 20px;
@@ -249,7 +326,6 @@
             margin-bottom: 1.2em; 
         }
 
-        /* CONFIGURAÇÃO DE ESTILOS: MODO DINÂMICO */
         .result-area.mode-dynamic {
             border: 2px dashed #cbd5e0;
             font-size: 16px; 
@@ -297,7 +373,6 @@
             justify-content: center;
         }
 
-        /* CONFIGURAÇÃO DE ESTILOS: MODO FORMAL (Padrão de Avaliação CAEd / ABNT) */
         .result-area.mode-formal {
             border: 2px dashed #cbd5e0;
             border-radius: 8px;
@@ -349,7 +424,6 @@
             font-weight: normal;
         }
 
-        /* Impressão Otimizada para uma Única Página A4 */
         @media print {
             body { background: transparent; padding: 0; margin: 0; }
             .main-wrapper { padding: 0; }
@@ -360,7 +434,6 @@
 
             .result-area { margin: 0; border: none; padding: 0; }
             
-            /* Ajuste milimétrico de tamanho de fonte para evitar quebra de página */
             .result-area.mode-dynamic { font-size: 13px; line-height: 1.4; }
             .result-area.mode-formal { font-size: 11pt; line-height: 1.4; }
             .result-area.mode-formal .result-title { font-size: 12pt; margin-bottom: 1em; }
@@ -395,13 +468,11 @@
         </footer>
     </div>
 
-    <!-- APLICATIVO: DIVISÃO SILÁBICA (Oculto inicialmente) -->
+    <!-- APLICATIVO: DIVISÃO SILÁBICA -->
     <div class="main-wrapper" id="app-silabas" style="display: none;">
         <div class="container">
             <button class="back-btn no-print" onclick="voltarHome()">&#8592; Voltar ao Início</button>
-            
             <h1 class="app-title no-print">Divisão Silábica</h1>
-            
             <div class="no-print">
                 <div class="form-group">
                     <label>Título da Atividade:</label>
@@ -413,7 +484,6 @@
                 </div>
                 <button class="action-btn" id="btn-silabas">Gerar Divisão Silábica</button>
             </div>
-            
             <div class="result-area mode-dynamic" id="result-silabas-container" style="display:none;">
                 <div class="mode-selector no-print">
                     <button class="mode-btn active" onclick="alterarModo('silabas', 'dynamic')">Modo Dinâmico</button>
@@ -426,13 +496,11 @@
         </div>
     </div>
 
-    <!-- APLICATIVO: CONTAGEM DE PALAVRAS (Oculto inicialmente) -->
+    <!-- APLICATIVO: CONTAGEM DE PALAVRAS -->
     <div class="main-wrapper" id="app-enum" style="display: none;">
         <div class="container">
             <button class="back-btn no-print" onclick="voltarHome()">&#8592; Voltar ao Início</button>
-            
             <h1 class="app-title no-print">Contagem de Palavras</h1>
-            
             <div class="no-print">
                 <div class="form-group">
                     <label>Título da Atividade:</label>
@@ -444,7 +512,6 @@
                 </div>
                 <button class="action-btn" id="btn-enum">Gerar Contagem de Palavras</button>
             </div>
-            
             <div class="result-area mode-dynamic" id="result-enum-container" style="display:none;">
                 <div class="mode-selector no-print">
                     <button class="mode-btn active" onclick="alterarModo('enum', 'dynamic')">Modo Dinâmico</button>
@@ -458,36 +525,32 @@
     </div>
 
     <script>
-        // Funções de Navegação - Cada botão abre apenas sua respectiva tela
+        // Navegação entre telas
         function abrirSilabas() {
             document.getElementById('home-screen').style.display = 'none';
             document.getElementById('app-silabas').style.display = 'block';
             document.getElementById('app-enum').style.display = 'none';
         }
-
         function abrirEnumeracao() {
             document.getElementById('home-screen').style.display = 'none';
             document.getElementById('app-enum').style.display = 'block';
             document.getElementById('app-silabas').style.display = 'none';
         }
-
         function voltarHome() {
             document.getElementById('app-silabas').style.display = 'none';
             document.getElementById('app-enum').style.display = 'none';
             document.getElementById('home-screen').style.display = 'flex';
         }
 
-        // Alternador de Modo de Visualização (Dinâmico vs Formal)
+        // Alternar modos Dinâmico / Formal
         function alterarModo(aba, modo) {
             const container = document.getElementById(`result-${aba}-container`);
             const botoes = container.querySelectorAll('.mode-btn');
-            
             if (modo === 'dynamic') {
                 container.classList.remove('mode-formal');
                 container.classList.add('mode-dynamic');
                 botoes[0].classList.add('active');
                 botoes[1].classList.remove('active');
-                
                 if (aba === 'silabas') {
                     container.querySelectorAll('.word-silaba').forEach(w => {
                         w.textContent = w.textContent.replace(/\s*\|\s*/g, '-');
@@ -498,7 +561,6 @@
                 container.classList.add('mode-formal');
                 botoes[0].classList.remove('active');
                 botoes[1].classList.add('active');
-                
                 if (aba === 'silabas') {
                     container.querySelectorAll('.word-silaba').forEach(w => {
                         w.textContent = w.textContent.replace(/-/g, ' | ');
@@ -507,15 +569,13 @@
             }
         }
 
-        // Algoritmo de Separação Silábica
+        // Algoritmo de divisão silábica PT-BR
         function dividirSilabasPT(palavra, separador = "-") {
             let p = palavra.trim();
             if (!p) return "";
-            
             let pontuacaoFim = p.match(/[.,\/#!$%\^&\*;:{}=\-_`~()?«»"'\\]+$/) || "";
             let pontuacaoInicio = p.match(/^[.,\/#!$%\^&\*;:{}=\-_`~()?«»"'\\]+/) || "";
             let termo = p.replace(/^[.,\/#!$%\^&\*;:{}=\-_`~()?«»"'\\]+|[.,\/#!$%\^&\*;:{}=\-_`~()?«»"'\\]+$/g, "");
-            
             if (termo.length <= 1) return p;
 
             const vogais = "aeiouáéíóúâêôãõàíúéóáîôûçAEIOUÁÉÍÓÚÂÊÔÃÕÀÍÚÉÓÁÎÔÛÇ";
@@ -550,29 +610,22 @@
             return pontuacaoInicio + finalStr + pontuacaoFim;
         }
 
-        // Processar Sílabas
+        // Gerar divisão silábica
         document.getElementById('btn-silabas').addEventListener('click', () => {
             const title = document.getElementById('title-silabas').value;
             const text = document.getElementById('text-silabas').value;
             const outTitle = document.getElementById('out-title-silabas');
             const outText = document.getElementById('out-text-silabas');
             const container = document.getElementById('result-silabas-container');
-
             outTitle.innerHTML = title;
             outText.innerHTML = '';
-
             const isFormal = container.classList.contains('mode-formal');
             const sep = isFormal ? ' | ' : '-';
-
             const paragraphs = text.split('\n');
             paragraphs.forEach(p => {
-                if (p.trim() === '') {
-                    outText.innerHTML += '<br>';
-                    return;
-                }
+                if (p.trim() === '') { outText.innerHTML += '<br>'; return; }
                 const pDiv = document.createElement('div');
                 pDiv.style.marginBottom = '12px';
-                
                 const words = p.trim().split(/\s+/);
                 words.forEach(w => {
                     pDiv.innerHTML += `<span class="word-silaba">${dividirSilabasPT(w, sep)}</span> `;
@@ -582,27 +635,21 @@
             container.style.display = 'block';
         });
 
-        // Processar Enumeração
+        // Gerar enumeração de palavras
         document.getElementById('btn-enum').addEventListener('click', () => {
             const title = document.getElementById('title-enum').value;
             const text = document.getElementById('text-enum').value;
             const outTitle = document.getElementById('out-title-enum');
             const outText = document.getElementById('out-text-enum');
             const container = document.getElementById('result-enum-container');
-
             outTitle.innerHTML = title;
             outText.innerHTML = '';
-
             let counter = 1;
             const paragraphs = text.split('\n');
             paragraphs.forEach(p => {
-                if (p.trim() === '') {
-                    outText.innerHTML += '<br>';
-                    return;
-                }
+                if (p.trim() === '') { outText.innerHTML += '<br>'; return; }
                 const pDiv = document.createElement('div');
                 pDiv.style.marginBottom = '12px';
-                
                 const words = p.trim().split(/\s+/);
                 words.forEach(w => {
                     pDiv.innerHTML += `<span class="word-enumerada"><span class="word-number">${counter}</span>${w}</span> `;
