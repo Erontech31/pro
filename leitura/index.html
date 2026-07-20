@@ -4,62 +4,51 @@
 <script>
 (function(){
   var s = document.createElement('style');
-  s.textContent = ':root{--bg:#faf9f4;--card:#ffffff;--text:#0f172a;--muted:#64748b;--accent:#6366f1;--accent-soft:rgba(99,102,241,.14);--erro-bg:#fee2e2;--erro-texto:#b91c1c;--certo-bg:#dcfce7;--certo-texto:#15803d;--aviso:#d97706;--atual-bg:#dbeafe;--atual-texto:#1d4ed8;--border:rgba(15,23,42,.08)}@keyframes pulse-ring{0%{transform:scale(.85);opacity:.55}70%{transform:scale(1.75);opacity:0}100%{transform:scale(1.75);opacity:0}}.ouvindo::before{content:"";position:absolute;inset:0;border-radius:9999px;background:var(--accent);animation:pulse-ring .8s ease-out infinite}.tela{display:none}.tela.ativa{display:block}.flash-certo{animation:flashV .22s ease}.flash-erro{animation:flashR .22s ease}@keyframes flashV{0%{background:var(--certo-bg);transform:scale(1.04)}100%{background:var(--card);transform:scale(1)}}@keyframes flashR{0%{background:var(--erro-bg);transform:scale(1.04)}100%{background:var(--card);transform:scale(1)}}.pw{display:inline-block;margin:2px 3px;padding:2px 6px;border-radius:6px;transition:all .15s;font-weight:500}.pw-nao{color:var(--muted)}.pw-atual{background:var(--atual-bg);color:var(--atual-texto);transform:scale(1.08);box-shadow:0 0 0 2px var(--accent)}.pw-certo{background:var(--certo-bg);color:var(--certo-texto)}.pw-errado{background:var(--erro-bg);color:var(--erro-texto);text-decoration:line-through}';
+  s.textContent = ':root{--bg:#faf9f4;--card:#ffffff;--text:#0f172a;--muted:#64748b;--accent:#6366f1;--accent-soft:rgba(99,102,241,.14);--erro-bg:#fee2e2;--erro-texto:#b91c1c;--certo-bg:#dcfce7;--certo-texto:#15803d;--aviso:#d97706;--atual-bg:#dbeafe;--atual-texto:#1d4ed8;--border:rgba(15,23,42,.08)}@keyframes pulse-ring{0%{transform:scale(.85);opacity:.55}70%{transform:scale(1.75);opacity:0}100%{transform:scale(1.75);opacity:0}}.ouvindo::before{content:"";position:absolute;inset:0;border-radius:9999px;background:var(--accent);animation:pulse-ring .8s ease-out infinite}.tela{display:none}.tela.ativa{display:block}.flash-certo{animation:flashV .2s ease}.flash-erro{animation:flashR .2s ease}@keyframes flashV{0%{background:var(--certo-bg);transform:scale(1.04)}100%{background:var(--card);transform:scale(1)}}@keyframes flashR{0%{background:var(--erro-bg);transform:scale(1.04)}100%{background:var(--card);transform:scale(1)}}.pw{display:inline-block;margin:2px 3px;padding:2px 6px;border-radius:6px;transition:all .15s;font-weight:500}.pw-nao{color:var(--muted)}.pw-atual{background:var(--atual-bg);color:var(--atual-texto);transform:scale(1.08);box-shadow:0 0 0 2px var(--accent)}.pw-certo{background:var(--certo-bg);color:var(--certo-texto)}.pw-errado{background:var(--erro-bg);color:var(--erro-texto);text-decoration:line-through}';
   document.head.appendChild(s);
 })();
 </script>
 <div style="background-color:transparent;box-sizing:border-box;">
   <div style="color:var(--text);font-family:'Fredoka',sans-serif;background:var(--bg);min-height:100%">
-    <div class="max-w-3xl mx-auto px-5 py-6">
+    <div class="max-w-3xl mx-auto px-5 py-8">
 
       <!-- ============================================================
-           🏠 TELA 0: INÍCIO — 2 BOTÕES (PALAVRAS / TEXTO)
+           🏠 TELA INICIAL — LIMPA E DIRETA
            ============================================================ -->
       <div id="telaInicio" class="tela ativa">
-        <div class="text-center mb-10 mt-4">
-          <div class="inline-flex items-center justify-center w-20 h-20 rounded-3xl mb-4" style="background:var(--accent-soft);color:var(--accent)">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
-          </div>
-          <h1 class="text-4xl font-bold mb-2" style="letter-spacing:-0.01em">🎤 Leitura Precisa</h1>
-          <p class="text-lg" style="color:var(--muted)">Microfone automático · Acentos, SS, RR, Ç contam ponto</p>
+        <div class="text-center mb-14 mt-6">
+          <h1 class="text-4xl sm:text-5xl font-bold mb-3" style="letter-spacing:-0.02em">🎤 Leitura Precisa</h1>
+          <p class="text-base" style="color:var(--muted)">Escolha um modo para começar</p>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          <!-- BOTÃO 1: MODO PALAVRAS -->
-          <button onclick="iniciarModoPalavras()"
-            class="rounded-3xl p-8 text-left transition active:scale-[.98] hover:shadow-2xl"
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <button onclick="mostrarTela('telaPalavras')"
+            class="rounded-3xl p-10 text-center transition active:scale-[.98] hover:shadow-2xl"
             style="background:var(--card);border:2px solid var(--border);cursor:pointer;box-shadow:0 10px 30px rgba(0,0,0,.05)">
-            <div class="w-14 h-14 rounded-2xl mb-4 flex items-center justify-center" style="background:var(--accent-soft);color:var(--accent)">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <div class="w-16 h-16 rounded-2xl mb-5 mx-auto flex items-center justify-center" style="background:var(--accent-soft);color:var(--accent)">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
             </div>
-            <h2 class="text-2xl font-bold mb-2">📝 PALAVRAS</h2>
-            <p style="color:var(--muted)" class="mb-3">Desafio de <strong>1 minuto e 3 segundos</strong><br>Palavras aparecem uma por uma<br>Conta acertos e erros no final</p>
-            <span class="inline-block px-4 py-2 rounded-xl font-bold text-white" style="background:var(--accent)">ENTRAR →</span>
+            <h2 class="text-2xl font-bold mb-2">📝 Palavras</h2>
+            <p style="color:var(--muted);font-size:.95rem">Desafio de 1 minuto e 3 segundos<br>Palavras uma por uma</p>
           </button>
 
-          <!-- BOTÃO 2: MODO TEXTO -->
           <button onclick="mostrarTela('telaTextoConfig')"
-            class="rounded-3xl p-8 text-left transition active:scale-[.98] hover:shadow-2xl"
+            class="rounded-3xl p-10 text-center transition active:scale-[.98] hover:shadow-2xl"
             style="background:var(--card);border:2px solid var(--border);cursor:pointer;box-shadow:0 10px 30px rgba(0,0,0,.05)">
-            <div class="w-14 h-14 rounded-2xl mb-4 flex items-center justify-center" style="background:#fef3c7;color:#b45309">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            <div class="w-16 h-16 rounded-2xl mb-5 mx-auto flex items-center justify-center" style="background:#fef3c7;color:#b45309">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
             </div>
-            <h2 class="text-2xl font-bold mb-2">📄 TEXTO</h2>
-            <p style="color:var(--muted)" class="mb-3">Você escreve <strong>título + texto</strong><br>Destaca <strong>cada palavra em ordem</strong><br>Marca certo/errado do início ao fim</p>
-            <span class="inline-block px-4 py-2 rounded-xl font-bold text-white" style="background:#b45309">ENTRAR →</span>
+            <h2 class="text-2xl font-bold mb-2">📄 Texto</h2>
+            <p style="color:var(--muted);font-size:.95rem">Escreva título e texto<br>Leitura palavra por palavra</p>
           </button>
         </div>
-
-        <p class="text-center text-xs mt-8" style="color:var(--muted)">
-          💡 Em ambos os modos: microfone liga <strong>automaticamente</strong>, não precisa apertar nada.
-        </p>
       </div>
 
       <!-- ============================================================
-           📝 MODO 1: PALAVRAS (DESAFIO 1:03 — já existente, aprimorado)
+           📝 MODO 1: PALAVRAS
            ============================================================ -->
       <div id="telaPalavras" class="tela">
-        <button onclick="voltarInicio()" class="mb-4 px-4 py-2 rounded-xl font-semibold text-sm transition active:scale-95"
+        <button onclick="pararTudo();mostrarTela('telaInicio')" class="mb-5 px-4 py-2 rounded-xl font-semibold text-sm transition active:scale-95"
           style="background:var(--card);border:1px solid var(--border);color:var(--text);cursor:pointer">← Início</button>
 
         <div class="rounded-3xl p-5 mb-5" style="background:var(--card);border:1px solid var(--border);box-shadow:0 8px 25px rgba(0,0,0,.05)">
@@ -74,26 +63,24 @@
           </div>
         </div>
 
-        <div id="pCaixa" class="rounded-3xl p-8 mb-5 text-center min-h-[210px] flex items-center justify-center transition-all duration-100" style="background:var(--card);border:1px solid var(--border);box-shadow:0 10px 30px rgba(0,0,0,.05)">
+        <div id="pCaixa" class="rounded-3xl p-8 mb-6 text-center min-h-[220px] flex items-center justify-center" style="background:var(--card);border:1px solid var(--border);box-shadow:0 10px 30px rgba(0,0,0,.05)">
           <p id="pPalavra" class="text-6xl sm:text-7xl font-bold" style="color:var(--text);letter-spacing:-0.02em">—</p>
         </div>
 
         <div class="flex justify-center mb-4">
-          <div class="relative w-32 h-32 rounded-full font-bold text-xs flex flex-col items-center justify-center gap-1 ouvindo"
-            style="background:var(--accent);color:#fff;border:4px solid var(--accent)">
-            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
-            <span>OUVINDO</span>
-          </div>
+          <button id="pMicBtn" onclick="pLigarMic()"
+            class="relative w-36 h-36 rounded-full font-bold text-sm select-none transition-all flex flex-col items-center justify-center gap-1"
+            style="background:var(--accent-soft);color:var(--accent);border:4px solid var(--accent);cursor:pointer;touch-action:none">
+            <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+            <span id="pMicTxt">TOQUE PARA LIGAR</span>
+          </button>
         </div>
-        <p id="pStatus" class="text-center text-base font-semibold min-h-[28px]" style="color:var(--accent)">🎤 Ligado! É só ler</p>
+        <p id="pStatus" class="text-center text-base font-semibold min-h-[28px]" style="color:var(--muted)">⬆️ Toque no microfone para começar</p>
       </div>
 
       <div id="telaPalavrasRes" class="tela">
         <div class="text-center mb-6 mt-4">
-          <div class="inline-flex items-center justify-center w-20 h-20 rounded-3xl mb-4" style="background:var(--certo-bg);color:var(--certo-texto)">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-          </div>
-          <h1 class="text-4xl font-bold mb-2">🏁 Tempo!</h1>
+          <h1 class="text-4xl font-bold mb-2">🏁 Tempo esgotado!</h1>
         </div>
         <div class="rounded-3xl p-6 mb-5" style="background:var(--card);border:1px solid var(--border);box-shadow:0 10px 30px rgba(0,0,0,.05)">
           <div class="grid grid-cols-1 gap-3">
@@ -107,21 +94,20 @@
         </div>
         <p id="prMsg" class="text-center text-xl font-semibold mb-5"></p>
         <div class="grid grid-cols-2 gap-3">
-          <button onclick="iniciarModoPalavras()" class="py-4 rounded-2xl font-bold text-white" style="background:var(--accent);border:none;cursor:pointer">🔄 De novo</button>
-          <button onclick="voltarInicio()" class="py-4 rounded-2xl font-bold" style="background:var(--card);border:1px solid var(--border);cursor:pointer">🏠 Início</button>
+          <button onclick="resetarModoPalavras()" class="py-4 rounded-2xl font-bold text-white" style="background:var(--accent);border:none;cursor:pointer">🔄 De novo</button>
+          <button onclick="pararTudo();mostrarTela('telaInicio')" class="py-4 rounded-2xl font-bold" style="background:var(--card);border:1px solid var(--border);cursor:pointer">🏠 Início</button>
         </div>
       </div>
 
       <!-- ============================================================
-           📄 MODO 2: TEXTO — TELA DE CONFIGURAÇÃO (DIGITAR O TEXTO)
+           📄 MODO 2: TEXTO — CONFIGURAÇÃO
            ============================================================ -->
       <div id="telaTextoConfig" class="tela">
-        <button onclick="voltarInicio()" class="mb-4 px-4 py-2 rounded-xl font-semibold text-sm transition active:scale-95"
+        <button onclick="pararTudo();mostrarTela('telaInicio')" class="mb-5 px-4 py-2 rounded-xl font-semibold text-sm transition active:scale-95"
           style="background:var(--card);border:1px solid var(--border);color:var(--text);cursor:pointer">← Início</button>
 
         <div class="text-center mb-6">
           <h1 class="text-3xl font-bold mb-2">📄 Escreva seu texto</h1>
-          <p style="color:var(--muted)">Ele vai ler <strong>da primeira palavra do título até a última do corpo</strong></p>
         </div>
 
         <div class="rounded-3xl p-6 mb-5" style="background:var(--card);border:1px solid var(--border);box-shadow:0 10px 30px rgba(0,0,0,.05)">
@@ -140,16 +126,16 @@
           <button onclick="iniciarModoTexto()"
             class="w-full py-4 rounded-2xl text-xl font-bold text-white transition active:scale-[.98]"
             style="background:#b45309;border:none;cursor:pointer;box-shadow:0 8px 20px rgba(180,83,9,.3)">
-            ▶ INICIAR LEITURA DO TEXTO
+            ▶ ABRIR TEXTO PARA LEITURA
           </button>
         </div>
       </div>
 
       <!-- ============================================================
-           📄 MODO 2: TEXTO — TELA DE LEITURA (PALAVRA POR PALAVRA)
+           📄 MODO 2: TEXTO — LEITURA
            ============================================================ -->
       <div id="telaTextoLeitura" class="tela">
-        <button onclick="pararModoTexto();voltarInicio()" class="mb-4 px-4 py-2 rounded-xl font-semibold text-sm transition active:scale-95"
+        <button onclick="pararTudo();mostrarTela('telaInicio')" class="mb-4 px-4 py-2 rounded-xl font-semibold text-sm transition active:scale-95"
           style="background:var(--card);border:1px solid var(--border);color:var(--text);cursor:pointer">← Cancelar</button>
 
         <div class="rounded-3xl p-4 mb-5" style="background:var(--card);border:1px solid var(--border);box-shadow:0 8px 25px rgba(0,0,0,.05)">
@@ -160,51 +146,39 @@
           </div>
         </div>
 
-        <!-- TEXTO RENDERIZADO PALAVRA POR PALAVRA -->
-        <div id="tTextoContainer" class="rounded-3xl p-6 sm:p-8 mb-5 leading-relaxed" style="background:var(--card);border:1px solid var(--border);box-shadow:0 10px 30px rgba(0,0,0,.05);font-size:1.35rem;line-height:1.8">
-          <!-- preenchido por JS -->
-        </div>
+        <div id="tTextoContainer" class="rounded-3xl p-6 sm:p-8 mb-5 leading-relaxed" style="background:var(--card);border:1px solid var(--border);box-shadow:0 10px 30px rgba(0,0,0,.05);font-size:1.35rem;line-height:1.8"></div>
 
         <div class="flex justify-center mb-4">
-          <div class="relative w-32 h-32 rounded-full font-bold text-xs flex flex-col items-center justify-center gap-1 ouvindo"
-            style="background:var(--accent);color:#fff;border:4px solid var(--accent)">
-            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
-            <span>OUVINDO</span>
-          </div>
+          <button id="tMicBtn" onclick="tLigarMic()"
+            class="relative w-36 h-36 rounded-full font-bold text-sm select-none transition-all flex flex-col items-center justify-center gap-1"
+            style="background:var(--accent-soft);color:var(--accent);border:4px solid var(--accent);cursor:pointer;touch-action:none">
+            <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+            <span id="tMicTxt">TOQUE PARA LIGAR</span>
+          </button>
         </div>
-        <p id="tStatus" class="text-center text-base font-semibold min-h-[28px]" style="color:var(--accent)">🎤 Ligado! Leia a palavra destacada em azul</p>
+        <p id="tStatus" class="text-center text-base font-semibold min-h-[28px]" style="color:var(--muted)">⬆️ Toque no microfone para começar a ler</p>
       </div>
 
-      <!-- ============================================================
-           📄 MODO 2: TEXTO — TELA DE RESULTADO FINAL
-           ============================================================ -->
       <div id="telaTextoRes" class="tela">
         <div class="text-center mb-6 mt-4">
-          <div class="inline-flex items-center justify-center w-20 h-20 rounded-3xl mb-4" style="background:#fef3c7;color:#b45309">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-          </div>
           <h1 class="text-4xl font-bold mb-2">✅ Texto concluído!</h1>
         </div>
-
         <div class="rounded-3xl p-6 mb-5" style="background:var(--card);border:1px solid var(--border);box-shadow:0 10px 30px rgba(0,0,0,.05)">
           <div class="grid grid-cols-1 gap-3">
-            <div class="rounded-2xl p-5 text-center" style="background:#f5f5f0"><p class="text-sm uppercase font-semibold mb-1" style="color:var(--muted)">Total de palavras no texto</p><p id="trTotal" class="text-5xl font-bold">0</p></div>
+            <div class="rounded-2xl p-5 text-center" style="background:#f5f5f0"><p class="text-sm uppercase font-semibold mb-1" style="color:var(--muted)">Total de palavras</p><p id="trTotal" class="text-5xl font-bold">0</p></div>
             <div class="grid grid-cols-2 gap-3">
-              <div class="rounded-2xl p-5 text-center" style="background:var(--certo-bg)"><p class="text-sm uppercase font-semibold mb-1" style="color:var(--certo-texto)">✅ Lidas certas</p><p id="trCertas" class="text-4xl font-bold" style="color:var(--certo-texto)">0</p></div>
-              <div class="rounded-2xl p-5 text-center" style="background:var(--erro-bg)"><p class="text-sm uppercase font-semibold mb-1" style="color:var(--erro-texto)">❌ Lidas erradas</p><p id="trErradas" class="text-4xl font-bold" style="color:var(--erro-texto)">0</p></div>
+              <div class="rounded-2xl p-5 text-center" style="background:var(--certo-bg)"><p class="text-sm uppercase font-semibold mb-1" style="color:var(--certo-texto)">✅ Certas</p><p id="trCertas" class="text-4xl font-bold" style="color:var(--certo-texto)">0</p></div>
+              <div class="rounded-2xl p-5 text-center" style="background:var(--erro-bg)"><p class="text-sm uppercase font-semibold mb-1" style="color:var(--erro-texto)">❌ Erradas</p><p id="trErradas" class="text-4xl font-bold" style="color:var(--erro-texto)">0</p></div>
             </div>
-            <div class="rounded-2xl p-5 text-center" style="background:var(--accent-soft)"><p class="text-sm uppercase font-semibold mb-1" style="color:var(--accent)">🎯 Precisão no texto</p><p id="trPct" class="text-4xl font-bold" style="color:var(--accent)">0%</p></div>
+            <div class="rounded-2xl p-5 text-center" style="background:var(--accent-soft)"><p class="text-sm uppercase font-semibold mb-1" style="color:var(--accent)">Precisão</p><p id="trPct" class="text-4xl font-bold" style="color:var(--accent)">0%</p></div>
           </div>
         </div>
-
-        <!-- TEXTO COMPLETO COM AS MARCAÇÕES -->
         <h3 class="font-bold mb-2" style="color:var(--muted)">📝 Texto com marcações:</h3>
         <div id="trTextoFinal" class="rounded-3xl p-6 mb-5 leading-relaxed" style="background:var(--card);border:1px solid var(--border);font-size:1.15rem;line-height:1.8"></div>
-
         <p id="trMsg" class="text-center text-xl font-semibold mb-5"></p>
         <div class="grid grid-cols-2 gap-3">
           <button onclick="mostrarTela('telaTextoConfig')" class="py-4 rounded-2xl font-bold text-white" style="background:#b45309;border:none;cursor:pointer">📄 Outro texto</button>
-          <button onclick="voltarInicio()" class="py-4 rounded-2xl font-bold" style="background:var(--card);border:1px solid var(--border);cursor:pointer">🏠 Início</button>
+          <button onclick="pararTudo();mostrarTela('telaInicio')" class="py-4 rounded-2xl font-bold" style="background:var(--card);border:1px solid var(--border);cursor:pointer">🏠 Início</button>
         </div>
       </div>
 
@@ -214,7 +188,7 @@
 
 <script>
 /* ============================================================
-   🔧 FUNÇÕES GERAIS + PRECISÃO (USADA NOS DOIS MODOS)
+   🔧 FUNÇÕES BASE
    ============================================================ */
 var PALAVRAS_BASE = [
   "pássaro","você","café","fácil","difícil","rápido","aéreo","atlético","óbvio","sábado",
@@ -238,10 +212,36 @@ function normalizarPreciso(t){
     .replace(/[.,!?;:()"'`´^~–—]/g,'')
     .replace(/\s+/g,' ').trim();
 }
-function palavraIgual(certa, falada){
-  var a = normalizarPreciso(certa), b = normalizarPreciso(falada);
-  return !!(a && b && a === b);
+
+/* ============================================================
+   🎯 COMPARAÇÃO COM PRECISÃO MÁXIMA
+   - Recebe TODAS as alternativas do reconhecimento de voz
+   - Testa cada uma inteira e também só a última palavra (trata artigos)
+   - Se QUALQUER uma bater exato → retorna VERDADEIRO
+   ============================================================ */
+function palavraFoiLidaCerta(palavraEsperada, alternativasFaladas){
+  var esperada = normalizarPreciso(palavraEsperada);
+  if(!esperada) return false;
+  if(!alternativasFaladas || alternativasFaladas.length === 0) return false;
+
+  for(var i=0; i<alternativasFaladas.length; i++){
+    var alt = normalizarPreciso(alternativasFaladas[i]);
+    if(!alt) continue;
+
+    // Teste 1: igualdade exata
+    if(alt === esperada) return true;
+
+    // Teste 2: a alternativa tem várias palavras, mas a ÚLTIMA é a esperada
+    // (trata casos como "a casa", "o pássaro", "é carro")
+    var partes = alt.split(' ');
+    if(partes.length > 1 && partes[partes.length-1] === esperada) return true;
+
+    // Teste 3: a alternativa tem várias palavras, a PRIMEIRA é a esperada
+    if(partes.length > 1 && partes[0] === esperada) return true;
+  }
+  return false;
 }
+
 function embaralha(a){ var x=a.slice(); for(var i=x.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1));[x[i],x[j]]=[x[j],x[i]];} return x; }
 function fmt(s){ var m=Math.floor(s/60),r=s%60; return m+':'+(r<10?'0':'')+r; }
 function $(id){ return document.getElementById(id); }
@@ -250,20 +250,21 @@ function mostrarTela(id){
     .forEach(t => $(t).classList.remove('ativa'));
   $(id).classList.add('ativa');
 }
-function voltarInicio(){ pararMic(); mostrarTela('telaInicio'); }
 
 /* ============================================================
-   🎤 MICROFONE AUTOMÁTICO ÚNICO (reutilizado pelos dois modos)
+   🎤 MICROFONE GERENCIADO
+   - maxAlternatives = 5 → MAIS HIPÓTESES = MAIS PRECISÃO
+   - liga apenas quando solicitado (tocar no botão)
    ============================================================ */
 var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-var rec = null, micAtivo = false, modoAtual = null, callbackFala = null;
+var rec = null, micAtivo = false, callbackFala = null;
 
 if(!SR){
   document.addEventListener('DOMContentLoaded', function(){
     var av = document.createElement('p');
     av.className = 'text-center p-4 rounded-2xl font-semibold';
     av.style.cssText = 'background:#fee2e2;color:#b91c1c;margin-bottom:16px';
-    av.textContent = '😢 Use Chrome / Edge / Safari — seu navegador não tem microfone por voz.';
+    av.textContent = '😢 Use Chrome / Edge / Safari — seu navegador não suporta reconhecimento de voz.';
     $('telaInicio').insertBefore(av, $('telaInicio').firstChild);
   });
 }
@@ -275,63 +276,105 @@ function criarRec(){
   rec.lang = 'pt-BR';
   rec.continuous = true;
   rec.interimResults = false;
-  rec.maxAlternatives = 1;
+  rec.maxAlternatives = 5; // 🔥 CHAVE DA PRECISÃO: até 5 hipóteses
+
   rec.onresult = function(e){
     var ult = e.results[e.results.length-1];
-    if(ult.isFinal && callbackFala) callbackFala(ult[0].transcript);
+    if(ult.isFinal && callbackFala){
+      // Coleta TODAS as alternativas
+      var alternativas = [];
+      for(var i=0; i<ult.length; i++) alternativas.push(ult[i].transcript);
+      callbackFala(alternativas);
+    }
   };
   rec.onerror = function(e){
     if(['no-speech','audio-capture','network'].includes(e.error) && micAtivo)
-      setTimeout(iniciarMic, 8);
+      setTimeout(ligarMicDeFato, 8);
   };
-  rec.onend = function(){ if(micAtivo) setTimeout(iniciarMic, 8); };
+  rec.onend = function(){ if(micAtivo) setTimeout(ligarMicDeFato, 8); };
 }
-function iniciarMic(cb){
+
+function ligarMicDeFato(){
   if(!SR) return;
-  callbackFala = cb;
   criarRec();
   micAtivo = true;
   try{ rec.start(); }catch(e){}
 }
+
 function pararMic(){
   micAtivo = false;
   callbackFala = null;
   try{ if(rec){ rec.abort(); rec.stop(); } }catch(e){}
 }
 
+function pararTudo(){
+  pararMic();
+  clearInterval(p.crono);
+}
+
 /* ============================================================
-   📝 MODO 1: PALAVRAS (DESAFIO 63 SEGUNDOS)
+   📝 MODO 1: PALAVRAS
    ============================================================ */
 var p = {
   tempo:63, crono:null, acabou:false, idx:0, lista:[],
-  cont:{l:0,c:0,e:0}
+  cont:{l:0,c:0,e:0}, micLigado:false
 };
 
-function iniciarModoPalavras(){
-  pararMic();
+function resetarModoPalavras(){
+  pararTudo();
   p.tempo=63; p.acabou=false; p.idx=0; p.lista=embaralha(PALAVRAS_BASE);
-  p.cont={l:0,c:0,e:0};
+  p.cont={l:0,c:0,e:0}; p.micLigado=false;
   $('pCrono').textContent=fmt(p.tempo); $('pCrono').style.color='var(--accent)';
   $('pLidas').textContent=0; $('pCertas').textContent=0; $('pErradas').textContent=0;
   $('pCaixa').classList.remove('flash-certo','flash-erro');
+  $('pMicBtn').classList.remove('ouvindo');
+  $('pMicBtn').style.background='var(--accent-soft)';
+  $('pMicBtn').style.color='var(--accent)';
+  $('pMicTxt').textContent='TOQUE PARA LIGAR';
+  $('pStatus').textContent='⬆️ Toque no microfone para começar';
+  $('pStatus').style.color='var(--muted)';
   mostrarTela('telaPalavras');
   pProx();
-  $('pStatus').textContent='🎤 Ligado! É só ler a palavra';
+}
+
+// 🔥 Ao tocar no microfone: LIGA + COMEÇA O TEMPO
+function pLigarMic(){
+  if(p.micLigado || p.acabou) return;
+  if(!SR){ alert('Seu navegador não suporta microfone por voz. Use Chrome/Edge/Safari.'); return; }
+  p.micLigado = true;
+
+  // Visual
+  $('pMicBtn').classList.add('ouvindo');
+  $('pMicBtn').style.background='var(--accent)';
+  $('pMicBtn').style.color='#fff';
+  $('pMicTxt').textContent='🎤 OUVINDO';
+  $('pStatus').textContent='🎤 Ligado! Leia a palavra que aparece';
   $('pStatus').style.color='var(--accent)';
 
-  iniciarMic(function(falado){
+  // 🔥 SÓ AQUI COMEÇA O TEMPO
+  clearInterval(p.crono);
+  p.crono = setInterval(function(){
+    p.tempo--;
+    $('pCrono').textContent=fmt(p.tempo);
+    $('pCrono').style.color = p.tempo<=10?'#dc2626':p.tempo<=20?'var(--aviso)':'var(--accent)';
+    if(p.tempo<=0){ clearInterval(p.crono); pFinalizar(); }
+  },1000);
+
+  // Liga microfone com callback de precisão máxima
+  callbackFala = function(alternativas){
     if(p.acabou) return;
     var certa = p.lista[p.idx];
     if(!certa) return;
     p.cont.l++;
-    if(palavraIgual(certa, falado)){
+
+    if(palavraFoiLidaCerta(certa, alternativas)){
       p.cont.c++;
       $('pStatus').textContent='✅ CERTO: '+certa;
       $('pStatus').style.color='var(--certo-texto)';
       $('pCaixa').classList.remove('flash-erro'); void $('pCaixa').offsetWidth; $('pCaixa').classList.add('flash-certo');
     } else {
       p.cont.e++;
-      $('pStatus').textContent='❌ ERA: '+certa;
+      $('pStatus').textContent='❌ ERA: '+certa+' — ouvi: '+alternativas[0];
       $('pStatus').style.color='var(--erro-texto)';
       $('pCaixa').classList.remove('flash-certo'); void $('pCaixa').offsetWidth; $('pCaixa').classList.add('flash-erro');
     }
@@ -340,21 +383,16 @@ function iniciarModoPalavras(){
     $('pErradas').textContent=p.cont.e;
     p.idx++;
     pProx();
-  });
-
-  clearInterval(p.crono);
-  p.crono = setInterval(function(){
-    p.tempo--;
-    $('pCrono').textContent=fmt(p.tempo);
-    $('pCrono').style.color = p.tempo<=10?'#dc2626':p.tempo<=20?'var(--aviso)':'var(--accent)';
-    if(p.tempo<=0){ clearInterval(p.crono); pFinalizar(); }
-  },1000);
+  };
+  ligarMicDeFato();
 }
+
 function pProx(){
   if(p.acabou) return;
   if(p.idx >= p.lista.length){ p.lista=embaralha(PALAVRAS_BASE); p.idx=0; }
   $('pPalavra').textContent = p.lista[p.idx];
 }
+
 function pFinalizar(){
   p.acabou = true;
   pararMic();
@@ -365,7 +403,7 @@ function pFinalizar(){
   var pc = p.cont.l>0 ? Math.round((p.cont.c/p.cont.l)*100) : 0;
   $('prPct').textContent=pc+'%';
   var msg='';
-  if(p.cont.l===0) msg='Permita o microfone 💪';
+  if(p.cont.l===0) msg='Toque no microfone na próxima vez 💪';
   else if(pc>=90) msg='🏆 LEITOR PERFEITO!';
   else if(pc>=75) msg='🎉 Muito bom!';
   else if(pc>=50) msg='👍 Bom, continue praticando!';
@@ -374,74 +412,64 @@ function pFinalizar(){
   mostrarTela('telaPalavrasRes');
 }
 
+// Inicializa ao abrir a tela
+document.addEventListener('DOMContentLoaded', function(){
+  $('telaPalavras').addEventListener('click', function(e){
+    if(e.target.closest('#telaPalavras') && !$('telaPalavras').classList.contains('ativa')) return;
+  });
+  // Prepara a primeira palavra
+  p.lista = embaralha(PALAVRAS_BASE);
+  $('pPalavra').textContent = p.lista[0];
+});
+
 /* ============================================================
-   📄 MODO 2: TEXTO (PALAVRA POR PALAVRA, ORDEM EXATA)
+   📄 MODO 2: TEXTO
    ============================================================ */
 var t = {
-  palavras:[],     // array: { original, normalizada }
-  spans:[],        // elementos DOM
-  idx:0,
-  cont:{total:0,c:0,e:0},
-  htmlFinal:''
+  palavras:[], spans:[], idx:0,
+  cont:{total:0,c:0,e:0}, micLigado:false
 };
 
-// Quebra texto em palavras PRESERVANDO PONTUAÇÃO JUNTO (para exibição),
-// mas compara só a parte normalizada
 function quebrarPalavras(texto){
   if(!texto) return [];
   var partes = texto.match(/[^\s]+/g) || [];
-  return partes.map(function(p){
-    return { original:p, norm: normalizarPreciso(p) };
-  });
+  return partes.map(function(p){ return { original:p, norm: normalizarPreciso(p) }; });
 }
 
 function renderizarTexto(titulo, corpo){
-  t.palavras = [];
-  t.spans = [];
+  t.palavras = []; t.spans = [];
   var container = $('tTextoContainer');
   container.innerHTML = '';
 
-  // Título
   if(titulo){
     var divTit = document.createElement('div');
     divTit.className = 'text-2xl sm:text-3xl font-bold mb-6 pb-4';
     divTit.style.borderBottom = '2px solid var(--border)';
-    var pTit = quebrarPalavras(titulo);
-    pTit.forEach(function(pw, i){
+    quebrarPalavras(titulo).forEach(function(pw){
       var sp = document.createElement('span');
       sp.className = 'pw pw-nao';
       sp.textContent = pw.original + ' ';
-      sp.dataset.idx = t.palavras.length;
       divTit.appendChild(sp);
-      t.palavras.push(pw);
-      t.spans.push(sp);
+      t.palavras.push(pw); t.spans.push(sp);
     });
     container.appendChild(divTit);
   }
-
-  // Corpo (parágrafos)
   if(corpo){
-    var paragrafos = corpo.split(/\n+/).filter(x=>x.trim());
-    paragrafos.forEach(function(par){
+    corpo.split(/\n+/).filter(x=>x.trim()).forEach(function(par){
       var divP = document.createElement('div');
       divP.className = 'mb-4';
-      var lista = quebrarPalavras(par);
-      lista.forEach(function(pw){
+      quebrarPalavras(par).forEach(function(pw){
         var sp = document.createElement('span');
         sp.className = 'pw pw-nao';
         sp.textContent = pw.original + ' ';
-        sp.dataset.idx = t.palavras.length;
         divP.appendChild(sp);
-        t.palavras.push(pw);
-        t.spans.push(sp);
+        t.palavras.push(pw); t.spans.push(sp);
       });
       container.appendChild(divP);
     });
   }
-
   t.cont.total = t.palavras.length;
-  t.idx = 0;
-  t.cont.c = 0; t.cont.e = 0;
+  t.idx = 0; t.cont.c = 0; t.cont.e = 0;
   $('tTotal').textContent = t.cont.total;
   $('tCertas').textContent = 0;
   $('tErradas').textContent = 0;
@@ -451,71 +479,86 @@ function renderizarTexto(titulo, corpo){
 function tDestacarAtual(){
   t.spans.forEach(function(s, i){
     s.classList.remove('pw-atual','pw-nao');
-    if(i < t.idx) return; // já foi marcada certo/errado
+    if(i < t.idx) return;
     if(i === t.idx) s.classList.add('pw-atual');
     else s.classList.add('pw-nao');
   });
 }
 function tMarcar(idx, certo){
-  var sp = t.spans[idx];
-  if(!sp) return;
+  var sp = t.spans[idx]; if(!sp) return;
   sp.classList.remove('pw-atual','pw-nao');
   sp.classList.add(certo ? 'pw-certo' : 'pw-errado');
 }
 
 function iniciarModoTexto(){
-  pararMic();
+  pararTudo();
   var tit = $('txtTitulo').value.trim();
   var corpo = $('txtCorpo').value.trim();
-  if(!tit && !corpo){
-    $('txtTitulo').focus();
-    alert('Escreva pelo menos um título ou um texto!');
-    return;
-  }
+  if(!tit && !corpo){ $('txtTitulo').focus(); alert('Escreva pelo menos um título ou texto!'); return; }
   renderizarTexto(tit, corpo);
   if(t.cont.total === 0){ alert('Nenhuma palavra detectada!'); return; }
+  t.micLigado = false;
+
+  // Reseta visual do microfone
+  $('tMicBtn').classList.remove('ouvindo');
+  $('tMicBtn').style.background='var(--accent-soft)';
+  $('tMicBtn').style.color='var(--accent)';
+  $('tMicTxt').textContent='TOQUE PARA LIGAR';
+  $('tStatus').textContent='⬆️ Toque no microfone para começar a ler';
+  $('tStatus').style.color='var(--muted)';
+
   mostrarTela('telaTextoLeitura');
+}
+
+// 🔥 No modo texto também: SÓ AO TOCAR NO MIC ele liga e começa
+function tLigarMic(){
+  if(t.micLigado) return;
+  if(!SR){ alert('Seu navegador não suporta microfone por voz. Use Chrome/Edge/Safari.'); return; }
+  t.micLigado = true;
+
+  $('tMicBtn').classList.add('ouvindo');
+  $('tMicBtn').style.background='var(--accent)';
+  $('tMicBtn').style.color='#fff';
+  $('tMicTxt').textContent='🎤 OUVINDO';
   $('tStatus').textContent='🎤 Ligado! Leia a palavra AZUL em ordem';
   $('tStatus').style.color='var(--accent)';
 
-  iniciarMic(function(falado){
-    // Quebra o que a criança falou em várias palavras também
-    // e casa UMA A UMA com a sequência atual do texto
-    var faladas = (normalizarPreciso(falado) || '').split(' ').filter(Boolean);
-    if(faladas.length === 0) return;
+  callbackFala = function(alternativas){
+    // Processa cada palavra falada na sequência
+    var primeiraNorm = normalizarPreciso(alternativas[0] || '');
+    var faladasSeq = primeiraNorm.split(' ').filter(Boolean);
+    if(faladasSeq.length === 0) return;
 
-    for(var k=0; k<faladas.length; k++){
+    // Para cada palavra da fala, testamos com TODAS as alternativas
+    // (usando a primeira como referência de ordem, mas validando com todas as hipóteses)
+    for(var k=0; k<faladasSeq.length; k++){
       if(t.idx >= t.cont.total) break;
-      var esperada = t.palavras[t.idx].norm;
-      var faladaNorm = faladas[k];
-      var ok = (esperada === faladaNorm);
+      var esperada = t.palavras[t.idx].original;
 
+      // Constrói alternativas focadas na palavra atual da sequência
+      var altsParaEsta = [];
+      for(var a=0;a<alternativas.length;a++){
+        var partesAlt = normalizarPreciso(alternativas[a]).split(' ').filter(Boolean);
+        if(partesAlt[k]) altsParaEsta.push(partesAlt[k]);
+        altsParaEsta.push(alternativas[a]); // também testa a alternativa inteira
+      }
+
+      var ok = palavraFoiLidaCerta(esperada, altsParaEsta);
       if(ok) t.cont.c++; else t.cont.e++;
       tMarcar(t.idx, ok);
       t.idx++;
-
       $('tCertas').textContent = t.cont.c;
       $('tErradas').textContent = t.cont.e;
 
-      if(ok){
-        $('tStatus').textContent='✅ CERTO';
-        $('tStatus').style.color='var(--certo-texto)';
-      } else {
-        $('tStatus').textContent='❌ ERA: '+t.palavras[t.idx-1].original;
-        $('tStatus').style.color='var(--erro-texto)';
-      }
+      if(ok){ $('tStatus').textContent='✅ CERTO'; $('tStatus').style.color='var(--certo-texto)'; }
+      else { $('tStatus').textContent='❌ ERA: '+t.palavras[t.idx-1].original; $('tStatus').style.color='var(--erro-texto)'; }
 
-      // Acabou tudo?
-      if(t.idx >= t.cont.total){
-        setTimeout(tFinalizar, 400);
-        return;
-      }
+      if(t.idx >= t.cont.total){ setTimeout(tFinalizar, 400); return; }
     }
     tDestacarAtual();
-  });
+  };
+  ligarMicDeFato();
 }
-
-function pararModoTexto(){ pararMic(); }
 
 function tFinalizar(){
   pararMic();
@@ -524,10 +567,7 @@ function tFinalizar(){
   $('trErradas').textContent = t.cont.e;
   var pc = t.cont.total>0 ? Math.round((t.cont.c/t.cont.total)*100) : 0;
   $('trPct').textContent = pc+'%';
-
-  // Clona o texto marcado para o resultado
   $('trTextoFinal').innerHTML = $('tTextoContainer').innerHTML;
-
   var msg='';
   if(pc>=95) msg='🏆 LEITURA PERFEITA do começo ao fim!';
   else if(pc>=80) msg='🎉 Excelente! Quase tudo certinho!';
