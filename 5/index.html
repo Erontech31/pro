@@ -269,7 +269,7 @@ Fruta</textarea>
 
 <script>
     // ==========================================
-    // COLE SUA API KEY DO GEMINI AQUI 👇
+    // CHAVE DE API DO GEMINI
     // ==========================================
     const GEMINI_API_KEY = "AQ.Ab8RN6IylkdcFZxDVNgubItstvgDTv3kth6JJ1KDRdNseyguYg";
 
@@ -462,11 +462,6 @@ Fruta</textarea>
     }
 
     async function iniciarRodada() {
-        if(GEMINI_API_KEY === "COLE_SUA_API_KEY_AQUI") {
-            emitirAviso("Aviso", "Você precisa colar sua Chave de API do Gemini no código fonte antes de jogar!");
-            return;
-        }
-
         const areaTexto = document.getElementById("inputCategorias").value;
         const tempoLimite = parseInt(document.getElementById("inputTempo").value) || 60;
         const totalRodadas = parseInt(document.getElementById("inputRodadas").value) || 3;
@@ -580,7 +575,7 @@ Fruta</textarea>
         if (!estadoVotos) {
             construirVisualRespostasIA(dados, null); 
             msgVotacao.classList.remove('hidden');
-            msgVotacao.innerText = "A IA está validando todas as respostas, aguarde...";
+            msgVotacao.innerText = "A IA está validando rigorosamente as respostas, aguarde...";
             btnApurar.classList.add('hidden');
             titulo.innerText = "🤖 O Gemini está Avaliando...";
             
@@ -641,24 +636,24 @@ Fruta</textarea>
         }
 
         const promptText = `
-Você é um juiz extremamente rigoroso, inteligente e culto do jogo Adedonha (Stop).
+Você é o juiz chefe mais estrito, implacável e inteligente do jogo Adedonha (Stop). Sua função é avaliar se cada resposta enviada pelos jogadores cumpre RIGOROSAMENTE duas condições fundamentais:
+1. LETRA INICIAL: A palavra DEVE começar obrigatoriamente com a letra '${letra}'. (Ignore acentos na validação da letra, ex: 'Á' vale como 'A'). Se começar com outra letra, aproveite e rejeite imediatamente (aprovado: false).
+2. PERTINÊNCIA À CATEGORIA: A palavra DEVE pertencer estritamente e sem margem de dúvida à categoria solicitada. 
+   - Exemplo 1: Se a categoria for "Nome", só são aceitos nomes próprios de pessoas reais ou amplamente conhecidas. Se colocarem um objeto como "Mesa" ou um animal como "Macaco" na categoria "Nome", DEVE ser reprovado (aprovado: false).
+   - Exemplo 2: Se a categoria for "Animal", só valem animais reais.
+   - Exemplo 3: Palavras inventadas, termos inexistentes, piadas ou sem sentido lógico na categoria devem ser estritamente rejeitadas (aprovado: false).
+
 Letra obrigatória desta rodada: ${letra}
 Categorias do jogo (índice e nome): ${JSON.stringify(categorias)}
-Respostas dos jogadores (por ID e índice da categoria): ${JSON.stringify(objParaAnalisar)}
+Respostas dos jogadores (ID e índice da categoria): ${JSON.stringify(objParaAnalisar)}
 
-Regras de Aceitação Obrigatórias:
-1. A palavra DEVE obrigatoriamente começar com a letra '${letra}'. Se não começar, é falso (reprovada).
-2. A palavra DEVE pertencer estritamente à categoria solicitada. Por exemplo: se a categoria é 'Nome', só vale nome próprio de pessoa (ex: 'Maria', 'Marcos'); se colocarem um objeto como 'Mesa' na categoria 'Nome', deve ser reprovado (false). Se colocarem uma cor na categoria 'Animal', deve ser reprovado (false), etc.
-3. A palavra DEVE existir de verdade na língua portuguesa e fazer sentido. Palavras inventadas, termos absurdos, sem sentido ou erros grosseiros devem ser reprovados (false).
-4. Forneça uma explicação curta e clara (em português) justificando o porquê de ter aceitado ou rejeitado a palavra para aquela categoria.
-
-Retorne APENAS um objeto JSON puro, sem blocos de markdown, sem texto antes ou depois. O formato exato deve ser:
+Retorne EXATAMENTE um objeto JSON puro, sem blocos de markdown, sem introduções e sem explicações fora da estrutura. O formato JSON deve seguir perfeitamente este modelo:
 {
   "resultados": {
     "ID_JOGADOR": {
       "INDEX_CATEGORIA": {
         "aprovado": true,
-        "explicacao": "Explicação detalhada do motivo."
+        "explicacao": "Explicação curta, direta e firme justificando a aprovação ou reprovação com base na letra e categoria."
       }
     }
   }
@@ -698,7 +693,7 @@ Retorne APENAS um objeto JSON puro, sem blocos de markdown, sem texto antes ou d
                     if (!palavra || palavra === "N/S") {
                         estruturaVotos[idx][idJogador] = {
                             aprovado: false,
-                            explicacao: "Resposta em branco ou N/S."
+                            explicacao: "Resposta em branco ou marcada como N/S."
                         };
                         continue;
                     }
@@ -706,10 +701,9 @@ Retorne APENAS um objeto JSON puro, sem blocos de markdown, sem texto antes ou d
                     if (resultadosIA[idJogador] && resultadosIA[idJogador][idx]) {
                         estruturaVotos[idx][idJogador] = {
                             aprovado: Boolean(resultadosIA[idJogador][idx].aprovado),
-                            explicacao: String(resultadosIA[idJogador][idx].explicacao || "Avaliado pela IA.")
+                            explicacao: String(resultadosIA[idJogador][idx].explicacao || "Avaliado rigorosamente pela IA.")
                         };
                     } else {
-                        // Fallback caso a IA ignore o ID
                         const comecaCerta = palavra.startsWith(letra);
                         estruturaVotos[idx][idJogador] = {
                             aprovado: comecaCerta,
@@ -730,7 +724,7 @@ Retorne APENAS um objeto JSON puro, sem blocos de markdown, sem texto antes ou d
                     const comecaCerta = (palavra && palavra.startsWith(letra) && palavra !== "N/S");
                     fallbackVotos[idxCat][idJogador] = {
                         aprovado: comecaCerta,
-                        explicacao: comecaCerta ? "Aprovado automaticamente por regra de letra (falha na API)." : "Reprovado por estar em branco ou não iniciar com a letra."
+                        explicacao: comecaCerta ? "Aprovado por regra de letra (modo de segurança)." : "Reprovado por ausência ou letra incorreta."
                     };
                 }
             });
@@ -760,7 +754,7 @@ Retorne APENAS um objeto JSON puro, sem blocos de markdown, sem texto antes ou d
                 let iconeVeredito = "⏳";
                 let classesStatus = "border-slate-800/80 bg-slate-950/20";
                 let textStatus = "text-slate-200";
-                let textoExplicacao = "Aguardando julgamento da inteligência artificial...";
+                let textoExplicacao = "Aguardando julgamento rigoroso da inteligência artificial...";
 
                 if (vereditosIA) {
                     const votoObj = vereditosIA[idxCat] && vereditosIA[idxCat][jogadorId];
