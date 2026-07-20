@@ -17,31 +17,30 @@
 
     <style>
         :root {
-            --bg-body: #f0f4f8;
             --text-main: #1e293b;
-            --text-muted: #64748b;
+            --text-muted: #475569;
             --white: #ffffff;
-            --border-color: #e2e8f0;
             
-            --primary: #3b82f6;
-            --primary-hover: #2563eb;
-            --success: #10b981;
-            --success-hover: #059669;
-            --danger: #ef4444;
-            --danger-hover: #dc2626;
-            --warning: #f59e0b;
-            --purple: #8b5cf6;
-            --teal: #14b8a6;
+            /* Cores translúcidas para o Glassmorphism */
+            --glass-bg: rgba(255, 255, 255, 0.45);
+            --glass-bg-hover: rgba(255, 255, 255, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.6);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            
+            --primary: rgba(59, 130, 246, 0.85);
+            --primary-hover: rgba(37, 99, 235, 1);
+            --success: rgba(16, 185, 129, 0.85);
+            --success-hover: rgba(5, 150, 105, 1);
+            --danger: rgba(239, 68, 68, 0.85);
+            --danger-hover: rgba(220, 38, 38, 1);
+            --teal: rgba(20, 184, 166, 0.85);
 
-            --grad-adm: linear-gradient(135deg, #475569 0%, #1e293b 100%);
-            --grad-dir: linear-gradient(135deg, #0f766e 0%, #115e59 100%);
-            --grad-prof: linear-gradient(135deg, #059669 0%, #047857 100%);
+            --grad-adm: linear-gradient(135deg, rgba(71, 85, 105, 0.85) 0%, rgba(30, 41, 59, 0.85) 100%);
+            --grad-dir: linear-gradient(135deg, rgba(15, 118, 110, 0.85) 0%, rgba(17, 94, 89, 0.85) 100%);
+            --grad-prof: linear-gradient(135deg, rgba(5, 150, 105, 0.85) 0%, rgba(4, 120, 87, 0.85) 100%);
             
-            --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
-            --shadow-md: 0 10px 20px rgba(0,0,0,0.05), 0 6px 6px rgba(0,0,0,0.04);
-            --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
-            --radius-md: 12px;
-            --radius-lg: 20px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
         }
 
         * { box-sizing: border-box; }
@@ -49,15 +48,17 @@
         body { 
             font-family: 'Poppins', sans-serif; 
             text-align: center; 
-            padding: 15px; 
+            padding: 20px; 
             background: transparent; 
             margin: 0; 
             color: var(--text-main); 
             -webkit-font-smoothing: antialiased;
             min-height: 100vh;
             position: relative; 
+            overflow-x: hidden;
         }
 
+        /* Fundo e Efeitos de Ambiente */
         .fundo-midia {
             position: fixed;
             top: 0;
@@ -65,12 +66,8 @@
             width: 100vw;
             height: 100vh;
             object-fit: cover; 
-            background-size: cover; 
-            background-position: center;
             z-index: -2;
             pointer-events: none;
-            transition: background-image 1s ease-in-out; 
-            opacity: 1;
         }
 
         .overlay-fundo {
@@ -79,69 +76,107 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            background-color: rgba(240, 244, 248, 0.40); 
+            /* Um gradiente escurecido animado para dar contraste ao vidro */
+            background: linear-gradient(45deg, rgba(15, 23, 42, 0.2), rgba(56, 189, 248, 0.2));
+            background-size: 200% 200%;
+            animation: moveGradient 10s ease infinite;
             z-index: -1;
             pointer-events: none;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        @keyframes moveGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
         
         .logo-escola {
             position: absolute;
             top: 20px;
             left: 20px;
-            width: 70px;
-            height: 70px;
+            width: 75px;
+            height: 75px;
             border-radius: 50%; 
             object-fit: cover; 
-            border: 3px solid var(--white);
-            box-shadow: var(--shadow-md);
+            border: 3px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             z-index: 1000;
             background-color: var(--white);
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
+            100% { transform: translateY(0px); }
         }
         
-        h1, h2, h3 { margin-top: 0; font-weight: 600; color: var(--text-main); }
+        h1, h2, h3 { margin-top: 0; font-weight: 600; color: var(--text-main); text-shadow: 0 1px 2px rgba(255,255,255,0.5); }
         
+        /* Classe Base Vidro Líquido (Glassmorphism) */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px) saturate(120%);
+            -webkit-backdrop-filter: blur(16px) saturate(120%);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
+        }
+
         button { 
-            padding: 12px 20px; 
-            font-size: 14px; 
+            padding: 14px 22px; 
+            font-size: 15px; 
             font-weight: 600;
             font-family: 'Poppins', sans-serif;
             color: var(--white); 
-            border: none; 
+            border: 1px solid rgba(255,255,255,0.3); 
             border-radius: var(--radius-md); 
             cursor: pointer; 
-            background-color: var(--primary); 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: var(--shadow-sm);
+            background: var(--primary); 
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
         }
+
         button:hover { 
-            background-color: var(--primary-hover); 
-            transform: translateY(-2px); 
-            box-shadow: 0 6px 12px rgba(59, 130, 246, 0.2);
+            background: var(--primary-hover); 
+            transform: translateY(-4px) scale(1.02); 
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+            border-color: rgba(255,255,255,0.6);
         }
-        button:active { transform: translateY(0); }
-        button:disabled { background-color: #cbd5e1; cursor: not-allowed; transform: none; box-shadow: none; color: #94a3b8; }
+        
+        button:active { transform: translateY(2px) scale(0.98); }
+        button:disabled { background: rgba(203, 213, 225, 0.7); cursor: not-allowed; transform: none; box-shadow: none; color: #64748b; border: none; }
         
         input, select { 
-            padding: 14px 16px; 
+            padding: 15px 18px; 
             border-radius: var(--radius-md); 
-            border: 2px solid var(--border-color); 
+            border: 1.5px solid rgba(255, 255, 255, 0.5); 
             font-size: 14px; 
             font-family: 'Poppins', sans-serif;
             margin-bottom: 12px; 
-            background-color: #f8fafc;
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             color: var(--text-main);
             transition: all 0.3s ease;
             width: 100%;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.03);
         }
+
         input:focus, select:focus { 
             outline: none; 
-            border-color: var(--primary); 
-            background-color: var(--white);
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1); 
+            border-color: rgba(59, 130, 246, 0.8); 
+            background: rgba(255, 255, 255, 0.7);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.2), inset 0 2px 4px rgba(0,0,0,0.02); 
+            transform: translateY(-2px);
         }
         
         .topo-barra { 
@@ -149,194 +184,244 @@
             justify-content: space-between; 
             align-items: center; 
             color: var(--white); 
-            padding: 16px 24px; 
+            padding: 18px 26px; 
             border-radius: var(--radius-lg); 
-            margin-bottom: 25px; 
-            max-width: 700px; 
+            margin-bottom: 30px; 
+            max-width: 750px; 
             margin-left: auto; 
             margin-right: auto; 
-            box-shadow: var(--shadow-md);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
-        .topo-barra h2 { margin: 0; color: var(--white); font-size: 18px; font-weight: 600; letter-spacing: 0.5px; }
-        .btn-sair { background-color: rgba(255, 255, 255, 0.2); padding: 8px 16px; font-size: 13px; backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.1); }
-        .btn-sair:hover { background-color: var(--danger); box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3); }
 
-        .tela { display: none; max-width: 700px; margin: 0 auto; animation: slideFadeUp 0.4s ease-out forwards; }
-        @keyframes slideFadeUp {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
+        .topo-barra h2 { margin: 0; color: var(--white); font-size: 20px; font-weight: 600; letter-spacing: 0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        .btn-sair { background: rgba(255, 255, 255, 0.15); padding: 10px 18px; font-size: 14px; }
+        .btn-sair:hover { background: var(--danger-hover); box-shadow: 0 6px 15px rgba(239, 68, 68, 0.4); }
+
+        /* Animações Globais das Telas */
+        .tela { display: none; max-width: 750px; margin: 0 auto; animation: slideFadeUpScale 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        
+        @keyframes slideFadeUpScale {
+            0% { opacity: 0; transform: translateY(40px) scale(0.95); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         #tela-login { 
             display: block; 
-            max-width: 380px; 
+            max-width: 400px; 
             margin: 12vh auto 8vh auto; 
-            background: var(--white); 
-            padding: 40px 30px; 
+            padding: 45px 35px; 
             border-radius: var(--radius-lg); 
-            box-shadow: var(--shadow-lg); 
             position: relative;
             overflow: hidden;
         }
+
         #tela-login::before {
             content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 6px;
-            background: linear-gradient(90deg, var(--primary), var(--purple));
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6, #10b981);
+            background-size: 200% 200%;
+            animation: moveGradient 4s ease infinite;
         }
-        #tela-login h2 { margin-bottom: 5px; font-size: 26px; font-weight: 700; color: var(--text-main); }
+
+        #tela-login h2 { margin-bottom: 5px; font-size: 28px; font-weight: 700; color: var(--text-main); }
         #tela-login input { 
             text-align: center; 
-            font-size: 20px; 
-            letter-spacing: 6px; 
+            font-size: 22px; 
+            letter-spacing: 8px; 
             border-width: 2px; 
-            padding: 16px;
-            margin-top: 15px;
-            background: #f1f5f9;
+            padding: 18px;
+            margin-top: 20px;
+            font-weight: 600;
         }
+
         #tela-login button { 
             width: 100%; 
-            font-size: 16px; 
-            padding: 16px; 
-            background: linear-gradient(135deg, var(--success) 0%, var(--success-hover) 100%);
-            margin-top: 10px; 
+            font-size: 17px; 
+            padding: 18px; 
+            background: linear-gradient(135deg, rgba(16,185,129,0.9) 0%, rgba(5,150,105,0.9) 100%);
+            margin-top: 15px; 
         }
-        #status-conexao { font-size: 13px; color: var(--text-muted); font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 6px; }
-        .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: var(--text-muted); }
-        .status-dot.online { background-color: var(--success); box-shadow: 0 0 8px var(--success); }
+
+        #status-conexao { font-size: 14px; color: var(--text-muted); font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; }
+        .status-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: var(--text-muted); transition: all 0.5s ease; }
+        .status-dot.online { background-color: #10b981; box-shadow: 0 0 12px #10b981, 0 0 20px #10b981; animation: pulse 2s infinite; }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
 
         .card { 
-            background: var(--white); 
-            padding: 25px; 
+            padding: 30px; 
             border-radius: var(--radius-lg); 
-            box-shadow: var(--shadow-md); 
-            margin-bottom: 25px; 
+            margin-bottom: 30px; 
             text-align: left; 
-            border: 1px solid rgba(226, 232, 240, 0.8);
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
         }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
         .card h3 { 
-            font-size: 16px; 
-            color: #334155; 
-            margin-bottom: 20px;
+            font-size: 18px; 
+            color: #1e293b; 
+            margin-bottom: 22px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
-        .linha-form { display: flex; gap: 12px; margin-bottom: 5px; flex-wrap: wrap; }
-        .linha-form input { flex: 1; min-width: 150px; margin: 0; }
+
+        .linha-form { display: flex; gap: 15px; margin-bottom: 10px; flex-wrap: wrap; }
+        .linha-form input { flex: 1; min-width: 160px; margin: 0; }
         .linha-form button { margin: 0; white-space: nowrap; }
         
-        .lista-itens { list-style: none; padding: 0; margin: 15px 0 0 0; max-height: 250px; overflow-y: auto; }
-        .lista-itens::-webkit-scrollbar { width: 6px; }
-        .lista-itens::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
-        .lista-itens::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .lista-itens { list-style: none; padding: 0; margin: 20px 0 0 0; max-height: 280px; overflow-y: auto; }
+        .lista-itens::-webkit-scrollbar { width: 8px; }
+        .lista-itens::-webkit-scrollbar-track { background: rgba(255,255,255,0.2); border-radius: 10px; }
+        .lista-itens::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.6); border-radius: 10px; }
         
         .lista-itens li { 
             display: flex; justify-content: space-between; align-items: center; 
-            padding: 12px 16px; 
-            margin-bottom: 8px;
+            padding: 14px 20px; 
+            margin-bottom: 10px;
             border-radius: var(--radius-md); 
-            background: #f8fafc; 
-            border: 1px solid var(--border-color);
-            font-size: 14px; color: var(--text-main); 
-            transition: transform 0.2s;
+            background: var(--glass-bg); 
+            border: 1px solid var(--glass-border);
+            font-size: 15px; color: var(--text-main); font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: slideInRight 0.5s ease backwards;
         }
-        .lista-itens li:hover { transform: scale(1.01); border-color: #cbd5e1; }
-        .btn-remover { background-color: #fee2e2; color: var(--danger); font-size: 12px; padding: 6px 12px; border-radius: 6px; }
-        .btn-remover:hover { background-color: var(--danger); color: var(--white); box-shadow: none; }
 
-        .table-container { border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); }
-        table { width: 100%; border-collapse: collapse; background: var(--white); font-size: 14px; text-align: left; }
-        th, td { padding: 16px; border-bottom: 1px solid var(--border-color); }
-        th { background-color: #f8fafc; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px; }
-        tr:last-child td { border-bottom: none; }
-        tr:hover td { background-color: #f1f5f9; }
+        /* Animação em Cascata para Listas */
+        .lista-itens li:nth-child(1), #lista-prof-alunos li:nth-child(1) { animation-delay: 0.1s; }
+        .lista-itens li:nth-child(2), #lista-prof-alunos li:nth-child(2) { animation-delay: 0.2s; }
+        .lista-itens li:nth-child(3), #lista-prof-alunos li:nth-child(3) { animation-delay: 0.3s; }
+        .lista-itens li:nth-child(4), #lista-prof-alunos li:nth-child(4) { animation-delay: 0.4s; }
+        .lista-itens li:nth-child(5), #lista-prof-alunos li:nth-child(5) { animation-delay: 0.5s; }
+        .lista-itens li:nth-child(n+6), #lista-prof-alunos li:nth-child(n+6) { animation-delay: 0.6s; }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .lista-itens li:hover { transform: scale(1.02) translateX(5px); background: var(--glass-bg-hover); box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
         
-        .badge { padding: 4px 10px; border-radius: 20px; font-weight: 600; font-size: 12px; display: inline-block; text-align: center; min-width: 50px; }
-        .badge-ok { background-color: #dcfce7; color: #166534; }
-        .badge-cheio { background-color: #fee2e2; color: #991b1b; }
+        .btn-remover { background: rgba(239, 68, 68, 0.15); color: #dc2626; font-size: 13px; padding: 8px 14px; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .btn-remover:hover { background: var(--danger-hover); color: var(--white); border-color: transparent; }
+
+        .table-container { border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow); background: var(--glass-bg); backdrop-filter: blur(10px); }
+        table { width: 100%; border-collapse: collapse; font-size: 15px; text-align: left; }
+        th, td { padding: 18px; border-bottom: 1px solid rgba(255,255,255,0.4); }
+        th { background: rgba(255,255,255,0.5); color: var(--text-main); font-weight: 700; text-transform: uppercase; font-size: 13px; letter-spacing: 1px; }
+        tr:last-child td { border-bottom: none; }
+        tr { transition: background 0.3s ease; }
+        tr:hover td { background: rgba(255,255,255,0.6); }
+        
+        .badge { padding: 6px 14px; border-radius: 20px; font-weight: 700; font-size: 13px; display: inline-block; text-align: center; min-width: 60px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+        .badge-ok { background-color: rgba(16, 185, 129, 0.2); color: #047857; border: 1px solid rgba(16, 185, 129, 0.4); }
+        .badge-cheio { background-color: rgba(239, 68, 68, 0.2); color: #b91c1c; border: 1px solid rgba(239, 68, 68, 0.4); animation: shake 0.5s ease-in-out; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            75% { transform: translateX(4px); }
+        }
 
         #leitor-container { 
-            background: var(--white); padding: 15px; border-radius: var(--radius-lg); 
-            box-shadow: var(--shadow-md); margin-bottom: 25px; border: 1px solid var(--border-color); 
+            padding: 20px; border-radius: var(--radius-lg); 
+            margin-bottom: 30px; 
+            transition: all 0.4s ease;
         }
-        #reader { width: 100%; border-radius: var(--radius-md); overflow: hidden; border: none !important; }
-        #reader video { object-fit: cover; border-radius: var(--radius-md); }
+        
+        #reader { width: 100%; border-radius: var(--radius-md); overflow: hidden; border: 2px solid rgba(255,255,255,0.5) !important; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        #reader video { object-fit: cover; border-radius: calc(var(--radius-md) - 2px); }
         #reader img { display: none !important; } 
-        .btn-camera { width: 100%; margin-top: 15px; background: #64748b; font-size: 15px; }
-        .btn-camera:hover { background: #475569; }
         
-        .painel-alunos h3 { justify-content: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px; margin-bottom: 15px; }
+        .btn-camera { width: 100%; margin-top: 20px; background: rgba(71, 85, 105, 0.85); font-size: 16px; }
         
-        #lista-prof-alunos { display: grid; grid-template-columns: 1fr; gap: 12px; padding: 0; margin: 0; list-style: none; }
+        .painel-alunos h3 { justify-content: center; border-bottom: 2px solid rgba(255,255,255,0.4); padding-bottom: 18px; margin-bottom: 20px; }
+        
+        #lista-prof-alunos { display: grid; grid-template-columns: 1fr; gap: 15px; padding: 0; margin: 0; list-style: none; }
+        
         #lista-prof-alunos li { 
-            background: var(--white); padding: 16px; border-radius: var(--radius-md); 
-            border: 1px solid var(--border-color); font-size: 15px; transition: all 0.2s; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; flex-direction: column; gap: 8px;
+            background: var(--glass-bg); padding: 20px; border-radius: var(--radius-md); 
+            border: 1px solid var(--glass-border); font-size: 16px; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 10px;
+            animation: slideInRight 0.5s ease backwards;
         }
+
+        #lista-prof-alunos li:hover { transform: translateY(-3px) scale(1.01); box-shadow: 0 8px 20px rgba(0,0,0,0.1); background: var(--glass-bg-hover); }
+
         .aluno-header { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-        .aluno-nome { font-weight: 600; color: var(--text-main); }
-        .aluno-horas { font-size: 12px; color: var(--text-muted); background: #f1f5f9; padding: 6px 10px; border-radius: 6px; display: inline-block; width: fit-content; }
+        .aluno-nome { font-weight: 700; color: var(--text-main); font-size: 17px; }
+        .aluno-horas { font-size: 13px; color: var(--text-main); background: rgba(255,255,255,0.6); padding: 8px 12px; border-radius: 8px; display: inline-block; width: fit-content; border: 1px solid rgba(255,255,255,0.4); box-shadow: inset 0 1px 2px rgba(255,255,255,0.8); }
         
-        .limite-atingido { border-color: #fca5a5 !important; background-color: #fff5f5 !important; }
+        .limite-atingido { border-color: rgba(239, 68, 68, 0.5) !important; background: rgba(254, 226, 226, 0.4) !important; }
         
         #mensagem { 
-            font-size: 15px; font-weight: 500; margin: 20px 0; padding: 16px 20px; 
-            border-radius: var(--radius-md); display: none; line-height: 1.5; 
-            box-shadow: var(--shadow-sm); animation: slideFadeUp 0.3s ease-out;
+            font-size: 16px; font-weight: 600; margin: 25px 0; padding: 20px 24px; 
+            border-radius: var(--radius-md); display: none; line-height: 1.6; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15); animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
         }
-        .verde { color: #065f46; background-color: #d1fae5; border: 1px solid #a7f3d0; display: block !important; }
-        .vermelho { color: #991b1b; background-color: #fee2e2; border: 1px solid #fca5a5; display: block !important; }
+
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.8) translateY(20px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .verde { color: #064e3b; background: rgba(16, 185, 129, 0.25); border: 2px solid rgba(16, 185, 129, 0.5); display: block !important; }
+        .vermelho { color: #7f1d1d; background: rgba(239, 68, 68, 0.25); border: 2px solid rgba(239, 68, 68, 0.5); display: block !important; }
 
         /* --- IMPRESSÃO QR CODE --- */
         #area-impressao { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
         .cartao-qr { 
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            border: 2px dashed #cbd5e1; padding: 20px; background: var(--white); 
+            border: 2px dashed rgba(255,255,255,0.8); padding: 20px; 
+            background: rgba(255,255,255,0.6); backdrop-filter: blur(8px);
             border-radius: var(--radius-md); width: 170px; text-align: center; 
-            transition: transform 0.2s;
+            transition: all 0.3s ease; box-shadow: var(--glass-shadow);
         }
-        .cartao-qr:hover { transform: translateY(-5px); border-color: var(--primary); box-shadow: var(--shadow-sm); }
-        .cartao-qr h3 { margin: 0 0 15px 0; color: var(--text-main); font-size: 14px; font-weight: 700; line-height: 1.3; }
+        
+        .cartao-qr:hover { transform: translateY(-8px) scale(1.05); border-color: #3b82f6; border-style: solid; box-shadow: 0 15px 30px rgba(59, 130, 246, 0.3); background: rgba(255,255,255,0.9); }
+        .cartao-qr h3 { margin: 0 0 15px 0; color: var(--text-main); font-size: 15px; font-weight: 700; line-height: 1.3; }
 
         @media (max-width: 600px) {
-            .logo-escola {
-                width: 50px;
-                height: 50px;
-                top: 15px;
-                left: 15px;
-                border-width: 2px;
-            }
-            .topo-barra { padding-left: 75px; }
+            .logo-escola { width: 55px; height: 55px; top: 15px; left: 15px; border-width: 2px; }
+            .topo-barra { padding-left: 85px; flex-direction: column; gap: 15px; align-items: flex-end; }
+            .topo-barra h2 { width: 100%; text-align: right; }
         }
 
-        /* --- MODO IMPRESSÃO CORRIGIDO (4x5 em A4) --- */
+        /* --- MODO IMPRESSÃO GARANTIDO (Sem Vidro, Fundo Branco) --- */
         @media print {
-            @page {
-                size: A4 portrait;
-                margin: 10mm;
-            }
+            @page { size: A4 portrait; margin: 10mm; }
 
             .fundo-midia, .overlay-fundo, .logo-escola, .topo-barra, .btn-imprimir { display: none !important; }
-            body { background: white !important; margin: 0; padding: 0; min-height: auto; }
-            .tela { display: none !important; }
+            body { background: white !important; margin: 0; padding: 0; min-height: auto; color: black !important; }
+            .tela { display: none !important; animation: none !important; }
             
             #tela-gerenciamento { 
                 display: block !important; max-width: 100% !important; 
-                margin: 0 !important; padding: 0 !important; animation: none !important; 
+                margin: 0 !important; padding: 0 !important; 
+                background: white !important; border: none !important; box-shadow: none !important;
             }
             #tela-gerenciamento > .card:nth-child(2),
             #tela-gerenciamento > .card:nth-child(3) { display: none !important; }
 
-            .card {
-                border: none !important; box-shadow: none !important;
-                padding: 0 !important; margin: 0 !important; background: transparent !important;
+            .card, .glass-panel {
+                border: none !important; box-shadow: none !important; background: transparent !important;
+                padding: 0 !important; margin: 0 !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
             }
 
-            #tela-gerenciamento .card h3,
-            #tela-gerenciamento .card select,
-            #tela-gerenciamento .card .linha-form,
-            #tela-gerenciamento .card button,
-            #tela-gerenciamento .card ul,
-            #btn-remover-selecionados { display: none !important; }
+            #tela-gerenciamento .card h3, #tela-gerenciamento .card select,
+            #tela-gerenciamento .card .linha-form, #tela-gerenciamento .card button,
+            #tela-gerenciamento .card ul, #btn-remover-selecionados { display: none !important; }
 
             #area-acoes-impressao {
                 display: block !important; border: none !important;
@@ -368,29 +453,18 @@
                 align-items: center !important;
                 justify-content: center !important;
                 box-sizing: border-box !important;
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
             }
 
-            .cartao-qr h3 {
-                display: block !important; 
-                color: #000 !important; 
-                font-size: 11px !important;
-                margin: 0 0 4px 0 !important; 
-                text-align: center !important;
-                line-height: 1.2 !important;
-                word-wrap: break-word !important;
-                max-width: 100% !important;
-            }
-
-            .cartao-qr img, .cartao-qr canvas {
-                display: block !important; 
-                max-width: 32mm !important; 
-                height: auto !important;
-            }
+            .cartao-qr h3 { display: block !important; color: #000 !important; font-size: 11px !important; margin: 0 0 4px 0 !important; text-align: center !important; line-height: 1.2 !important; word-wrap: break-word !important; max-width: 100% !important; text-shadow: none !important; }
+            .cartao-qr img, .cartao-qr canvas { display: block !important; max-width: 32mm !important; height: auto !important; }
         }
     </style>
 </head>
 <body>
 
+    <!-- VIDEO BACKGROUND -->
     <video autoplay muted loop playsinline class="fundo-midia" id="video-fundo">
         <source src="video.mp4" type="video/mp4">
     </video>
@@ -398,7 +472,8 @@
     <div class="overlay-fundo"></div>
     <img src="logo.png" alt="Logo da Escola" class="logo-escola">
 
-    <div id="tela-login" class="tela">
+    <!-- TELA LOGIN -->
+    <div id="tela-login" class="tela glass-panel">
         <h2>Bem-vindo</h2>
         <div id="status-conexao">
             <span class="status-dot" id="dot-conexao"></span>
@@ -407,27 +482,28 @@
         <input type="password" id="input-login" placeholder="Digite sua senha" onkeypress="verificarEnterLogin(event)" disabled>
         <button id="btn-entrar" onclick="fazerLogin()" disabled>Acessar Sistema</button>
         
-        <div style="margin-top: 35px; font-size: 11px; color: var(--text-muted); line-height: 1.5; text-align: center; font-weight: 400;">
+        <div style="margin-top: 35px; font-size: 12px; color: var(--text-main); line-height: 1.5; text-align: center; font-weight: 500;">
             Desenvolvido por <strong>Eronildo Tavares</strong> &copy; 2026.<br>Plataforma de uso gratuito para apoio à gestão escolar.
         </div>
     </div>
 
+    <!-- TELA ADMIN -->
     <div id="tela-gerenciamento" class="tela">
         <div class="topo-barra" style="background: var(--grad-adm);">
             <h2>⚙️ Painel de Administração</h2>
             <button class="btn-sair" onclick="fazerLogout()">Sair</button>
         </div>
 
-        <div class="card">
+        <div class="card glass-panel">
             <h3>🔑 Senha Mestra (Acesso do Diretor)</h3>
             <div class="linha-form">
                 <input type="text" id="input-senha-diretor" placeholder="Definir nova senha">
-                <button onclick="salvarSenhaDiretor()" style="background-color: var(--success);">Atualizar</button>
+                <button onclick="salvarSenhaDiretor()" style="background: var(--success);">Atualizar</button>
             </div>
-            <small style="color: var(--text-muted);">A senha atual está protegida. Digite uma nova para substituir.</small>
+            <small style="color: var(--text-main); font-weight: 500;">A senha atual está protegida. Digite uma nova para substituir.</small>
         </div>
 
-        <div class="card">
+        <div class="card glass-panel">
             <h3>📚 Passo 1: Criar Turma e Senha</h3>
             <div class="linha-form">
                 <input type="text" id="input-nova-turma" placeholder="Nome (Ex: 1 ANO)">
@@ -437,7 +513,7 @@
             <ul class="lista-itens" id="lista-adm-turmas"></ul>
         </div>
 
-        <div class="card">
+        <div class="card glass-panel">
             <h3>👤 Passo 2: Alunos e QR Codes</h3>
             <select id="select-turma-aluno" onchange="carregarAlunosDaTurma()"></select>
             <div class="linha-form">
@@ -445,32 +521,33 @@
                 <button onclick="cadastrarAlunoEGerarQR()">Adicionar</button>
             </div>
             
-            <button onclick="gerarImpressaoColetiva()" style="width:100%; background: linear-gradient(135deg, var(--purple) 0%, #6d28d9 100%); margin: 10px 0 20px 0;">
+            <button onclick="gerarImpressaoColetiva()" style="width:100%; background: linear-gradient(135deg, rgba(139,92,246,0.9) 0%, rgba(109,40,217,0.9) 100%); margin: 15px 0 25px 0;">
                 🖨️ Gerar QR Codes de Toda a Turma
             </button>
 
             <ul class="lista-itens" id="lista-adm-alunos"></ul>
             
-            <button id="btn-remover-selecionados" onclick="removerAlunosSelecionados()" style="width:100%; background: var(--danger); margin-top: 15px; display: none;">
+            <button id="btn-remover-selecionados" onclick="removerAlunosSelecionados()" style="width:100%; background: var(--danger); margin-top: 20px; display: none;">
                 🗑️ Remover Alunos Selecionados
             </button>
 
-            <div id="area-acoes-impressao" style="display:none; margin-top:25px; padding: 20px; border: 1px solid var(--border-color); background: #f8fafc; border-radius: var(--radius-md);">
-                <button class="btn-imprimir" onclick="window.print()" style="background: var(--teal); width: 100%; margin-bottom: 20px; padding: 16px; font-size: 16px;">🖨️ Imprimir Cartões Gerados</button>
+            <div id="area-acoes-impressao" class="glass-panel" style="display:none; margin-top:30px; padding: 25px; border-radius: var(--radius-md);">
+                <button class="btn-imprimir" onclick="window.print()" style="background: var(--teal); width: 100%; margin-bottom: 25px; padding: 18px; font-size: 17px;">🖨️ Imprimir Cartões Gerados</button>
                 <div id="area-impressao"></div>
             </div>
         </div>
     </div>
 
+    <!-- TELA DIRETOR -->
     <div id="tela-diretor" class="tela">
         <div class="topo-barra" style="background: var(--grad-dir);">
             <h2>📊 Painel da Diretoria</h2>
             <button class="btn-sair" onclick="fazerLogout()">Sair</button>
         </div>
 
-        <div class="card" style="padding: 20px;">
-            <label style="display:block; font-weight:600; color:var(--text-muted); margin-bottom:10px; text-align:left;">Monitoramento em Tempo Real:</label>
-            <select id="select-diretor-turma" onchange="diretorMudarTurma()" style="margin-bottom:0; font-weight:600; background:#f1f5f9;"></select>
+        <div class="card glass-panel" style="padding: 25px;">
+            <label style="display:block; font-weight:700; color:var(--text-main); margin-bottom:12px; text-align:left;">Monitoramento em Tempo Real:</label>
+            <select id="select-diretor-turma" onchange="diretorMudarTurma()" style="margin-bottom:0; font-weight:600;"></select>
         </div>
 
         <div class="table-container">
@@ -486,34 +563,33 @@
                 <tbody id="tabela-diretor-corpo"></tbody>
             </table>
         </div>
-        <button style="margin-top:25px; background: var(--danger); width:100%; font-size: 15px; padding: 16px;" onclick="zerarTurmaDiretor()">
+        <button style="margin-top:30px; background: var(--danger); width:100%; font-size: 16px; padding: 18px;" onclick="zerarTurmaDiretor()">
             🔄 Resetar Contagens desta Turma
         </button>
     </div>
 
+    <!-- TELA PROFESSOR -->
     <div id="tela-professor" class="tela">
         <div class="topo-barra" style="background: var(--grad-prof);">
             <h2 id="titulo-turma-prof">🏫 Turma</h2>
             <button class="btn-sair" onclick="fazerLogout()">Sair</button>
         </div>
 
-        <div id="leitor-container">
+        <div id="leitor-container" class="glass-panel">
             <div id="reader"></div>
             <button class="btn-camera" onclick="alternarCamera()">🔄 Inverter Câmera</button>
         </div>
 
         <div id="mensagem"></div>
 
-        <div class="card painel-alunos">
+        <div class="card painel-alunos glass-panel">
             <h3>Controle de Saídas (Limite: 2)</h3>
             <ul id="lista-prof-alunos"></ul>
         </div>
     </div>
 
+    <!-- SCRIPTS (LÓGICA INTACTA) -->
     <script>
-        // ==========================================
-        // 1. FIREBASE CONFIG & INICIALIZAÇÃO
-        // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyBWB41DNUr-14oi6N3D_8M6KPFqH3yYesU",
             authDomain: "controle-de-saida-54745.firebaseapp.com",
@@ -546,10 +622,7 @@
             if (snapshot.exists()) {
                 dbConfig = snapshot.val();
             } else {
-                dbConfig = {
-                    senha_diretor: "diretor123",
-                    turmas: {}
-                };
+                dbConfig = { senha_diretor: "diretor123", turmas: {} };
                 refConfig.set(dbConfig);
             }
             
@@ -558,22 +631,16 @@
             if (dot && texto) {
                 dot.classList.add('online');
                 texto.innerText = "Sistema Online e Pronto";
-                texto.style.color = "var(--success)";
+                texto.style.color = "#10b981";
             }
             
             if (document.getElementById('input-login')) document.getElementById('input-login').disabled = false;
             if (document.getElementById('btn-entrar')) document.getElementById('btn-entrar').disabled = false;
 
             atualizarListasGerenciamento();
-            
-            if (document.getElementById('tela-diretor').style.display === 'block') {
-                atualizarSelectDiretor();
-            }
+            if (document.getElementById('tela-diretor').style.display === 'block') atualizarSelectDiretor();
         });
 
-        // ==========================================
-        // 2. SISTEMA DE LOGIN E NAVEGAÇÃO
-        // ==========================================
         function verificarEnterLogin(event) { if (event.key === 'Enter') fazerLogin(); }
 
         function fazerLogin() {
@@ -596,10 +663,7 @@
             if (dbConfig.turmas) {
                 for (let turma in dbConfig.turmas) {
                     let senhasDaTurma = dbConfig.turmas[turma].senhas || [];
-                    if (senhasDaTurma.includes(senhaDigitada)) {
-                        turmaEncontrada = turma;
-                        break;
-                    }
+                    if (senhasDaTurma.includes(senhaDigitada)) { turmaEncontrada = turma; break; }
                 }
             }
 
@@ -613,8 +677,16 @@
         }
 
         function abrirTela(idTela) {
-            document.querySelectorAll('.tela').forEach(t => t.style.display = "none");
-            document.getElementById(idTela).style.display = "block";
+            document.querySelectorAll('.tela').forEach(t => {
+                t.style.display = "none";
+                t.style.animation = "none"; 
+            });
+            
+            const telaAtiva = document.getElementById(idTela);
+            telaAtiva.style.display = "block";
+            
+            setTimeout(() => { telaAtiva.style.animation = ""; }, 10);
+
             if (idTela !== "tela-professor" && html5QrCode) {
                 html5QrCode.stop().catch(e => console.log("Câmera parada."));
             }
@@ -627,22 +699,15 @@
             abrirTela("tela-login");
         }
 
-        // ==========================================
-        // 3. MÓDULO DE GERENCIAMENTO (ADM)
-        // ==========================================
         function atualizarListasGerenciamento() {
             const selectAlunos = document.getElementById('select-turma-aluno');
             if (!selectAlunos) return;
-
             const valorAtualAlunos = selectAlunos.value;
             selectAlunos.innerHTML = '';
             
             const listaTurmas = dbConfig && dbConfig.turmas ? Object.keys(dbConfig.turmas) : [];
-            listaTurmas.forEach(t => { selectAlunos.add(new Option(t, t)); });
-
-            if(valorAtualAlunos && listaTurmas.includes(valorAtualAlunos)) {
-                selectAlunos.value = valorAtualAlunos;
-            }
+            listaTurmas.forEach(t => selectAlunos.add(new Option(t, t)));
+            if(valorAtualAlunos && listaTurmas.includes(valorAtualAlunos)) selectAlunos.value = valorAtualAlunos;
 
             carregarListaTurmasAdm();
             carregarAlunosDaTurma();
@@ -686,19 +751,15 @@
             if(dbConfig && dbConfig.turmas) {
                 Object.keys(dbConfig.turmas).forEach(t => {
                     let senhaDestaTurma = dbConfig.turmas[t].senhas ? dbConfig.turmas[t].senhas[0] : "Sem senha";
-                    
                     const li = document.createElement('li');
                     const span = document.createElement('span');
-                    span.innerHTML = `<strong>${t}</strong> <small style="color:var(--text-muted); margin-left:8px;">(Senha: ${senhaDestaTurma})</small>`;
+                    span.innerHTML = `<strong>${t}</strong> <small style="color:inherit; margin-left:8px; opacity:0.8;">(Senha: ${senhaDestaTurma})</small>`;
                     
                     const btn = document.createElement('button');
-                    btn.className = 'btn-remover';
-                    btn.innerText = 'Apagar';
+                    btn.className = 'btn-remover'; btn.innerText = 'Apagar';
                     btn.onclick = function() { removerTurma(t); };
                     
-                    li.appendChild(span);
-                    li.appendChild(btn);
-                    ul.appendChild(li);
+                    li.appendChild(span); li.appendChild(btn); ul.appendChild(li);
                 });
             }
         }
@@ -713,7 +774,7 @@
             if (btnRemoverSel) btnRemoverSel.style.display = 'none';
 
             if(!turma) {
-                ul.innerHTML = '<li style="justify-content:center; color:var(--text-muted); border:none; background:transparent;">Nenhuma turma selecionada.</li>';
+                ul.innerHTML = '<li style="justify-content:center; border:none; background:transparent; box-shadow:none;">Nenhuma turma selecionada.</li>';
                 return;
             }
             
@@ -723,40 +784,30 @@
             refAlunosAdm.on('value', (snapshot) => {
                 ul.innerHTML = '';
                 if (btnRemoverSel) btnRemoverSel.style.display = 'none';
-
                 const alunos = snapshot.val() || {};
                 const chavesAlunos = Object.keys(alunos);
                 
                 if(chavesAlunos.length === 0) {
-                    ul.innerHTML = '<li style="justify-content:center; color:var(--text-muted); border:none; background:transparent;">Nenhum aluno cadastrado.</li>';
+                    ul.innerHTML = '<li style="justify-content:center; border:none; background:transparent; box-shadow:none;">Nenhum aluno cadastrado.</li>';
                 } else {
                     chavesAlunos.sort().forEach(nome => {
                         const li = document.createElement('li');
-                        
                         const label = document.createElement('label');
-                        label.style.cssText = "display:flex; align-items:center; gap:10px; cursor:pointer; flex:1; margin:0;";
+                        label.style.cssText = "display:flex; align-items:center; gap:12px; cursor:pointer; flex:1; margin:0;";
                         
                         const chk = document.createElement('input');
-                        chk.type = 'checkbox';
-                        chk.className = 'chk-aluno';
-                        chk.value = nome;
-                        chk.style.cssText = "width:18px !important; min-width:18px !important; height:18px !important; padding:0 !important; margin:0 !important; cursor:pointer; box-shadow:none;";
+                        chk.type = 'checkbox'; chk.className = 'chk-aluno'; chk.value = nome;
+                        chk.style.cssText = "width:20px !important; min-width:20px !important; height:20px !important; margin:0 !important; cursor:pointer;";
                         chk.onchange = verificarSelecaoAlunos;
                         
-                        const spanNome = document.createElement('span');
-                        spanNome.innerText = nome;
-                        
-                        label.appendChild(chk);
-                        label.appendChild(spanNome);
+                        const spanNome = document.createElement('span'); spanNome.innerText = nome;
+                        label.appendChild(chk); label.appendChild(spanNome);
                         
                         const btnExcluir = document.createElement('button');
-                        btnExcluir.className = 'btn-remover';
-                        btnExcluir.innerText = 'Excluir';
+                        btnExcluir.className = 'btn-remover'; btnExcluir.innerText = 'Excluir';
                         btnExcluir.onclick = function() { removerAluno(turma, nome); };
                         
-                        li.appendChild(label);
-                        li.appendChild(btnExcluir);
-                        ul.appendChild(li);
+                        li.appendChild(label); li.appendChild(btnExcluir); ul.appendChild(li);
                     });
                 }
             });
@@ -771,9 +822,8 @@
             const turma = document.getElementById('select-turma-aluno').value;
             const checkboxes = document.querySelectorAll('.chk-aluno:checked');
             if(checkboxes.length === 0 || !turma) return;
-
             if(confirm(`Tem certeza que deseja excluir os ${checkboxes.length} aluno(s) selecionado(s)?`)) {
-                checkboxes.forEach(chk => { database.ref('salas').child(turma).child('alunos').child(chk.value).remove(); });
+                checkboxes.forEach(chk => database.ref('salas').child(turma).child('alunos').child(chk.value).remove());
                 document.getElementById('area-acoes-impressao').style.display = "none";
             }
         }
@@ -787,58 +837,32 @@
 
         function adicionarCartaoNaTela(nome, turma) {
             const areaImprimir = document.getElementById('area-impressao');
-            
             const divCartao = document.createElement('div');
             divCartao.className = 'cartao-qr';
             divCartao.style.cursor = 'pointer'; 
             
-            divCartao.onclick = function() {
-                baixarCartaoComoPNG(divCartao, nome, turma);
-            };
+            divCartao.onclick = function() { baixarCartaoComoPNG(divCartao, nome, turma); };
             
-            const h3 = document.createElement('h3');
-            h3.innerText = `${nome}\n(${turma})`;
-            divCartao.appendChild(h3);
-
-            const divImg = document.createElement('div');
-            divImg.style.background = "#fff";
-            divImg.style.padding = "2px";
-            divImg.style.borderRadius = "4px";
-            divCartao.appendChild(divImg);
-            
+            const h3 = document.createElement('h3'); h3.innerText = `${nome}\n(${turma})`; divCartao.appendChild(h3);
+            const divImg = document.createElement('div'); divImg.style.background = "#fff"; divImg.style.padding = "4px"; divImg.style.borderRadius = "8px"; divCartao.appendChild(divImg);
             areaImprimir.appendChild(divCartao);
 
             setTimeout(() => {
                 try {
                     new QRCode(divImg, {
-                        text: unescape(encodeURIComponent(nome)),
-                        width: 120,
-                        height: 120,
-                        colorDark : "#1e293b",
-                        colorLight : "#ffffff"
+                        text: unescape(encodeURIComponent(nome)), width: 120, height: 120,
+                        colorDark : "#1e293b", colorLight : "#ffffff"
                     });
-                } catch (e) {
-                    console.error("Falha ao gerar o QR de " + nome, e);
-                }
+                } catch (e) { console.error("Falha ao gerar o QR de " + nome, e); }
             }, 50);
         }
 
         function baixarCartaoComoPNG(elemento, nomeAluno, turmaAluno) {
-            const opcoes = {
-                scale: 3, 
-                backgroundColor: "#ffffff",
-                useCORS: true
-            };
-
-            html2canvas(elemento, opcoes).then(canvas => {
+            html2canvas(elemento, { scale: 3, backgroundColor: "#ffffff", useCORS: true }).then(canvas => {
                 const link = document.createElement('a');
-                const nomeArquivo = `QR_${nomeAluno.replace(/\s+/g, '_')}_${turmaAluno.replace(/\s+/g, '_')}.png`;
-                link.download = nomeArquivo;
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-            }).catch(err => {
-                console.error("Erro ao converter e baixar cartão em PNG", err);
-            });
+                link.download = `QR_${nomeAluno.replace(/\s+/g, '_')}_${turmaAluno.replace(/\s+/g, '_')}.png`;
+                link.href = canvas.toDataURL('image/png'); link.click();
+            }).catch(err => console.error("Erro ao converter e baixar cartão em PNG", err));
         }
 
         function cadastrarAlunoEGerarQR() {
@@ -847,17 +871,10 @@
             
             if(!turma || !nome) { alert("Selecione uma turma e digite o nome!"); return; }
             
-            database.ref('salas').child(turma).child('alunos').child(nome).set({
-                limite: 2, contador: 0, hora1: "", hora2: ""
-            }).then(() => {
+            database.ref('salas').child(turma).child('alunos').child(nome).set({ limite: 2, contador: 0, hora1: "", hora2: "" }).then(() => {
                 document.getElementById('input-novo-aluno').value = "";
-                
-                const divAcoes = document.getElementById('area-acoes-impressao');
-                const areaImprimir = document.getElementById('area-impressao');
-                
-                divAcoes.style.display = "block";
-                areaImprimir.innerHTML = ""; 
-                
+                document.getElementById('area-acoes-impressao').style.display = "block";
+                document.getElementById('area-impressao').innerHTML = ""; 
                 adicionarCartaoNaTela(nome, turma);
             });
         }
@@ -865,28 +882,15 @@
         function gerarImpressaoColetiva() {
             const turma = document.getElementById('select-turma-aluno').value;
             if(!turma) return;
-
             database.ref('salas').child(turma).child('alunos').once('value').then(snapshot => {
-                const alunos = snapshot.val() || {};
-                const nomes = Object.keys(alunos).sort();
-                
+                const alunos = snapshot.val() || {}; const nomes = Object.keys(alunos).sort();
                 if(nomes.length === 0) { alert("A Turma selecionada está vazia."); return; }
-
-                const divAcoes = document.getElementById('area-acoes-impressao');
-                const areaImprimir = document.getElementById('area-impressao');
-                
-                divAcoes.style.display = "block";
-                areaImprimir.innerHTML = ""; 
-                
-                nomes.forEach(nome => {
-                    adicionarCartaoNaTela(nome, turma);
-                });
+                document.getElementById('area-acoes-impressao').style.display = "block";
+                document.getElementById('area-impressao').innerHTML = ""; 
+                nomes.forEach(nome => adicionarCartaoNaTela(nome, turma));
             });
         }
 
-        // ==========================================
-        // 4. MÓDULO DO DIRETOR
-        // ==========================================
         function iniciarModoDiretor() { atualizarSelectDiretor(); }
 
         function atualizarSelectDiretor() {
@@ -894,78 +898,52 @@
             if (!selectDiretor) return;
             const valorAtual = selectDiretor.value;
             selectDiretor.innerHTML = '';
-            if(dbConfig && dbConfig.turmas) {
-                Object.keys(dbConfig.turmas).forEach(t => selectDiretor.add(new Option(t, t)));
-            }
-            if (valorAtual && dbConfig.turmas && dbConfig.turmas[valorAtual]) {
-                selectDiretor.value = valorAtual;
-            } else {
-                diretorMudarTurma();
-            }
+            if(dbConfig && dbConfig.turmas) Object.keys(dbConfig.turmas).forEach(t => selectDiretor.add(new Option(t, t)));
+            if (valorAtual && dbConfig.turmas && dbConfig.turmas[valorAtual]) selectDiretor.value = valorAtual;
+            else diretorMudarTurma();
         }
 
         function diretorMudarTurma() {
             turmaAtual = document.getElementById('select-diretor-turma').value;
             if(!turmaAtual) {
-                document.getElementById('tabela-diretor-corpo').innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:20px;">Nenhuma turma selecionada.</td></tr>';
+                document.getElementById('tabela-diretor-corpo').innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px;">Nenhuma turma selecionada.</td></tr>';
                 return;
             }
-
             if(refAlunosAtuais) refAlunosAtuais.off();
             refAlunosAtuais = database.ref('salas').child(turmaAtual).child('alunos');
-            
-            refAlunosAtuais.on('value', (snapshot) => {
-                dbAlunos = snapshot.val() || {};
-                renderizarTabelaDiretor();
-            });
+            refAlunosAtuais.on('value', (snapshot) => { dbAlunos = snapshot.val() || {}; renderizarTabelaDiretor(); });
         }
 
         function renderizarTabelaDiretor() {
             const tbody = document.getElementById('tabela-diretor-corpo');
-            if(!tbody) return;
-            tbody.innerHTML = '';
-            
+            if(!tbody) return; tbody.innerHTML = '';
             const alunosArr = Object.keys(dbAlunos).sort();
+            
             if(alunosArr.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:20px;">Sem alunos nesta turma.</td></tr>';
-                return;
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px;">Sem alunos nesta turma.</td></tr>'; return;
             }
 
             alunosArr.forEach(aluno => {
-                const d = dbAlunos[aluno];
-                const linha = document.createElement('tr');
-                
+                const d = dbAlunos[aluno]; const linha = document.createElement('tr');
                 let contagemHTML = d.contador >= d.limite 
                     ? `<span class="badge badge-cheio">${d.contador} / ${d.limite}</span>` 
                     : `<span class="badge badge-ok">${d.contador} / ${d.limite}</span>`;
                 
                 linha.innerHTML = `
-                    <td><strong>${aluno}</strong></td>
-                    <td style="text-align:center;">${contagemHTML}</td>
-                    <td style="color:var(--text-muted); font-size:13px;">${d.hora1 || '--:--'}</td>
-                    <td style="color:var(--text-muted); font-size:13px;">${d.hora2 || '--:--'}</td>
-                `;
-                tbody.appendChild(linha);
+                    <td><strong>${aluno}</strong></td><td style="text-align:center;">${contagemHTML}</td>
+                    <td style="font-size:14px;">${d.hora1 || '--:--'}</td><td style="font-size:14px;">${d.hora2 || '--:--'}</td>
+                `; tbody.appendChild(linha);
             });
         }
 
         function zerarTurmaDiretor() {
             if(!turmaAtual) return;
             if(confirm(`Zerar a contagem de TODOS os alunos da turma ${turmaAtual}?`)) {
-                for (let aluno in dbAlunos) {
-                    dbAlunos[aluno].contador = 0;
-                    dbAlunos[aluno].hora1 = "";
-                    dbAlunos[aluno].hora2 = "";
-                }
-                refAlunosAtuais.set(dbAlunos);
-                ultimoScanGlobal = 0;
-                ultimosScansAlunos = {};
+                for (let aluno in dbAlunos) { dbAlunos[aluno].contador = 0; dbAlunos[aluno].hora1 = ""; dbAlunos[aluno].hora2 = ""; }
+                refAlunosAtuais.set(dbAlunos); ultimoScanGlobal = 0; ultimosScansAlunos = {};
             }
         }
 
-        // ==========================================
-        // 5. MÓDULO DO PROFESSOR (COM AS CORREÇÕES)
-        // ==========================================
         function iniciarModoProfessor(turma) {
             turmaAtual = turma;
             document.getElementById('titulo-turma-prof').innerText = `🏫 Turma: ${turma}`;
@@ -973,62 +951,36 @@
             
             if(refAlunosAtuais) refAlunosAtuais.off();
             refAlunosAtuais = database.ref('salas').child(turmaAtual).child('alunos');
-            
-            refAlunosAtuais.on('value', (snapshot) => {
-                dbAlunos = snapshot.val() || {};
-                renderizarListaProfessor();
-            });
-
+            refAlunosAtuais.on('value', (snapshot) => { dbAlunos = snapshot.val() || {}; renderizarListaProfessor(); });
             iniciarCamera();
         }
 
         function renderizarListaProfessor() {
             const ul = document.getElementById('lista-prof-alunos');
-            if(!ul) return;
-            ul.innerHTML = '';
+            if(!ul) return; ul.innerHTML = '';
             const alunosArr = Object.keys(dbAlunos).sort((a, b) => a.localeCompare(b, 'pt-BR'));
 
             if(alunosArr.length === 0) {
-                ul.innerHTML = '<li style="text-align:center; color:var(--text-muted); box-shadow:none; background:transparent; border:none;">Turma vazia.</li>';
-                return;
+                ul.innerHTML = '<li style="text-align:center; box-shadow:none; background:transparent; border:none;">Turma vazia.</li>'; return;
             }
 
             alunosArr.forEach(aluno => {
-                const li = document.createElement('li');
-                const d = dbAlunos[aluno];
-                
+                const li = document.createElement('li'); const d = dbAlunos[aluno];
                 let horas = "";
                 if (d.contador === 1) horas = `<span class="aluno-horas">1ª saída: <strong>${d.hora1}</strong></span>`;
                 else if (d.contador === 2) horas = `<span class="aluno-horas">1ª: <strong>${d.hora1}</strong> &nbsp;|&nbsp; 2ª: <strong>${d.hora2}</strong></span>`;
                 
                 let badgeClass = d.contador >= d.limite ? 'badge-cheio' : 'badge-ok';
-
-                li.innerHTML = `
-                    <div class="aluno-header">
-                        <span class="aluno-nome">${aluno}</span>
-                        <span class="badge ${badgeClass}">${d.contador}/${d.limite}</span>
-                    </div>
-                    ${horas ? `<div>${horas}</div>` : ''}
-                `;
+                li.innerHTML = `<div class="aluno-header"><span class="aluno-nome">${aluno}</span><span class="badge ${badgeClass}">${d.contador}/${d.limite}</span></div>${horas ? `<div>${horas}</div>` : ''}`;
                 
-                if (d.contador >= d.limite) li.classList.add('limite-atingido');
-                ul.appendChild(li);
+                if (d.contador >= d.limite) li.classList.add('limite-atingido'); ul.appendChild(li);
             });
         }
 
-        // Função que estava faltando no código original para ligar a câmera do leitor
         function initInstancia(configCamera, configLeitor) {
             html5QrCode = new Html5Qrcode("reader");
-            html5QrCode.start(
-                configCamera,
-                configLeitor,
-                (textoDecodificado) => {
-                    aoLerQrCode(textoDecodificado);
-                },
-                (mensagemErro) => {
-                    // Os erros de parse são ignorados para manter a varredura contínua
-                }
-            ).catch(err => {
+            html5QrCode.start(configCamera, configLeitor, (texto) => aoLerQrCode(texto), (err) => {})
+            .catch(err => {
                 console.error("Erro ao iniciar a câmera: ", err);
                 const msgDiv = document.getElementById('mensagem');
                 msgDiv.innerHTML = "Erro ao acessar a câmera. Verifique as permissões de vídeo.";
@@ -1039,117 +991,65 @@
         function iniciarCamera() {
             const configCamera = cameraTraseira ? { facingMode: "environment" } : { facingMode: "user" };
             const configLeitor = { fps: 12, qrbox: { width: 250, height: 250 } };
-
-            if (html5QrCode) {
-                html5QrCode.stop().then(() => initInstancia(configCamera, configLeitor)).catch(e => console.log(e));
-            } else {
-                initInstancia(configCamera, configLeitor);
-            }
+            if (html5QrCode) html5QrCode.stop().then(() => initInstancia(configCamera, configLeitor)).catch(e => console.log(e));
+            else initInstancia(configCamera, configLeitor);
         }
 
         function alternarCamera() { cameraTraseira = !cameraTraseira; iniciarCamera(); }
-
-        // Nova função para formatar os minutos e segundos da mensagem dinamicamente
+        
         function formatarTempo(ms) {
-            const m = Math.floor(ms / 60000);
-            const s = Math.floor((ms % 60000) / 1000);
-            if (m > 0) {
-                return `${m} minuto(s) e ${s} segundo(s)`;
-            }
-            return `${s} segundo(s)`;
+            const m = Math.floor(ms / 60000); const s = Math.floor((ms % 60000) / 1000);
+            return m > 0 ? `${m} minuto(s) e ${s} segundo(s)` : `${s} segundo(s)`;
         }
 
         function aoLerQrCode(texto) {
             let qrDecodificado = texto;
-            try { qrDecodificado = decodeURIComponent(escape(texto)); } 
-            catch(e) { console.error("Erro na decodificação do acento", e); }
-
+            try { qrDecodificado = decodeURIComponent(escape(texto)); } catch(e) { console.error("Erro", e); }
             const qrLido = qrDecodificado.trim().toUpperCase();
 
             if (qrLido === ultimoLido) return;
-            ultimoLido = qrLido;
-            clearTimeout(tempoEspera);
-            tempoEspera = setTimeout(() => { ultimoLido = ""; }, 4000);
+            ultimoLido = qrLido; clearTimeout(tempoEspera); tempoEspera = setTimeout(() => ultimoLido = "", 4000);
 
             const msgDiv = document.getElementById('mensagem');
 
             if (qrLido === "EDUCADOR") {
                 if (navigator.vibrate) navigator.vibrate([200, 100, 200]); 
-
-                if (Object.keys(dbAlunos).length === 0) {
-                    msgDiv.innerHTML = "Comando lido, mas a turma está vazia.";
-                    msgDiv.className = "vermelho";
-                    return;
-                }
-
-                for (let aluno in dbAlunos) {
-                    dbAlunos[aluno].contador = 0;
-                    dbAlunos[aluno].hora1 = "";
-                    dbAlunos[aluno].hora2 = "";
-                }
-                
-                refAlunosAtuais.set(dbAlunos);
-                ultimoScanGlobal = 0; 
-                ultimosScansAlunos = {}; 
-                
-                msgDiv.innerHTML = "🔄 <strong>Turma Reiniciada!</strong><br>As contagens e os tempos voltaram a zero.";
-                msgDiv.className = "verde";
-                return;
+                if (Object.keys(dbAlunos).length === 0) { msgDiv.innerHTML = "Turma está vazia."; msgDiv.className = "vermelho"; return; }
+                for (let aluno in dbAlunos) { dbAlunos[aluno].contador = 0; dbAlunos[aluno].hora1 = ""; dbAlunos[aluno].hora2 = ""; }
+                refAlunosAtuais.set(dbAlunos); ultimoScanGlobal = 0; ultimosScansAlunos = {}; 
+                msgDiv.innerHTML = "🔄 <strong>Turma Reiniciada!</strong><br>As contagens e os tempos voltaram a zero."; msgDiv.className = "verde"; return;
             }
 
             if (dbAlunos[qrLido]) {
-                const agoraTs = Date.now();
-                // Novos tempos configurados conforme solicitado:
-                const cincoMinutos = 5 * 60 * 1000;
-                const sessentaMinutos = 60 * 60 * 1000;
+                const agoraTs = Date.now(); const cincoM = 5 * 60 * 1000; const sessentaM = 60 * 60 * 1000;
 
-                // Verifica o limite INDIVIDUAL (mesmo aluno aguarda 1 hora)
-                if (ultimosScansAlunos[qrLido] && (agoraTs - ultimosScansAlunos[qrLido]) < sessentaMinutos) {
-                    const tempoRestante = sessentaMinutos - (agoraTs - ultimosScansAlunos[qrLido]);
+                if (ultimosScansAlunos[qrLido] && (agoraTs - ultimosScansAlunos[qrLido]) < sessentaM) {
                     if (navigator.vibrate) navigator.vibrate([150, 100, 150]); 
-                    msgDiv.innerHTML = `⏳ <strong>${qrLido}</strong><br>Faltam ${formatarTempo(tempoRestante)} para você poder sair novamente.`;
-                    msgDiv.className = "vermelho";
-                    return;
+                    msgDiv.innerHTML = `⏳ <strong>${qrLido}</strong><br>Faltam ${formatarTempo(sessentaM - (agoraTs - ultimosScansAlunos[qrLido]))} para você poder sair novamente.`;
+                    msgDiv.className = "vermelho"; return;
                 }
 
-                // Verifica o limite GLOBAL (qualquer aluno aguarda 5 minutos)
-                if (ultimoScanGlobal && (agoraTs - ultimoScanGlobal) < cincoMinutos) {
-                    const tempoRestante = cincoMinutos - (agoraTs - ultimoScanGlobal);
+                if (ultimoScanGlobal && (agoraTs - ultimoScanGlobal) < cincoM) {
                     if (navigator.vibrate) navigator.vibrate([150, 100, 150]); 
-                    msgDiv.innerHTML = `⏳ <strong>Aguarde!</strong><br>Faltam ${formatarTempo(tempoRestante)} devido à saída recente na turma.`;
-                    msgDiv.className = "vermelho";
-                    return;
+                    msgDiv.innerHTML = `⏳ <strong>Aguarde!</strong><br>Faltam ${formatarTempo(cincoM - (agoraTs - ultimoScanGlobal))} devido à saída recente na turma.`;
+                    msgDiv.className = "vermelho"; return;
                 }
 
-                // Se passou em todas as regras de tempo
                 if (dbAlunos[qrLido].contador < dbAlunos[qrLido].limite) {
                     dbAlunos[qrLido].contador++;
-                    
-                    const agora = new Date();
-                    const horaAtual = `${agora.getHours().toString().padStart(2, '0')}:${agora.getMinutes().toString().padStart(2, '0')}`;
+                    const agora = new Date(); const horaAtual = `${agora.getHours().toString().padStart(2, '0')}:${agora.getMinutes().toString().padStart(2, '0')}`;
+                    if (dbAlunos[qrLido].contador === 1) dbAlunos[qrLido].hora1 = horaAtual; else if (dbAlunos[qrLido].contador === 2) dbAlunos[qrLido].hora2 = horaAtual;
 
-                    if (dbAlunos[qrLido].contador === 1) dbAlunos[qrLido].hora1 = horaAtual;
-                    else if (dbAlunos[qrLido].contador === 2) dbAlunos[qrLido].hora2 = horaAtual;
-
-                    refAlunosAtuais.child(qrLido).set(dbAlunos[qrLido]);
-
-                    // Atualiza os marcadores de tempo de sucesso
-                    ultimoScanGlobal = agoraTs;
-                    ultimosScansAlunos[qrLido] = agoraTs;
-
+                    refAlunosAtuais.child(qrLido).set(dbAlunos[qrLido]); ultimoScanGlobal = agoraTs; ultimosScansAlunos[qrLido] = agoraTs;
                     if (navigator.vibrate) navigator.vibrate(100); 
-
-                    msgDiv.innerHTML = `✅ <strong>${qrLido}</strong><br>Saída Liberada (${dbAlunos[qrLido].contador}/2)<br>⏰ Horário: ${horaAtual}`;
-                    msgDiv.className = "verde";
+                    msgDiv.innerHTML = `✅ <strong>${qrLido}</strong><br>Saída Liberada (${dbAlunos[qrLido].contador}/2)<br>⏰ Horário: ${horaAtual}`; msgDiv.className = "verde";
                 } else {
                     if (navigator.vibrate) navigator.vibrate([150, 100, 150]); 
-                    msgDiv.innerHTML = `❌ <strong>${qrLido}</strong><br>Saída Negada! Limite atingido.`;
-                    msgDiv.className = "vermelho";
+                    msgDiv.innerHTML = `❌ <strong>${qrLido}</strong><br>Saída Negada! Limite atingido.`; msgDiv.className = "vermelho";
                 }
             } else {
                 if (navigator.vibrate) navigator.vibrate([150, 100, 150]); 
-                msgDiv.innerHTML = `⚠️ <strong>Atenção:</strong> "${qrLido}"<br>Não pertence à turma.`;
-                msgDiv.className = "vermelho";
+                msgDiv.innerHTML = `⚠️ <strong>Atenção:</strong> "${qrLido}"<br>Não pertence à turma.`; msgDiv.className = "vermelho";
             }
         }
     </script>
