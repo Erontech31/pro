@@ -101,7 +101,7 @@
 
             <div class="text-center mb-6 pt-4 md:pt-8 md:mb-8">
                 <h1 class="text-5xl md:text-6xl font-black mb-2 tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">Adedonha</h1>
-                <p class="text-slate-400 font-medium text-xs md:text-sm tracking-wide">Julgamento Automático via IA 🤖</p>
+                <p class="text-slate-400 font-medium text-xs md:text-sm tracking-wide">Julgamento Rigoroso via IA 🤖</p>
             </div>
 
             <div class="cartao-glass rounded-3xl p-5 md:p-6 space-y-5">
@@ -634,24 +634,35 @@ Fruta</textarea>
             objParaAnalisar[idJogador] = {};
             for(let idxCat in respostas[idJogador]) {
                 const palavra = respostas[idJogador][idxCat];
-                if(palavra && palavra !== "N/S" && palavra.startsWith(letra)) {
+                if(palavra && palavra !== "N/S") {
                     objParaAnalisar[idJogador][idxCat] = palavra;
                 }
             }
         }
 
         const promptText = `
-Você é um juiz rígido e preciso do jogo Adedonha (Stop).
+Você é um juiz extremamente rigoroso, inteligente e culto do jogo Adedonha (Stop).
 Letra obrigatória desta rodada: ${letra}
-Categorias (por índice numérico): ${JSON.stringify(categorias)}
-Respostas dos jogadores: ${JSON.stringify(objParaAnalisar)}
+Categorias do jogo (índice e nome): ${JSON.stringify(categorias)}
+Respostas dos jogadores (por ID e índice da categoria): ${JSON.stringify(objParaAnalisar)}
 
-Regras de Aceitação:
-1. A palavra DEVE obrigatoriamente começar com a letra '${letra}'.
-2. A palavra DEVE ser um item válido correspondente à sua respectiva categoria indexada.
+Regras de Aceitação Obrigatórias:
+1. A palavra DEVE obrigatoriamente começar com a letra '${letra}'. Se não começar, é falso (reprovada).
+2. A palavra DEVE pertencer estritamente à categoria solicitada. Por exemplo: se a categoria é 'Nome', só vale nome próprio de pessoa (ex: 'Maria', 'Marcos'); se colocarem um objeto como 'Mesa' na categoria 'Nome', deve ser reprovado (false). Se colocarem uma cor na categoria 'Animal', deve ser reprovado (false), etc.
+3. A palavra DEVE existir de verdade na língua portuguesa e fazer sentido. Palavras inventadas, termos absurdos, sem sentido ou erros grosseiros devem ser reprovados (false).
+4. Forneça uma explicação curta e clara (em português) justificando o porquê de ter aceitado ou rejeitado a palavra para aquela categoria.
 
-Retorne APENAS um objeto JSON puro, sem nenhum texto adicional ou blocos de markdown, com o resultado (true para aprovado, false para reprovado). O formato deve ser exato:
-{"ID_JOGADOR": {"INDEX_CATEGORIA": booleano, ...}}
+Retorne APENAS um objeto JSON puro, sem blocos de markdown, sem texto antes ou depois. O formato exato deve ser:
+{
+  "resultados": {
+    "ID_JOGADOR": {
+      "INDEX_CATEGORIA": {
+        "aprovado": true,
+        "explicacao": "Explicação detalhada do motivo."
+      }
+    }
+  }
+}
         `;
 
         try {
@@ -675,6 +686,7 @@ Retorne APENAS um objeto JSON puro, sem nenhum texto adicional ou blocos de mark
             textResponse = textResponse.replace(/```json/g, '').replace(/```/g, '').trim();
             
             const geminiResult = JSON.parse(textResponse);
+            const resultadosIA = geminiResult.resultados || {};
 
             let estruturaVotos = {};
             categorias.forEach((_, idx) => { estruturaVotos[idx] = {}; });
@@ -682,14 +694,28 @@ Retorne APENAS um objeto JSON puro, sem nenhum texto adicional ou blocos de mark
             for(let idJogador in respostas) {
                 for(let idx in respostas[idJogador]) {
                     const palavra = respostas[idJogador][idx];
-                    let aprovado = false;
                     
-                    if (palavra && palavra.startsWith(letra) && palavra !== "N/S") {
-                        if (geminiResult[idJogador] && geminiResult[idJogador][idx] === true) {
-                            aprovado = true;
-                        }
+                    if (!palavra || palavra === "N/S") {
+                        estruturaVotos[idx][idJogador] = {
+                            aprovado: false,
+                            explicacao: "Resposta em branco ou N/S."
+                        };
+                        continue;
                     }
-                    estruturaVotos[idx][idJogador] = aprovado;
+
+                    if (resultadosIA[idJogador] && resultadosIA[idJogador][idx]) {
+                        estruturaVotos[idx][idJogador] = {
+                            aprovado: Boolean(resultadosIA[idJogador][idx].aprovado),
+                            explicacao: String(resultadosIA[idJogador][idx].explicacao || "Avaliado pela IA.")
+                        };
+                    } else {
+                        // Fallback caso a IA ignore o ID
+                        const comecaCerta = palavra.startsWith(letra);
+                        estruturaVotos[idx][idJogador] = {
+                            aprovado: comecaCerta,
+                            explicacao: comecaCerta ? "Aprovado por iniciar com a letra correta." : "Reprovado por não iniciar com a letra exigida."
+                        };
+                    }
                 }
             }
             await db.ref(`salas/${salaAtual}/votos`).set(estruturaVotos);
@@ -701,7 +727,11 @@ Retorne APENAS um objeto JSON puro, sem nenhum texto adicional ou blocos de mark
                 fallbackVotos[idxCat] = {};
                 for(let idJogador in respostas) {
                     const palavra = respostas[idJogador] && respostas[idJogador][idxCat] ? String(respostas[idJogador][idxCat]).trim().toUpperCase() : "";
-                    fallbackVotos[idxCat][idJogador] = (palavra && palavra.startsWith(letra) && palavra !== "N/S");
+                    const comecaCerta = (palavra && palavra.startsWith(letra) && palavra !== "N/S");
+                    fallbackVotos[idxCat][idJogador] = {
+                        aprovado: comecaCerta,
+                        explicacao: comecaCerta ? "Aprovado automaticamente por regra de letra (falha na API)." : "Reprovado por estar em branco ou não iniciar com a letra."
+                    };
                 }
             });
             await db.ref(`salas/${salaAtual}/votos`).set(fallbackVotos);
@@ -717,7 +747,7 @@ Retorne APENAS um objeto JSON puro, sem nenhum texto adicional ou blocos de mark
             estruturaVisualVotos += `
                 <div class="cartao-glass p-4 rounded-2xl border border-slate-800">
                     <h3 class="text-indigo-400 font-extrabold tracking-wider text-xs md:text-sm uppercase mb-3 border-b border-slate-800 pb-1.5">📂 ${categoriaNome}</h3>
-                    <div class="space-y-2.5">
+                    <div class="space-y-3">
             `;
 
             idsListaJogadores.forEach(jogadorId => {
@@ -730,28 +760,37 @@ Retorne APENAS um objeto JSON puro, sem nenhum texto adicional ou blocos de mark
                 let iconeVeredito = "⏳";
                 let classesStatus = "border-slate-800/80 bg-slate-950/20";
                 let textStatus = "text-slate-200";
+                let textoExplicacao = "Aguardando julgamento da inteligência artificial...";
 
                 if (vereditosIA) {
-                    const foiAprovado = vereditosIA[idxCat] && vereditosIA[idxCat][jogadorId];
+                    const votoObj = vereditosIA[idxCat] && vereditosIA[idxCat][jogadorId];
+                    const foiAprovado = votoObj ? votoObj.aprovado : false;
+                    textoExplicacao = votoObj ? votoObj.explicacao : "";
+
                     if (foiAprovado) {
                         iconeVeredito = "✅";
                         classesStatus = "border-emerald-900/50 bg-emerald-950/10";
                         textStatus = "text-emerald-400 font-black";
                     } else {
                         iconeVeredito = "❌";
-                        classesStatus = "border-rose-950/40 bg-rose-950/5 opacity-60";
+                        classesStatus = "border-rose-950/40 bg-rose-950/5 opacity-80";
                         textStatus = "text-rose-400/80 line-through";
                     }
                 }
 
                 estruturaVisualVotos += `
-                    <div class="rounded-xl p-3 md:p-3.5 border ${classesStatus} flex justify-between items-center gap-2 transition-all">
-                        <div class="truncate pr-2">
-                            <span class="text-[10px] md:text-xs text-slate-500 font-bold block mb-0.5 truncate">${jogadorId === meuId ? '🫵 Você' : nomeDoJogador}</span>
-                            <span class="text-sm md:text-base font-bold truncate block ${textStatus}">${stringExibicao}</span>
+                    <div class="rounded-xl p-3 md:p-3.5 border ${classesStatus} flex flex-col gap-2 transition-all">
+                        <div class="flex justify-between items-center gap-2">
+                            <div class="truncate pr-2">
+                                <span class="text-[10px] md:text-xs text-slate-500 font-bold block mb-0.5 truncate">${jogadorId === meuId ? '🫵 Você' : nomeDoJogador}</span>
+                                <span class="text-sm md:text-base font-bold truncate block ${textStatus}">${stringExibicao}</span>
+                            </div>
+                            <div class="flex items-center justify-center bg-slate-900/60 rounded-lg p-2 text-xl shadow-inner shrink-0">
+                                ${iconeVeredito}
+                            </div>
                         </div>
-                        <div class="flex items-center justify-center bg-slate-900/60 rounded-lg p-2 text-xl shadow-inner">
-                            ${iconeVeredito}
+                        <div class="text-[11px] text-slate-400 bg-slate-900/50 px-2.5 py-1.5 rounded-lg border border-slate-800/80 leading-relaxed">
+                            💡 <span class="font-medium text-slate-300">${textoExplicacao}</span>
                         </div>
                     </div>
                 `;
@@ -775,7 +814,9 @@ Retorne APENAS um objeto JSON puro, sem nenhum texto adicional ou blocos de mark
 
                 chavesJogadores.forEach(id => {
                     const textoResp = (dados.respostas && dados.respostas[id] && dados.respostas[id][idxCat]) ? String(dados.respostas[id][idxCat]).trim().toUpperCase() : "";
-                    const aprovadoIA = dados.votos && dados.votos[idxCat] && dados.votos[idxCat][id];
+                    const votoObj = dados.votos && dados.votos[idxCat] && dados.votos[idxCat][id];
+                    const aprovadoIA = votoObj ? votoObj.aprovado : false;
+                    
                     if (aprovadoIA) {
                         palavrasValidadasDaCategoria.push({ id: id, palavra: textoResp });
                     }
