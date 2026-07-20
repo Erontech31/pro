@@ -3,17 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Adedonha Online 🎮</title>
+    <title>Adedonha Online AI 🎮</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&display=swap" rel="stylesheet">
-    
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
-    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
@@ -87,8 +83,8 @@
             ⚠️ Erro de gravação no Firebase. Verifique suas regras no console.
         </div>
 
+        <!-- TELA INÍCIO -->
         <div id="tela-inicio" class="tela ativa w-full max-w-md mx-auto">
-            
             <div class="fixed top-4 right-4 z-[100]">
                 <button onclick="document.getElementById('menuTema').classList.toggle('hidden')" class="w-11 h-11 rounded-full bg-slate-900/70 backdrop-blur border border-slate-700 shadow-lg flex items-center justify-center text-lg">🎨</button>
                 <div id="menuTema" class="hidden absolute right-0 mt-2 bg-slate-900/90 rounded-2xl p-2 border border-slate-700 shadow-2xl">
@@ -105,7 +101,7 @@
 
             <div class="text-center mb-6 pt-4 md:pt-8 md:mb-8">
                 <h1 class="text-5xl md:text-6xl font-black mb-2 tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">Adedonha</h1>
-                <p class="text-slate-400 font-medium text-xs md:text-sm tracking-wide">Jogo Online de Palavras • Máx. 10 Amigos</p>
+                <p class="text-slate-400 font-medium text-xs md:text-sm tracking-wide">Julgamento Automático via IA 🤖</p>
             </div>
 
             <div class="cartao-glass rounded-3xl p-5 md:p-6 space-y-5">
@@ -113,33 +109,23 @@
                     <label class="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-widest text-center">Seu Apelido</label>
                     <input type="text" id="inputNome" maxlength="12" placeholder="Ex: André" class="input-premium w-full rounded-2xl px-5 py-3 md:py-4 text-lg font-bold text-center text-white placeholder-slate-600">
                 </div>
-
                 <hr class="border-slate-800">
-
                 <button onclick="criarSala()" class="btn-gradiente w-full rounded-2xl py-3 md:py-4 font-bold text-lg shadow-lg shadow-indigo-500/20 text-white">
                     ✨ Criar Nova Sala
                 </button>
-
                 <div class="text-center text-slate-500 text-xs font-black uppercase tracking-widest">OU JUNTAR-SE</div>
-
                 <div class="flex justify-center gap-3">
                     <input type="text" id="inputCodigo" maxlength="6" inputmode="numeric" placeholder="CÓDIGO" class="input-premium w-full max-w-[160px] rounded-2xl px-4 py-3 md:py-4 text-xl font-black text-center tracking-widest text-indigo-300 placeholder-slate-600">
-                    <button onclick="alternarLeitorQR()" class="bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center rounded-2xl px-5 transition-colors shadow-md">
-                        📷
-                    </button>
+                    <button onclick="alternarLeitorQR()" class="bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center rounded-2xl px-5 transition-colors shadow-md">📷</button>
                 </div>
                 <div id="leitor-qr" class="hidden rounded-2xl overflow-hidden border-2 border-indigo-500/30 mt-2 w-full max-w-[250px] mx-auto"></div>
-                
                 <button onclick="entrarSala()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl py-3 md:py-4 font-bold text-lg transition-colors shadow-lg shadow-emerald-600/10">
                     Entrar na Sala ➡️
                 </button>
             </div>
-            
-            <div class="mt-6 text-center text-slate-500 text-[10px] md:text-xs font-medium tracking-wide">
-                Desenvolvido por Eronildo Tavares &copy; 2026
-            </div>
         </div>
 
+        <!-- TELA LOBBY -->
         <div id="tela-lobby" class="tela w-full max-w-5xl mx-auto">
             <div class="flex justify-end mb-4">
                 <button onclick="abandonarPartida()" class="px-4 py-2 bg-rose-500/10 text-rose-400 rounded-xl text-xs font-bold border border-rose-500/20 hover:bg-rose-500 hover:text-white transition-all shadow-sm">
@@ -148,21 +134,18 @@
             </div>
             <div class="cartao-glass rounded-3xl p-5 md:p-8 relative overflow-hidden">
                 <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
-                
                 <div class="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8">
                     <div class="md:col-span-5 flex flex-col justify-center items-center border-b md:border-b-0 md:border-r border-slate-800 pb-6 md:pb-0 md:pr-8">
                         <div class="text-center mb-4 w-full">
                             <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Código da Sala</p>
                             <p id="lblCodigoSala" class="text-5xl md:text-6xl font-black text-indigo-400 tracking-widest"></p>
                         </div>
-
                         <div class="p-2 bg-white rounded-xl shadow-xl mb-6">
                             <div id="qrcodeBox" class="flex justify-center"></div>
                         </div>
 
                         <div id="painelConfig" class="hidden w-full bg-slate-900/60 rounded-2xl p-4 border border-slate-800">
                             <p class="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-3 text-center md:text-left">⚙️ Configurações</p>
-                            
                             <label class="block text-[11px] md:text-xs font-semibold mb-1 text-slate-400">Categorias (uma por linha)</label>
                             <textarea id="inputCategorias" rows="6" class="input-premium w-full rounded-xl p-3 text-sm mb-3 text-white">Nome
 Animal
@@ -170,7 +153,6 @@ Cor
 Objeto
 Cidade, Estado ou País
 Fruta</textarea>
-                            
                             <div class="grid grid-cols-2 gap-3 mb-4">
                                 <div>
                                     <label class="block text-[11px] md:text-xs font-semibold mb-1 text-slate-400">Tempo (Segs)</label>
@@ -181,29 +163,26 @@ Fruta</textarea>
                                     <input type="number" id="inputRodadas" value="3" class="input-premium w-full rounded-xl p-2 text-center font-bold text-white">
                                 </div>
                             </div>
-                            
                             <button onclick="iniciarRodada()" class="btn-gradiente w-full rounded-xl py-3 font-bold text-white shadow-md text-sm md:text-base">
                                 ▶️ Começar Partida
                             </button>
                         </div>
-
                         <div id="msgAguardando" class="text-center text-slate-400 text-sm py-4 animate-pulse w-full">
                             Aguardando o líder iniciar o jogo...
                         </div>
                     </div>
-
                     <div class="md:col-span-7 flex flex-col">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="font-bold text-lg text-slate-300">👥 Jogadores na Sala</h3>
                             <span class="text-xs font-bold px-3 py-1 bg-slate-900 rounded-full text-indigo-300"><span id="qtdJogadores">0</span>/10</span>
                         </div>
-                        <ul id="listaJogadores" class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-64 md:max-h-[500px] overflow-y-auto no-scrollbar pb-2">
-                        </ul>
+                        <ul id="listaJogadores" class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-64 md:max-h-[500px] overflow-y-auto no-scrollbar pb-2"></ul>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- TELA JOGO -->
         <div id="tela-jogo" class="tela w-full">
             <div class="fixed top-0 left-0 right-0 z-[80] cartao-glass rounded-b-3xl border-b border-slate-700/50 shadow-2xl px-4 py-3 md:px-8">
                 <div class="max-w-5xl mx-auto flex flex-col gap-2.5">
@@ -215,7 +194,6 @@ Fruta</textarea>
                             🚪 Sair
                         </button>
                     </div>
-                    
                     <div class="flex justify-between items-center gap-3">
                         <div class="bg-slate-900/60 px-4 py-2 md:px-6 md:py-3 rounded-2xl border-l-4 border-indigo-500 flex-1 shadow-inner flex flex-col items-center">
                             <p class="text-[10px] md:text-xs text-slate-400 font-bold tracking-wider mb-0.5">LETRA</p>
@@ -230,8 +208,7 @@ Fruta</textarea>
             </div>
 
             <div class="max-w-5xl mx-auto w-full pt-[140px] md:pt-[170px] pb-[100px] md:pb-[120px]">
-                <div id="areaInputs" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-                </div>
+                <div id="areaInputs" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4"></div>
             </div>
 
             <div class="fixed bottom-4 md:bottom-8 left-0 right-0 z-50 pointer-events-none px-4">
@@ -243,6 +220,7 @@ Fruta</textarea>
             </div>
         </div>
 
+        <!-- TELA VOTAÇÃO (JULGAMENTO IA) -->
         <div id="tela-votacao" class="tela w-full max-w-6xl mx-auto">
             <div class="flex justify-end mb-4">
                 <button onclick="abandonarPartida()" class="px-4 py-2 bg-rose-500/10 text-rose-400 rounded-xl text-xs font-bold border border-rose-500/20 hover:bg-rose-500 hover:text-white transition-all shadow-sm">
@@ -251,36 +229,36 @@ Fruta</textarea>
             </div>
             
             <div class="text-center mb-6">
-                <h2 class="text-2xl md:text-3xl font-black mb-1">⚖️ Tribunal de Validação</h2>
-                <p class="text-slate-400 text-xs md:text-sm">Avalie as respostas para a letra <span id="letraVotacao" class="text-amber-400 font-bold text-xl md:text-2xl"></span></p>
+                <h2 id="tituloValidacao" class="text-2xl md:text-3xl font-black mb-1">🤖 O Gemini está Avaliando...</h2>
+                <p class="text-slate-400 text-xs md:text-sm">Analisando as palavras para a letra <span id="letraVotacao" class="text-amber-400 font-bold text-xl md:text-2xl"></span></p>
             </div>
 
             <div id="areaVotacao" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 max-h-[65vh] overflow-y-auto no-scrollbar pb-4">
+                <!-- Preenchido pelo JS -->
             </div>
 
             <div class="max-w-md mx-auto mt-6">
-                <button id="btnApurar" onclick="marcarPronto()" class="hidden btn-gradiente w-full rounded-2xl py-3 md:py-4 font-bold text-base md:text-lg text-white shadow-lg">
-                    ✅ Concluir Votação
+                <button id="btnApurar" onclick="marcarProntoAvancar()" class="hidden btn-gradiente w-full rounded-2xl py-3 md:py-4 font-bold text-base md:text-lg text-white shadow-lg transition-all">
+                    ✅ Estou Pronto para Avançar
                 </button>
-                <p id="msgVotacao" class="text-center text-slate-400 text-xs md:text-sm py-2 font-bold tracking-wide">Aguardando jogadores...</p>
+                <p id="msgVotacao" class="text-center text-amber-300 text-xs md:text-sm py-2 font-bold tracking-wide animate-pulse">
+                    A IA está validando todas as respostas, aguarde...
+                </p>
             </div>
         </div>
 
+        <!-- TELA RANKING -->
         <div id="tela-ranking" class="tela w-full max-w-lg mx-auto">
             <div class="text-center mb-8 pt-6">
                 <div class="text-6xl mb-4">🏆</div>
                 <h2 class="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-yellow-500">Fim de Jogo!</h2>
                 <p class="text-slate-400 text-sm mt-2">Classificação final dos participantes</p>
             </div>
-
-            <div id="areaPodio" class="cartao-glass rounded-3xl p-5 md:p-6 space-y-3 mb-6">
-            </div>
-
+            <div id="areaPodio" class="cartao-glass rounded-3xl p-5 md:p-6 space-y-3 mb-6"></div>
             <div class="space-y-3">
                 <button id="btnJogarNovamente" onclick="reiniciarPartidaCompleta()" class="hidden w-full bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl py-4 font-bold text-base md:text-lg shadow-md transition-all">
                     🔄 Começar Nova Partida
                 </button>
-                
                 <button onclick="abandonarPartida()" class="bg-slate-800 hover:bg-slate-700 w-full text-slate-300 rounded-2xl py-4 font-bold text-base md:text-lg transition-colors">
                     🏠 Voltar ao Início
                 </button>
@@ -290,6 +268,11 @@ Fruta</textarea>
     </div>
 
 <script>
+    // ==========================================
+    // COLE SUA API KEY DO GEMINI AQUI 👇
+    // ==========================================
+    const GEMINI_API_KEY = "COLE_SUA_API_KEY_AQUI";
+
     // ==========================================
     // CONFIGURAÇÃO DO FIREBASE
     // ==========================================
@@ -322,14 +305,12 @@ Fruta</textarea>
     let cronometro = null;
     let scannerQr = null;
     let jogadoresRegistrados = null;
-    let lastRespostasHash = ""; 
-    let apurandoResultados = false; 
+    let dadosPartidaGlobal = null;
+    let apurandoResultados = false; // Evita loop de apuração
 
     window.addEventListener('DOMContentLoaded', () => {
         const nomeSalvo = localStorage.getItem('adedonhaNomeJogador');
-        if (nomeSalvo) {
-            document.getElementById('inputNome').value = nomeSalvo;
-        }
+        if (nomeSalvo) document.getElementById('inputNome').value = nomeSalvo;
     });
 
     function emitirAviso(titulo, texto, tipo = 'error') {
@@ -341,14 +322,8 @@ Fruta</textarea>
     function mostrarNotificacaoToast(texto, tipo) {
         if (typeof Swal !== 'undefined') {
             Swal.fire({
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 3000,
-                title: texto,
-                icon: tipo,
-                background: '#111827',
-                color: '#fff',
+                toast: true, position: 'top-end', showConfirmButton: false, timer: 3000,
+                title: texto, icon: tipo, background: '#111827', color: '#fff',
                 customClass: { popup: 'rounded-xl border border-slate-800' }
             });
         }
@@ -363,9 +338,7 @@ Fruta</textarea>
 
     async function abandonarPartida() {
         if (confirm("Tem certeza que deseja sair desta sala/partida?")) {
-            if (meuId && salaAtual && db) {
-                await db.ref(`salas/${salaAtual}/jogadores/${meuId}`).remove();
-            }
+            if (meuId && salaAtual && db) await db.ref(`salas/${salaAtual}/jogadores/${meuId}`).remove();
             location.reload();
         }
     }
@@ -376,18 +349,13 @@ Fruta</textarea>
         if (!meuNome) return emitirAviso("Atenção!", "Precisa digitar o seu apelido primeiro.");
 
         localStorage.setItem('adedonhaNomeJogador', meuNome);
-
         salaAtual = Math.floor(100000 + Math.random() * 900000).toString();
         
         try {
             isDono = true;
             await db.ref('salas/' + salaAtual).set({
-                status: 'lobby',
-                config: { categorias: "", tempo: 60, rodadas: 3 },
-                rodadaAtual: 1,
-                letraAtual: "",
-                letrasUsadas: [],
-                endTime: 0
+                status: 'lobby', config: { categorias: "", tempo: 60, rodadas: 3 },
+                rodadaAtual: 1, letraAtual: "", letrasUsadas: [], endTime: 0
             });
             vincularJogadorESala();
         } catch (error) { mostrarErroBancoDados(error.message); }
@@ -406,10 +374,8 @@ Fruta</textarea>
         try {
             const snapshot = await db.ref('salas/' + salaAtual).once('value');
             if (!snapshot.exists()) return emitirAviso("Não Encontrada", "Esta sala não existe.");
-            
             const dados = snapshot.val();
             if (dados.status !== 'lobby') return emitirAviso("Partida Iniciada", "O jogo nesta sala já começou.");
-
             const totalJogadores = dados.jogadores ? Object.keys(dados.jogadores).length : 0;
             if (totalJogadores >= 10) return emitirAviso("Sala Cheia", "Esta sala já atingiu o limite de 10 amigos.");
 
@@ -426,7 +392,6 @@ Fruta</textarea>
 
         novaConexaoRef.set({ nome: meuNome, pontos: 0 });
         novaConexaoRef.onDisconnect().remove(); 
-
         escutarAlteracoesSala();
         configurarLobbyVisual();
     }
@@ -437,63 +402,20 @@ Fruta</textarea>
     }
 
     // ==========================================
-    // SINCRONIZAÇÃO EM TEMPO REAL E VOTAÇÃO
+    // SINCRONIZAÇÃO EM TEMPO REAL
     // ==========================================
     function escutarAlteracoesSala() {
         db.ref(`salas/${salaAtual}`).on('value', snapshot => {
             const dados = snapshot.val();
             if (!dados) return;
+            dadosPartidaGlobal = dados; 
 
             sincronizarListaLobby(dados);
             const ecranAtual = document.querySelector('.tela.ativa')?.id;
             
             if (dados.status === 'lobby' && ecranAtual !== 'tela-lobby') configurarLobbyVisual();
             if (dados.status === 'jogando' && ecranAtual !== 'tela-jogo') construirAmbienteJogo(dados);
-            
-            if (dados.status === 'votacao') {
-                const currentRespostasStr = JSON.stringify(dados.respostas || {});
-                if (ecranAtual !== 'tela-votacao' || lastRespostasHash !== currentRespostasStr) {
-                    
-                    if (ecranAtual === 'tela-jogo') {
-                        clearInterval(cronometro);
-                        const respostasColetadas = {};
-                        categoriasJogo.forEach((_, idx) => {
-                            const campo = document.getElementById(`resposta_campo_${idx}`);
-                            respostasColetadas[idx] = campo ? campo.value.trim().toUpperCase() : "";
-                        });
-                        db.ref(`salas/${salaAtual}/respostas/${meuId}`).set(respostasColetadas);
-                    }
-                    
-                    lastRespostasHash = currentRespostasStr;
-                    construirAmbienteVotacao(dados);
-                }
-
-                const totalJogadores = Object.keys(dados.jogadores || {}).length;
-                const totalProntos = Object.keys(dados.prontosVotacao || {}).length;
-                
-                const btnApurar = document.getElementById("btnApurar");
-                const msgVotacao = document.getElementById("msgVotacao");
-
-                btnApurar.classList.remove('hidden');
-                msgVotacao.classList.remove('hidden');
-                msgVotacao.innerText = `⏳ ${totalProntos} de ${totalJogadores} confirmaram para avançar`;
-
-                if (dados.prontosVotacao && dados.prontosVotacao[meuId]) {
-                    btnApurar.disabled = true;
-                    btnApurar.innerText = "⏳ Aguardando os outros jogadores...";
-                    btnApurar.classList.add("opacity-50");
-                } else {
-                    btnApurar.disabled = false;
-                    btnApurar.innerText = "✅ Concluir Votação e Avançar";
-                    btnApurar.classList.remove("opacity-50");
-                }
-
-                if (totalProntos > 0 && totalProntos === totalJogadores && isDono && !apurandoResultados) {
-                    apurandoResultados = true;
-                    executarApuracaoEAvancar(dados).finally(() => { apurandoResultados = false; });
-                }
-            }
-
+            if (dados.status === 'votacao') gerenciarVotacaoIA(dados, ecranAtual);
             if (dados.status === 'ranking' && ecranAtual !== 'tela-ranking') construirAmbienteRanking(dados);
         });
     }
@@ -507,31 +429,24 @@ Fruta</textarea>
         }
 
         const jogadoresAtuais = dados.jogadores;
-
         if (jogadoresRegistrados !== null) {
             for (let id in jogadoresAtuais) {
-                if (!jogadoresRegistrados[id]) {
-                    mostrarNotificacaoToast(`👋 ${jogadoresAtuais[id].nome} entrou na sala!`, 'success');
-                }
+                if (!jogadoresRegistrados[id]) mostrarNotificacaoToast(`👋 ${jogadoresAtuais[id].nome} entrou na sala!`, 'success');
             }
             for (let id in jogadoresRegistrados) {
-                if (!jogadoresAtuais[id]) {
-                    mostrarNotificacaoToast(`🚶 ${jogadoresRegistrados[id].nome} saiu da sala.`, 'info');
-                }
+                if (!jogadoresAtuais[id]) mostrarNotificacaoToast(`🚶 ${jogadoresRegistrados[id].nome} saiu da sala.`, 'info');
             }
         }
         jogadoresRegistrados = {...jogadoresAtuais};
-
         const listaInstanciada = Object.values(jogadoresAtuais);
         document.getElementById("qtdJogadores").innerText = listaInstanciada.length;
         
-        const htmlElementos = listaInstanciada.map(j => `
+        document.getElementById("listaJogadores").innerHTML = listaInstanciada.map(j => `
             <li class="bg-slate-900/50 px-4 py-3 rounded-xl border border-slate-800 flex justify-between items-center shadow-sm">
                 <span class="font-bold text-slate-200 text-sm truncate pr-2">👤 ${j.nome}</span>
                 <span class="text-[11px] md:text-xs bg-slate-950 font-semibold px-2.5 py-1 rounded-md text-indigo-400 border border-indigo-950 whitespace-nowrap">${j.pontos} pts</span>
             </li>
         `).join('');
-        document.getElementById("listaJogadores").innerHTML = htmlElementos;
     }
 
     function configurarLobbyVisual() {
@@ -550,6 +465,11 @@ Fruta</textarea>
     }
 
     async function iniciarRodada() {
+        if(GEMINI_API_KEY === "COLE_SUA_API_KEY_AQUI") {
+            emitirAviso("Aviso", "Você precisa colar sua Chave de API do Gemini no código fonte antes de jogar!");
+            return;
+        }
+
         const areaTexto = document.getElementById("inputCategorias").value;
         const tempoLimite = parseInt(document.getElementById("inputTempo").value) || 60;
         const totalRodadas = parseInt(document.getElementById("inputRodadas").value) || 3;
@@ -577,20 +497,20 @@ Fruta</textarea>
             endTime: tempoMilisegundosFinal,
             respostas: null, 
             votos: null,
-            prontosVotacao: null      
+            prontosParaAvancar: null
         });
     }
 
     function construirAmbienteJogo(dados) {
-        lastRespostasHash = ""; 
         gerirNavegacaoEcras('tela-jogo');
         categoriasJogo = dados.config.categorias;
+        apurandoResultados = false;
         
         document.getElementById("letraSorteada").innerText = dados.letraAtual;
         document.getElementById("rodadaAtualL").innerText = dados.rodadaAtual;
         document.getElementById("rodadasTotalL").innerText = dados.config.rodadas;
         
-        const htmlGerado = categoriasJogo.map((cat, idx) => `
+        document.getElementById("areaInputs").innerHTML = categoriasJogo.map((cat, idx) => `
             <div class="bg-slate-900/80 p-3.5 md:p-4 rounded-2xl border border-slate-800 focus-within:border-indigo-500 transition-all shadow-sm">
                 <div class="flex justify-between items-center mb-1.5 md:mb-2">
                     <label class="block text-[11px] md:text-xs font-bold text-indigo-400 uppercase tracking-widest">${cat}</label>
@@ -599,8 +519,6 @@ Fruta</textarea>
                 <input type="text" id="resposta_campo_${idx}" oninput="verificarPreenchimentoCategorias()" class="w-full bg-transparent text-white font-bold text-lg md:text-xl outline-none" autocomplete="off" placeholder="Digitar...">
             </div>
         `).join('');
-        
-        document.getElementById("areaInputs").innerHTML = htmlGerado;
         
         document.getElementById("btnStop").innerText = "🚨 STOP!";
         document.getElementById("btnStop").disabled = false;
@@ -620,17 +538,10 @@ Fruta</textarea>
         let todasPreenchidas = true;
         categoriasJogo.forEach((_, idx) => {
             const campo = document.getElementById(`resposta_campo_${idx}`);
-            if (!campo || campo.value.trim() === "") {
-                todasPreenchidas = false;
-            }
+            if (!campo || campo.value.trim() === "") todasPreenchidas = false;
         });
-        
         const btn = document.getElementById("btnStop");
-        if (todasPreenchidas) {
-            btn.classList.remove("hidden");
-        } else {
-            btn.classList.add("hidden");
-        }
+        todasPreenchidas ? btn.classList.remove("hidden") : btn.classList.add("hidden");
     }
 
     async function submeterRespostasStop() {
@@ -645,14 +556,158 @@ Fruta</textarea>
         });
 
         await db.ref(`salas/${salaAtual}/respostas/${meuId}`).set(respostasColetadas);
-        await db.ref(`salas/${salaAtual}/status`).set('votacao');
+        await db.ref(`salas/${salaAtual}/status`).set('votacao'); 
     }
 
-    function construirAmbienteVotacao(dados) {
-        gerirNavegacaoEcras('tela-votacao');
-        document.getElementById("letraVotacao").innerText = dados.letraAtual;
-        categoriasJogo = dados.config.categorias;
+    // ==========================================
+    // LÓGICA DA IA (GEMINI) & READY CHECK
+    // ==========================================
+    function gerenciarVotacaoIA(dados, ecranAtual) {
+        if (ecranAtual !== 'tela-votacao') {
+            gerirNavegacaoEcras('tela-votacao');
+            document.getElementById("letraVotacao").innerText = dados.letraAtual;
+            
+            if (ecranAtual === 'tela-jogo') {
+                clearInterval(cronometro);
+                const respostasColetadas = {};
+                categoriasJogo.forEach((_, idx) => {
+                    const campo = document.getElementById(`resposta_campo_${idx}`);
+                    respostasColetadas[idx] = campo ? campo.value.trim().toUpperCase() : "";
+                });
+                db.ref(`salas/${salaAtual}/respostas/${meuId}`).set(respostasColetadas);
+            }
+        }
 
+        const estadoVotos = dados.votos; 
+        const btnApurar = document.getElementById("btnApurar");
+        const msgVotacao = document.getElementById("msgVotacao");
+        const titulo = document.getElementById("tituloValidacao");
+
+        if (!estadoVotos) {
+            construirVisualRespostasIA(dados, null); 
+            msgVotacao.classList.remove('hidden');
+            msgVotacao.innerText = "A IA está validando todas as respostas, aguarde...";
+            btnApurar.classList.add('hidden');
+            titulo.innerText = "🤖 O Gemini está Avaliando...";
+            
+            if (isDono && !dados.requisitandoIA) {
+                db.ref(`salas/${salaAtual}/requisitandoIA`).set(true);
+                chamarGeminiParaValidacao(dados);
+            }
+        } else {
+            titulo.innerText = "⚖️ Veredito do Tribunal (IA)";
+            construirVisualRespostasIA(dados, estadoVotos);
+            
+            // READY CHECK PARA AVANÇAR
+            btnApurar.classList.remove('hidden');
+            
+            const totalJogadores = Object.keys(dados.jogadores || {}).length;
+            const prontosObj = dados.prontosParaAvancar || {};
+            const totalProntos = Object.keys(prontosObj).length;
+
+            if (prontosObj[meuId]) {
+                btnApurar.disabled = true;
+                btnApurar.innerText = `⏳ Aguardando Jogadores (${totalProntos}/${totalJogadores})`;
+                btnApurar.classList.add("opacity-50");
+            } else {
+                btnApurar.disabled = false;
+                btnApurar.innerText = "✅ Estou Pronto para Avançar";
+                btnApurar.classList.remove("opacity-50");
+            }
+
+            msgVotacao.classList.remove('hidden');
+            msgVotacao.innerText = `${totalProntos} de ${totalJogadores} prontos para a próxima rodada.`;
+
+            // Apenas o Host faz a apuração para evitar cálculos duplicados
+            if (totalProntos === totalJogadores && totalJogadores > 0 && isDono && !apurandoResultados) {
+                apurandoResultados = true;
+                executarApuracaoEAvancar(dados).finally(() => { apurandoResultados = false; });
+            }
+        }
+    }
+
+    async function marcarProntoAvancar() {
+        document.getElementById("btnApurar").disabled = true;
+        document.getElementById("btnApurar").innerText = "Confirmando...";
+        await db.ref(`salas/${salaAtual}/prontosParaAvancar/${meuId}`).set(true);
+    }
+
+    async function chamarGeminiParaValidacao(dados) {
+        const respostas = dados.respostas || {};
+        const letra = dados.letraAtual;
+        const categorias = dados.config.categorias;
+
+        const objParaAnalisar = {};
+        for(let idJogador in respostas) {
+            objParaAnalisar[idJogador] = {};
+            for(let idxCat in respostas[idJogador]) {
+                const palavra = respostas[idJogador][idxCat];
+                if(palavra && palavra !== "N/S" && palavra.startsWith(letra)) {
+                    objParaAnalisar[idJogador][idxCat] = palavra;
+                }
+            }
+        }
+
+        const promptText = `
+Você é um juiz rígido e preciso do jogo Adedonha (Stop).
+Letra obrigatória desta rodada: ${letra}
+Categorias (por índice numérico): ${JSON.stringify(categorias)}
+Respostas dos jogadores: ${JSON.stringify(objParaAnalisar)}
+
+Regras de Aceitação:
+1. A palavra DEVE obrigatoriamente começar com a letra '${letra}'.
+2. A palavra DEVE ser um item válido correspondente à sua respectiva categoria indexada.
+
+Retorne APENAS um objeto JSON com o resultado (true para aprovado, false para reprovado). O formato deve ser exato:
+{"ID_JOGADOR": {"INDEX_CATEGORIA": booleano, ...}}
+
+Apenas gere o JSON validando as palavras fornecidas na lista.
+        `;
+
+        try {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: promptText }] }],
+                    generationConfig: { response_mime_type: "application/json" }
+                })
+            });
+            
+            const data = await response.json();
+            const textResponse = data.candidates[0].content.parts[0].text;
+            const geminiResult = JSON.parse(textResponse);
+
+            let estruturaVotos = {};
+            categorias.forEach((_, idx) => { estruturaVotos[idx] = {}; });
+            
+            for(let idJogador in respostas) {
+                for(let idx in respostas[idJogador]) {
+                    const palavra = respostas[idJogador][idx];
+                    let aprovado = false;
+                    
+                    if (palavra && palavra.startsWith(letra) && palavra !== "N/S") {
+                        if (geminiResult[idJogador] && geminiResult[idJogador][idx] === true) {
+                            aprovado = true;
+                        }
+                    }
+                    estruturaVotos[idx][idJogador] = aprovado;
+                }
+            }
+            await db.ref(`salas/${salaAtual}/votos`).set(estruturaVotos);
+
+        } catch (err) {
+            console.error("Erro na API Gemini", err);
+            emitirAviso("Erro na Inteligência Artificial", "A avaliação falhou. Respostas nulas serão dadas.");
+            let fallbackVotos = {};
+            categorias.forEach((_, i) => fallbackVotos[i] = {});
+            await db.ref(`salas/${salaAtual}/votos`).set(fallbackVotos);
+        }
+    }
+
+    function construirVisualRespostasIA(dados, vereditosIA) {
+        categoriasJogo = dados.config.categorias;
         const idsListaJogadores = Object.keys(dados.jogadores || {});
         let estruturaVisualVotos = "";
 
@@ -667,62 +722,41 @@ Fruta</textarea>
                 const nomeDoJogador = dados.jogadores[jogadorId].nome;
                 const respostaTexto = (dados.respostas && dados.respostas[jogadorId] && dados.respostas[jogadorId][idxCat]) ? String(dados.respostas[jogadorId][idxCat]).trim().toUpperCase() : "";
                 
-                const comecaComLetraCerta = respostaTexto.length > 0 && respostaTexto.startsWith(dados.letraAtual);
-                const stringExibicao = respostaTexto || "<span class='text-slate-600 italic font-normal text-[13px]'>Em branco</span>";
-                const classeBorda = comecaComLetraCerta ? 'border-slate-800/80 bg-slate-950/20' : 'border-rose-950/40 bg-rose-950/5';
+                const emBranco = !respostaTexto || respostaTexto === "N/S";
+                const stringExibicao = !emBranco ? respostaTexto : "<span class='text-slate-600 italic font-normal text-[13px]'>Em branco</span>";
+                
+                let iconeVeredito = "⏳";
+                let classesStatus = "border-slate-800/80 bg-slate-950/20";
+                let textStatus = "text-slate-200";
 
-                const votosDestaResposta = (dados.votos && dados.votos[idxCat] && dados.votos[idxCat][jogadorId]) || {};
-                const meuVoto = votosDestaResposta[meuId];
-
-                let estiloSim = '', estiloNao = '';
-                if (meuVoto === true) {
-                    estiloSim = 'opacity: 1; border-color: #10b981;';
-                    estiloNao = 'opacity: 0.3; border-color: transparent;';
-                } else if (meuVoto === false) {
-                    estiloSim = 'opacity: 0.3; border-color: transparent;';
-                    estiloNao = 'opacity: 1; border-color: #f43f5e;';
+                if (vereditosIA) {
+                    const foiAprovado = vereditosIA[idxCat] && vereditosIA[idxCat][jogadorId];
+                    if (foiAprovado) {
+                        iconeVeredito = "✅";
+                        classesStatus = "border-emerald-900/50 bg-emerald-950/10";
+                        textStatus = "text-emerald-400 font-black";
+                    } else {
+                        iconeVeredito = "❌";
+                        classesStatus = "border-rose-950/40 bg-rose-950/5 opacity-60";
+                        textStatus = "text-rose-400/80 line-through";
+                    }
                 }
 
                 estruturaVisualVotos += `
-                    <div class="rounded-xl p-3 md:p-3.5 border ${classeBorda} flex justify-between items-center gap-2">
+                    <div class="rounded-xl p-3 md:p-3.5 border ${classesStatus} flex justify-between items-center gap-2 transition-all">
                         <div class="truncate pr-2">
-                            <span class="text-[10px] md:text-xs text-slate-500 font-bold block mb-0.5 truncate">${jogadorId === meuId ? '🫵 Sua Resposta' : nomeDoJogador}</span>
-                            <span class="text-sm md:text-base font-bold truncate block ${comecaComLetraCerta ? 'text-slate-200' : 'text-rose-400/80 line-through'}">${stringExibicao}</span>
+                            <span class="text-[10px] md:text-xs text-slate-500 font-bold block mb-0.5 truncate">${jogadorId === meuId ? '🫵 Você' : nomeDoJogador}</span>
+                            <span class="text-sm md:text-base font-bold truncate block ${textStatus}">${stringExibicao}</span>
                         </div>
-                        
-                        ${(jogadorId !== meuId && comecaComLetraCerta && respostaTexto) ? `
-                            <div class="flex flex-col sm:flex-row gap-1.5 shrink-0">
-                                <button onclick="registarVotoNoBanco(${idxCat}, '${jogadorId}', true, this)" style="${estiloSim}" class="px-2.5 py-1.5 md:px-3 bg-emerald-500/10 text-emerald-400 text-[10px] md:text-xs rounded-lg font-bold border border-emerald-500/20 transition-all">👍 Sim</button>
-                                <button onclick="registarVotoNoBanco(${idxCat}, '${jogadorId}', false, this)" style="${estiloNao}" class="px-2.5 py-1.5 md:px-3 bg-rose-500/10 text-rose-400 text-[10px] md:text-xs rounded-lg font-bold border border-rose-500/20 transition-all">👎 Não</button>
-                            </div>
-                        ` : ''}
+                        <div class="flex items-center justify-center bg-slate-900/60 rounded-lg p-2 text-xl shadow-inner">
+                            ${iconeVeredito}
+                        </div>
                     </div>
                 `;
             });
-
             estruturaVisualVotos += `</div></div>`;
         });
-
         document.getElementById("areaVotacao").innerHTML = estruturaVisualVotos;
-    }
-
-    function registarVotoNoBanco(indiceCategoria, alvoId, valorDoVoto, elementoBotao) {
-        if (!db) return;
-        db.ref(`salas/${salaAtual}/votos/${indiceCategoria}/${alvoId}/${meuId}`).set(valorDoVoto);
-        
-        const conteinerPai = elementoBotao.parentNode;
-        conteinerPai.querySelectorAll('button').forEach(b => {
-            b.style.opacity = '0.3';
-            b.style.borderColor = 'transparent';
-        });
-        elementoBotao.style.opacity = '1';
-        elementoBotao.style.borderColor = valorDoVoto ? '#10b981' : '#f43f5e';
-    }
-
-    async function marcarPronto() {
-        document.getElementById("btnApurar").disabled = true;
-        document.getElementById("btnApurar").innerText = "Confirmando...";
-        await db.ref(`salas/${salaAtual}/prontosVotacao/${meuId}`).set(true);
     }
 
     async function executarApuracaoEAvancar(dados) {
@@ -731,7 +765,6 @@ Fruta</textarea>
         try {
             const jogadoresObjeto = dados.jogadores || {};
             const chavesJogadores = Object.keys(jogadoresObjeto);
-            
             let calculoPontosRodada = {};
             chavesJogadores.forEach(id => calculoPontosRodada[id] = 0);
 
@@ -740,16 +773,10 @@ Fruta</textarea>
 
                 chavesJogadores.forEach(id => {
                     const textoResp = (dados.respostas && dados.respostas[id] && dados.respostas[id][idxCat]) ? String(dados.respostas[id][idxCat]).trim().toUpperCase() : "";
-                    if (!textoResp.startsWith(dados.letraAtual)) return; 
-
-                    const votosDestaResposta = (dados.votos && dados.votos[idxCat] && dados.votos[idxCat][id]) || {};
-                    let votosSim = 0; 
-                    let votosNao = 0;
-                    Object.values(votosDestaResposta).forEach(v => v ? votosSim++ : votosNao++);
-
-                    if (votosNao > votosSim) return; 
-
-                    palavrasValidadasDaCategoria.push({ id: id, palavra: textoResp });
+                    const aprovadoIA = dados.votos && dados.votos[idxCat] && dados.votos[idxCat][id];
+                    if (aprovadoIA) {
+                        palavrasValidadasDaCategoria.push({ id: id, palavra: textoResp });
+                    }
                 });
 
                 palavrasValidadasDaCategoria.forEach(itemAtual => {
@@ -766,10 +793,7 @@ Fruta</textarea>
             const seguinteRodada = (dados.rodadaAtual || 1) + 1;
             
             if (seguinteRodada > parseInt(dados.config.rodadas)) {
-                await db.ref(`salas/${salaAtual}`).update({
-                    status: 'ranking',
-                    prontosVotacao: null 
-                });
+                await db.ref(`salas/${salaAtual}`).update({ status: 'ranking', requisitandoIA: null, prontosParaAvancar: null });
             } else {
                 let proximaLetra = "";
                 let tentativasLetra = 0;
@@ -778,8 +802,7 @@ Fruta</textarea>
                     tentativasLetra++;
                 } while (dados.letrasUsadas && dados.letrasUsadas.includes(proximaLetra) && tentativasLetra < 30);
 
-                const tempoLimite = parseInt(dados.config.tempo) || 60;
-                const tempoMilisegundosFinal = Date.now() + (tempoLimite * 1000);
+                const tempoMilisegundosFinal = Date.now() + ((parseInt(dados.config.tempo) || 60) * 1000);
 
                 await db.ref(`salas/${salaAtual}`).update({
                     status: 'jogando',
@@ -787,9 +810,7 @@ Fruta</textarea>
                     letraAtual: proximaLetra,
                     letrasUsadas: [...(dados.letrasUsadas || []), proximaLetra],
                     endTime: tempoMilisegundosFinal,
-                    respostas: null, 
-                    votos: null,
-                    prontosVotacao: null 
+                    respostas: null, votos: null, requisitandoIA: null, prontosParaAvancar: null
                 });
             }
         } catch (err) {
@@ -803,7 +824,7 @@ Fruta</textarea>
         if (isDono) document.getElementById("btnJogarNovamente").classList.remove('hidden');
 
         const arrayOrdenado = Object.values(dados.jogadores || {}).sort((a,b) => b.pontos - a.pontos);
-        const htmlRanking = arrayOrdenado.map((jogador, posicao) => {
+        document.getElementById("areaPodio").innerHTML = arrayOrdenado.map((jogador, posicao) => {
             let classeEstiloEstetica = "bg-slate-900/60 border-slate-800"; 
             let medalhaIcone = "👤 ";
             if (posicao === 0) { classeEstiloEstetica = "bg-gradient-to-r from-amber-500/20 to-yellow-600/10 border-amber-500/30 text-amber-300"; medalhaIcone = "🥇 "; }
@@ -817,18 +838,13 @@ Fruta</textarea>
                 </div>
             `;
         }).join('');
-        document.getElementById("areaPodio").innerHTML = htmlRanking;
     }
 
     async function reiniciarPartidaCompleta() {
         const snapshot = await db.ref(`salas/${salaAtual}/jogadores`).once('value');
         const jogadoresExistentes = snapshot.val() || {};
-        for (let jogadorId in jogadoresExistentes) {
-            await db.ref(`salas/${salaAtual}/jogadores/${jogadorId}/pontos`).set(0);
-        }
-        await db.ref(`salas/${salaAtual}`).update({
-            status: 'lobby', rodadaAtual: 1, letraAtual: "", letrasUsadas: [], respostas: null, votos: null, prontosVotacao: null
-        });
+        for (let jogadorId in jogadoresExistentes) await db.ref(`salas/${salaAtual}/jogadores/${jogadorId}/pontos`).set(0);
+        await db.ref(`salas/${salaAtual}`).update({ status: 'lobby', rodadaAtual: 1, letraAtual: "", letrasUsadas: [], respostas: null, votos: null, requisitandoIA: null, prontosParaAvancar: null });
     }
 
     function alternarLeitorQR() {
@@ -840,37 +856,27 @@ Fruta</textarea>
         scannerQr.start({ facingMode: "environment" }, { fps: 12, qrbox: { width: 230, height: 230 } },
             (textoLido) => {
                 const extraido = textoLido.replace(/\D/g, "").slice(0, 6);
-                if (extraido.length === 6) {
-                    document.getElementById("inputCodigo").value = extraido;
-                    fecharCameraQr();
-                    entrarSala();
-                }
+                if (extraido.length === 6) { document.getElementById("inputCodigo").value = extraido; fecharCameraQr(); entrarSala(); }
             }, () => {} 
         ).catch(() => emitirAviso("Câmera Indisponível", "Ative as permissões de acesso à câmera."));
     }
 
     function fecharCameraQr() {
-        if (scannerQr) {
-            scannerQr.stop().then(() => { scannerQr.clear(); document.getElementById("leitor-qr").classList.add("hidden"); }).catch(() => {});
-        } else { document.getElementById("leitor-qr").classList.add("hidden"); }
+        if (scannerQr) scannerQr.stop().then(() => { scannerQr.clear(); document.getElementById("leitor-qr").classList.add("hidden"); }).catch(() => {});
+        else document.getElementById("leitor-qr").classList.add("hidden");
     }
     
     function marcarNS(idx) {
         const campo = document.getElementById(`resposta_campo_${idx}`);
-        if(campo) {
-            campo.value = "N/S";
-            verificarPreenchimentoCategorias(); 
-        }
+        if(campo) { campo.value = "N/S"; verificarPreenchimentoCategorias(); }
     }
 
     function mudarTema(tema) {
         let classesBase = "bg-custom-fundo min-h-screen flex flex-col p-4 md:p-8";
-        if (tema !== "atual") {
-            classesBase += ` ${tema}`;
-        }
+        if (tema !== "atual") classesBase += ` ${tema}`;
         document.body.className = classesBase;
     }
-window.addEventListener('DOMContentLoaded',()=>{const t=localStorage.getItem('temaAdedonha');if(t)mudarTema(t);});
+    window.addEventListener('DOMContentLoaded', () => { const t = localStorage.getItem('temaAdedonha'); if(t) mudarTema(t); });
 </script>
 </body>
 </html>
