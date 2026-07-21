@@ -269,8 +269,10 @@ Fruta</textarea>
 
 <script>
     // ==========================================
-    // CHAVE DE API DO GEMINI
+    // CHAVE DE API / TOKEN DO GEMINI
     // ==========================================
+    // NOTA: Chaves oficiais do Google AI Studio SEMPRE começam com "AIzaSy".
+    // Se a sua chave "AQ." for um token de acesso de outro serviço, a API irá rejeitá-la.
     const GEMINI_API_KEY = "AQ.Ab8RN6IylkdcFZxDVNgubItstvgDTv3kth6JJ1KDRdNseyguYg";
 
     // ==========================================
@@ -637,49 +639,71 @@ Fruta</textarea>
 
         const promptText = `
 Você é o juiz chefe mais estrito, implacável e inteligente do jogo Adedonha (Stop). Sua função é avaliar se cada resposta enviada pelos jogadores cumpre RIGOROSAMENTE duas condições fundamentais:
-1. LETRA INICIAL: A palavra DEVE começar obrigatoriamente com a letra '${letra}'. (Ignore acentos na validação da letra, ex: 'Á' vale como 'A'). Se começar com outra letra, aproveite e rejeite imediatamente (aprovado: false).
-2. PERTINÊNCIA À CATEGORIA: A palavra DEVE pertencer estritamente e sem margem de dúvida à categoria solicitada. 
-   - Exemplo 1: Se a categoria for "Nome", só são aceitos nomes próprios de pessoas reais ou amplamente conhecidas. Se colocarem um objeto como "Mesa" ou um animal como "Macaco" na categoria "Nome", DEVE ser reprovado (aprovado: false).
-   - Exemplo 2: Se a categoria for "Animal", só valem animais reais.
-   - Exemplo 3: Palavras inventadas, termos inexistentes, piadas ou sem sentido lógico na categoria devem ser estritamente rejeitadas (aprovado: false).
+1. LETRA INICIAL: A palavra DEVE começar obrigatoriamente com a letra '${letra}'.
+2. PERTINÊNCIA À CATEGORIA: A palavra DEVE pertencer estritamente à categoria solicitada. 
 
 Letra obrigatória desta rodada: ${letra}
 Categorias do jogo (índice e nome): ${JSON.stringify(categorias)}
 Respostas dos jogadores (ID e índice da categoria): ${JSON.stringify(objParaAnalisar)}
 
-Retorne EXATAMENTE um objeto JSON puro, sem blocos de markdown, sem introduções e sem explicações fora da estrutura. O formato JSON deve seguir perfeitamente este modelo:
+Retorne EXATAMENTE um objeto JSON puro. O formato JSON deve seguir perfeitamente este modelo:
 {
   "resultados": {
     "ID_JOGADOR": {
       "INDEX_CATEGORIA": {
         "aprovado": true,
-        "explicacao": "Explicação curta, direta e firme justificando a aprovação ou reprovação com base na letra e categoria."
+        "explicacao": "Explicação curta"
       }
     }
   }
-}
-        `;
+}`;
 
         try {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+            console.log("Iniciando chamada à API do Gemini...");
+            let url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent`;
+            let headers = { 'Content-Type': 'application/json' };
+
+            // Se for uma chave oficial do AI Studio, passamos na URL. Se não, tenta como Bearer.
+            if (GEMINI_API_KEY.startsWith("AIzaSy")) {
+                url += `?key=${GEMINI_API_KEY}`;
+            } else {
+                headers["Authorization"] = `Bearer ${GEMINI_API_KEY}`;
+            }
+
             const response = await fetch(url, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: headers,
                 body: JSON.stringify({
                     contents: [{ parts: [{ text: promptText }] }],
                     generationConfig: { response_mime_type: "application/json" }
                 })
             });
             
+            if (!response.ok) {
+                const erroStatus = await response.text();
+                throw new Error(`Erro HTTP ${response.status}: ${erroStatus}`);
+            }
+
             const data = await response.json();
             
-            if (!response.ok || !data.candidates || !data.candidates[0].content) {
-                throw new Error("Erro na resposta da API.");
+            if (!data.candidates || !data.candidates[0].content) {
+                throw new Error("A API retornou um formato inesperado.");
             }
 
             let textResponse = data.candidates[0].content.parts[0].text;
-            textResponse = textResponse.replace(/```json/g, '').replace(/```/g, '').trim();
             
+            // Extrator robusto de JSON para evitar quebras por marcação de Markdown (```json)
+            textResponse = textResponse.replace(/```json/gi, '').replace(/```/g, '').trim();
+            const inicioJson = textResponse.indexOf('{');
+            const fimJson = textResponse.lastIndexOf('}');
+            
+            if (inicioJson !== -1 && fimJson !== -1) {
+                textResponse = textResponse.substring(inicioJson, fimJson + 1);
+            } else {
+                throw new Error("A resposta da IA não contém um JSON válido.");
+            }
+
+            console.log("Resposta Parseada do Gemini:", textResponse);
             const geminiResult = JSON.parse(textResponse);
             const resultadosIA = geminiResult.resultados || {};
 
@@ -715,7 +739,15 @@ Retorne EXATAMENTE um objeto JSON puro, sem blocos de markdown, sem introduçõe
             await db.ref(`salas/${salaAtual}/votos`).set(estruturaVotos);
 
         } catch (err) {
-            console.error("Erro na API Gemini", err);
+            console.error("Falha grave na API do Gemini:", err);
+            
+            // ALERTA VISUAL SE A CHAVE FALHAR
+            emitirAviso(
+                "Aviso do Sistema", 
+                "A API da Inteligência Artificial falhou ou rejeitou a chave de acesso. O jogo fará uma validação básica (apenas verificando a primeira letra) para que a partida não trave.\n\nVerifique o console (F12) para os detalhes do erro.", 
+                "warning"
+            );
+
             let fallbackVotos = {};
             categorias.forEach((_, idxCat) => {
                 fallbackVotos[idxCat] = {};
@@ -724,7 +756,7 @@ Retorne EXATAMENTE um objeto JSON puro, sem blocos de markdown, sem introduçõe
                     const comecaCerta = (palavra && palavra.startsWith(letra) && palavra !== "N/S");
                     fallbackVotos[idxCat][idJogador] = {
                         aprovado: comecaCerta,
-                        explicacao: comecaCerta ? "Aprovado por regra de letra (modo de segurança)." : "Reprovado por ausência ou letra incorreta."
+                        explicacao: comecaCerta ? "Aprovado por regra de letra (modo de segurança, IA indisponível)." : "Reprovado por ausência ou letra incorreta."
                     };
                 }
             });
