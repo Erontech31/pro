@@ -229,17 +229,15 @@ Fruta</textarea>
                 <p class="text-slate-400 text-xs md:text-sm">Analise as palavras para a letra <span id="letraVotacao" class="text-amber-400 font-bold text-xl md:text-2xl"></span>. Vote ✅ ou ❌.</p>
             </div>
 
-            <div class="cartao-glass rounded-3xl p-3 md:p-4 mb-6 max-w-3xl mx-auto border border-indigo-500/30">
-                <div class="flex justify-between items-center mb-2 px-1">
-                    <span class="text-xs md:text-sm font-bold text-indigo-400 flex items-center gap-1.5">
-                        🔍 Consultar Palavra no Bing
-                    </span>
-                    <a href="https://www.bing.com" target="_blank" rel="noopener noreferrer" class="text-[10px] md:text-xs text-slate-400 hover:text-indigo-300 underline">
-                        Abrir em nova aba ↗
-                    </a>
-                </div>
-                <div class="w-full h-56 md:h-72 rounded-2xl overflow-hidden border border-slate-800 bg-slate-900 shadow-inner">
-                    <iframe src="https://www.bing.com" class="w-full h-full border-0" title="Pesquisa Bing"></iframe>
+            <div class="cartao-glass rounded-3xl p-4 mb-6 max-w-3xl mx-auto border border-indigo-500/30">
+                <label class="block text-xs font-bold text-indigo-400 mb-2 uppercase tracking-wider flex items-center gap-1.5">
+                    🔍 Pesquisar Dúvidas de Palavras no Bing
+                </label>
+                <div class="flex gap-2">
+                    <input type="text" id="inputPesquisaBing" placeholder="Digite uma palavra para consultar..." onkeypress="if(event.key==='Enter') pesquisarNoBing()" class="input-premium w-full rounded-xl px-4 py-2 text-sm text-white placeholder-slate-500">
+                    <button onclick="pesquisarNoBing()" class="btn-gradiente px-5 py-2 rounded-xl font-bold text-sm text-white shrink-0 shadow-md flex items-center gap-1">
+                        Pesquisar ↗
+                    </button>
                 </div>
             </div>
 
@@ -315,6 +313,15 @@ Fruta</textarea>
         const nomeSalvo = localStorage.getItem('adedonhaNomeJogador');
         if (nomeSalvo) document.getElementById('inputNome').value = nomeSalvo;
     });
+
+    function pesquisarNoBing() {
+        const termo = document.getElementById('inputPesquisaBing').value.trim();
+        if (termo) {
+            window.open(`https://www.bing.com/search?q=${encodeURIComponent(termo)}`, '_blank');
+        } else {
+            window.open('https://www.bing.com', '_blank');
+        }
+    }
 
     function emitirAviso(titulo, texto, tipo = 'error') {
         if (typeof Swal !== 'undefined') {
