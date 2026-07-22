@@ -16,78 +16,173 @@
     <style>
         body {
             font-family: 'Outfit', sans-serif;
-            background-color: #0b0f19;
+            background-color: #07090e;
             color: #f1f5f9;
             -webkit-tap-highlight-color: transparent;
             overflow-x: hidden;
         }
         
+        /* Fundo Animado com Esferas de Vidro Líquido */
         .bg-custom-fundo {
-            background-image: linear-gradient(rgba(11, 15, 25, 0.5), rgba(11, 15, 25, 0.7)), url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070&auto=format&fit=crop');
-            background-size: cover;
-            background-position: center;
+            background-color: #07090e;
+            background-image: 
+                radial-gradient(circle at 15% 20%, rgba(99, 102, 241, 0.22) 0%, transparent 45%),
+                radial-gradient(circle at 85% 80%, rgba(168, 85, 247, 0.22) 0%, transparent 45%),
+                radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.12) 0%, transparent 60%);
             background-attachment: fixed;
         }
 
-        /* Temas */
-        body.ciano .cartao-glass { background: rgba(6, 182, 212, 0.4) !important; }
-        body.verde_menta .cartao-glass { background: rgba(16, 185, 129, 0.4) !important; }
-        body.azul_claro .cartao-glass { background: rgba(56, 189, 248, 0.4) !important; }
-        body.claro .cartao-glass { background: rgba(255, 255, 255, 0.15) !important; border: 1px solid rgba(255, 255, 255, 0.3) !important; }
-        body.escuro .cartao-glass { background: rgba(0, 0, 0, 0.85) !important; }
+        /* Blobs em movimento líquido no fundo */
+        .blob-1, .blob-2 {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: 0;
+            pointer-events: none;
+            animation: liquidMove 18s ease-in-out infinite alternate;
+        }
+        .blob-1 {
+            top: -10%; left: -10%; width: 450px; height: 450px;
+            background: rgba(99, 102, 241, 0.25);
+        }
+        .blob-2 {
+            bottom: -10%; right: -10%; width: 500px; height: 500px;
+            background: rgba(168, 85, 247, 0.22);
+            animation-delay: -9s;
+        }
 
+        @keyframes liquidMove {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(60px, 40px) scale(1.15); }
+            100% { transform: translate(-40px, 80px) scale(0.95); }
+        }
+
+        /* Efeito de Vidro Líquido Ultra Moderno */
         .cartao-glass {
-            background: rgba(15, 23, 42, 0.65);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            box-shadow: 0 20px 50px -15px rgba(0, 0, 0, 0.8);
-            transition: background 0.4s ease, border-color 0.4s ease;
+            background: rgba(15, 23, 42, 0.55);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 
+                0 30px 60px -15px rgba(0, 0, 0, 0.6),
+                inset 0 1px 1px 0 rgba(255, 255, 255, 0.2);
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
         }
-
-        .tela { display: none; }
-        .tela.ativa { display: block; animation: abrirTela 0.3s ease-out forwards; }
         
-        @keyframes abrirTela {
-            from { opacity: 0; transform: scale(0.98); }
-            to { opacity: 1; transform: scale(1); }
+        .cartao-glass:hover {
+            border-color: rgba(255, 255, 255, 0.22);
+            box-shadow: 
+                0 35px 70px -15px rgba(0, 0, 0, 0.7),
+                inset 0 1px 2px 0 rgba(255, 255, 255, 0.35);
         }
 
+        /* Temas Dinâmicos */
+        body.ciano .cartao-glass { background: rgba(6, 182, 212, 0.25) !important; }
+        body.verde_menta .cartao-glass { background: rgba(16, 185, 129, 0.25) !important; }
+        body.azul_claro .cartao-glass { background: rgba(56, 189, 248, 0.25) !important; }
+        body.claro .cartao-glass { background: rgba(255, 255, 255, 0.75) !important; color: #0f172a !important; border: 1px solid rgba(0,0,0,0.1) !important; }
+        body.escuro .cartao-glass { background: rgba(3, 7, 18, 0.85) !important; }
+
+        /* Animações de Telas */
+        .tela { display: none; }
+        .tela.ativa { 
+            display: block; 
+            animation: surgirLiquid 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
+        }
+        
+        @keyframes surgirLiquid {
+            0% { opacity: 0; transform: translateY(18px) scale(0.96); filter: blur(8px); }
+            100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+        }
+
+        /* Inputs Estilizados em Vidro */
         .input-premium {
-            background: rgba(7, 10, 19, 0.4);
-            border: 2px solid #1e293b;
-            transition: all 0.25s ease;
+            background: rgba(10, 15, 29, 0.6);
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .input-premium:focus { 
-            border-color: #6366f1; 
+            border-color: #818cf8; 
             outline: none; 
-            box-shadow: 0 0 16px rgba(99, 102, 241, 0.3); 
+            background: rgba(15, 23, 42, 0.8);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.35), inset 0 0 8px rgba(99, 102, 241, 0.2); 
+            transform: translateY(-1px);
         }
 
+        /* Botões Gradientes e Brilho Passante */
         .btn-gradiente {
-            background: linear-gradient(135deg, #6366f1, #7c3aed);
-            transition: transform 0.15s, filter 0.2s;
+            position: relative;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6, #d946ef);
+            background-size: 200% 200%;
+            animation: gradientShift 6s ease infinite;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow: hidden;
         }
-        .btn-gradiente:active { transform: scale(0.97); }
-        .btn-gradiente:hover { filter: brightness(1.1); }
-        .btn-gradiente:disabled { filter: grayscale(1); cursor: not-allowed; opacity: 0.7; }
+        
+        .btn-gradiente::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -60%; width: 50%; height: 200%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+            transform: rotate(25deg);
+            transition: all 0.6s ease;
+        }
+
+        .btn-gradiente:hover::after {
+            left: 130%;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .btn-gradiente:active { transform: scale(0.96); }
+        .btn-gradiente:hover { filter: brightness(1.15); transform: translateY(-2px); box-shadow: 0 12px 25px -5px rgba(99, 102, 241, 0.5); }
+        .btn-gradiente:disabled { filter: grayscale(1); cursor: not-allowed; opacity: 0.6; transform: none; }
+
+        /* Animação do Botão do Microfone */
+        .mic-button {
+            animation: pulse-liquid-mic 2.5s infinite;
+        }
+        @keyframes pulse-liquid-mic {
+            0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.5); }
+            70% { box-shadow: 0 0 0 16px rgba(99, 102, 241, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+        }
+
+        /* Flutuação Suave para Elementos em Destaque */
+        .flutuar-suave {
+            animation: flutuarSmooth 4s ease-in-out infinite alternate;
+        }
+        @keyframes flutuarSmooth {
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(-8px); }
+        }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="bg-custom-fundo min-h-screen flex flex-col p-4 md:p-8">
+<body class="bg-custom-fundo min-h-screen flex flex-col justify-between p-4 md:p-8 relative">
 
-    <div class="w-full max-w-7xl mx-auto my-auto relative flex flex-col justify-center min-h-[90vh]">
+    <div class="blob-1"></div>
+    <div class="blob-2"></div>
 
-        <div id="status-conexao" class="hidden w-full max-w-md mx-auto mb-4 p-3 bg-rose-500/20 border border-rose-500/40 rounded-2xl text-center text-sm font-semibold text-rose-300">
+    <div class="w-full max-w-7xl mx-auto my-auto relative z-10 flex flex-col justify-center min-h-[85vh]">
+
+        <div id="status-conexao" class="hidden w-full max-w-md mx-auto mb-4 p-3 bg-rose-500/20 border border-rose-500/40 rounded-2xl text-center text-sm font-semibold text-rose-300 backdrop-blur-md">
             ⚠️ Erro de gravação no Firebase. Verifique suas regras no console.
         </div>
 
         <div id="tela-inicio" class="tela ativa w-full max-w-md mx-auto">
+            
             <div class="fixed top-4 right-4 z-[100]">
-                <button onclick="document.getElementById('menuTema').classList.toggle('hidden')" class="w-11 h-11 rounded-full bg-slate-900/70 backdrop-blur border border-slate-700 shadow-lg flex items-center justify-center text-lg">🎨</button>
-                <div id="menuTema" class="hidden absolute right-0 mt-2 bg-slate-900/90 rounded-2xl p-2 border border-slate-700 shadow-2xl">
-                    <select onchange="mudarTema(this.value);localStorage.setItem('temaAdedonha',this.value);document.getElementById('menuTema').classList.add('hidden')" class="bg-slate-900/80 text-[10px] sm:text-xs font-bold text-slate-300 border border-slate-700 rounded-lg px-2 py-1.5 outline-none backdrop-blur-md cursor-pointer shadow-lg">
+                <button onclick="document.getElementById('menuTema').classList.toggle('hidden')" class="w-11 h-11 rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-white/10 shadow-xl flex items-center justify-center text-lg hover:scale-105 transition-all">🎨</button>
+                <div id="menuTema" class="hidden absolute right-0 mt-2 bg-slate-900/90 rounded-2xl p-2 border border-white/10 shadow-2xl backdrop-blur-2xl">
+                    <select onchange="mudarTema(this.value);localStorage.setItem('temaAdedonha',this.value);document.getElementById('menuTema').classList.add('hidden')" class="bg-slate-900/80 text-[10px] sm:text-xs font-bold text-slate-300 border border-slate-700 rounded-lg px-2 py-1.5 outline-none cursor-pointer">
                         <option value="atual">🎨 Atual</option>
                         <option value="ciano">🎨 Ciano</option>
                         <option value="verde_menta">🎨 Verde Menta</option>
@@ -98,30 +193,63 @@
                 </div>
             </div>
 
-            <div class="text-center mb-6 pt-4 md:pt-8 md:mb-8">
-                <h1 class="text-5xl md:text-6xl font-black mb-2 tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">Adedonha</h1>
+            <div class="text-center mb-6 pt-2 md:pt-4 flutuar-suave">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 backdrop-blur-md mb-3">
+                    ✨ Edição Multijogador
+                </span>
+                <h1 class="text-5xl md:text-6xl font-black mb-1 tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-400 drop-shadow-sm">
+                    Adedonha
+                </h1>
                 <p class="text-slate-400 font-medium text-xs md:text-sm tracking-wide">Com Votação Manual Justa ⚖️</p>
+            </div>
+
+            <div class="cartao-glass rounded-3xl p-4 mb-5 flex items-center justify-between gap-3 border border-indigo-500/20 shadow-lg">
+                <div class="flex flex-col flex-1">
+                    <span class="text-[10px] font-extrabold text-indigo-400 uppercase tracking-widest mb-0.5 flex items-center gap-1">
+                        Assistente IA ✨
+                    </span>
+                    <input type="text" id="inputPesquisaInicio" placeholder="Tire uma dúvida por voz..." readonly class="bg-transparent text-xs sm:text-sm text-slate-300 outline-none w-full cursor-not-allowed font-medium">
+                </div>
+                <button onclick="iniciarPesquisaVoz('inputPesquisaInicio')" class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 flex items-center justify-center text-lg transition-all shadow-lg mic-button shrink-0 border border-white/20">
+                    🎤
+                </button>
             </div>
 
             <div class="cartao-glass rounded-3xl p-5 md:p-6 space-y-5">
                 <div>
-                    <label class="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-widest text-center">Seu Apelido</label>
-                    <input type="text" id="inputNome" maxlength="12" placeholder="Ex: André" class="input-premium w-full rounded-2xl px-5 py-3 md:py-4 text-lg font-bold text-center text-white placeholder-slate-600">
+                    <label class="block text-[11px] font-extrabold text-slate-400 mb-2 uppercase tracking-widest text-center">Seu Apelido</label>
+                    <input type="text" id="inputNome" maxlength="12" placeholder="Ex: André" class="input-premium w-full rounded-2xl px-5 py-3.5 text-lg font-extrabold text-center text-white placeholder-slate-600 shadow-inner">
                 </div>
-                <hr class="border-slate-800">
-                <button onclick="criarSala()" class="btn-gradiente w-full rounded-2xl py-3 md:py-4 font-bold text-lg shadow-lg shadow-indigo-500/20 text-white">
+
+                <hr class="border-white/5">
+
+                <button onclick="criarSala()" class="btn-gradiente w-full rounded-2xl py-3.5 md:py-4 font-black text-lg shadow-xl text-white tracking-wide">
                     ✨ Criar Nova Sala
                 </button>
-                <div class="text-center text-slate-500 text-xs font-black uppercase tracking-widest">OU JUNTAR-SE</div>
+
+                <div class="text-center text-slate-500 text-[10px] font-black uppercase tracking-widest">OU ENTRAR EM SALA</div>
+
                 <div class="flex justify-center gap-3">
-                    <input type="text" id="inputCodigo" maxlength="6" inputmode="numeric" placeholder="CÓDIGO" class="input-premium w-full max-w-[160px] rounded-2xl px-4 py-3 md:py-4 text-xl font-black text-center tracking-widest text-indigo-300 placeholder-slate-600">
-                    <button onclick="alternarLeitorQR()" class="bg-slate-800 hover:bg-slate-700 text-white flex items-center justify-center rounded-2xl px-5 transition-colors shadow-md">📷</button>
+                    <input type="text" id="inputCodigo" maxlength="6" inputmode="numeric" placeholder="CÓDIGO" class="input-premium w-full max-w-[160px] rounded-2xl px-4 py-3 text-xl font-black text-center tracking-widest text-indigo-300 placeholder-slate-600">
+                    <button onclick="alternarLeitorQR()" class="bg-slate-800/80 hover:bg-slate-700 text-white flex items-center justify-center rounded-2xl px-5 transition-all border border-white/10 shadow-md active:scale-95">📷</button>
                 </div>
-                <div id="leitor-qr" class="hidden rounded-2xl overflow-hidden border-2 border-indigo-500/30 mt-2 w-full max-w-[250px] mx-auto"></div>
-                <button onclick="entrarSala()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl py-3 md:py-4 font-bold text-lg transition-colors shadow-lg shadow-emerald-600/10">
+
+                <div id="leitor-qr" class="hidden rounded-2xl overflow-hidden border border-indigo-500/40 mt-2 w-full max-w-[250px] mx-auto shadow-2xl"></div>
+
+                <button onclick="entrarSala()" class="w-full bg-emerald-600/90 hover:bg-emerald-500 text-white rounded-2xl py-3.5 md:py-4 font-black text-lg transition-all shadow-lg shadow-emerald-600/20 border border-emerald-400/30 active:scale-95">
                     Entrar na Sala ➡️
                 </button>
             </div>
+
+            <footer class="mt-8 text-center">
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900/50 border border-white/10 backdrop-blur-xl shadow-lg hover:border-indigo-500/40 transition-all hover:scale-105 group cursor-default">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span class="text-xs font-semibold text-slate-400">
+                        Desenvolvido por <strong class="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400 font-extrabold group-hover:underline">Eronildo Tavares ©</strong>
+                    </span>
+                </div>
+            </footer>
+
         </div>
 
         <div id="tela-lobby" class="tela w-full max-w-5xl mx-auto">
@@ -131,21 +259,21 @@
                 </button>
             </div>
             <div class="cartao-glass rounded-3xl p-5 md:p-8 relative overflow-hidden">
-                <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
+                <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
                 <div class="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8">
-                    <div class="md:col-span-5 flex flex-col justify-center items-center border-b md:border-b-0 md:border-r border-slate-800 pb-6 md:pb-0 md:pr-8">
+                    <div class="md:col-span-5 flex flex-col justify-center items-center border-b md:border-b-0 md:border-r border-white/10 pb-6 md:pb-0 md:pr-8">
                         <div class="text-center mb-4 w-full">
                             <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Código da Sala</p>
-                            <p id="lblCodigoSala" class="text-5xl md:text-6xl font-black text-indigo-400 tracking-widest"></p>
+                            <p id="lblCodigoSala" class="text-5xl md:text-6xl font-black text-indigo-400 tracking-widest drop-shadow-sm"></p>
                         </div>
-                        <div class="p-2 bg-white rounded-xl shadow-xl mb-6">
+                        <div class="p-2 bg-white rounded-2xl shadow-xl mb-6">
                             <div id="qrcodeBox" class="flex justify-center"></div>
                         </div>
 
-                        <div id="painelConfig" class="hidden w-full bg-slate-900/60 rounded-2xl p-4 border border-slate-800">
+                        <div id="painelConfig" class="hidden w-full bg-slate-950/40 rounded-2xl p-4 border border-white/10 backdrop-blur-md">
                             <p class="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-3 text-center md:text-left">⚙️ Configurações</p>
                             <label class="block text-[11px] md:text-xs font-semibold mb-1 text-slate-400">Categorias (uma por linha)</label>
-                            <textarea id="inputCategorias" rows="6" class="input-premium w-full rounded-xl p-3 text-sm mb-3 text-white">Nome
+                            <textarea id="inputCategorias" rows="6" class="input-premium w-full rounded-xl p-3 text-sm mb-3 text-white font-medium">Nome
 Animal
 Cor
 Objeto
@@ -161,18 +289,18 @@ Fruta</textarea>
                                     <input type="number" id="inputRodadas" value="3" class="input-premium w-full rounded-xl p-2 text-center font-bold text-white">
                                 </div>
                             </div>
-                            <button onclick="iniciarRodada()" class="btn-gradiente w-full rounded-xl py-3 font-bold text-white shadow-md text-sm md:text-base">
+                            <button onclick="iniciarRodada()" class="btn-gradiente w-full rounded-xl py-3 font-extrabold text-white shadow-md text-sm md:text-base">
                                 ▶️ Começar Partida
                             </button>
                         </div>
-                        <div id="msgAguardando" class="text-center text-slate-400 text-sm py-4 animate-pulse w-full">
+                        <div id="msgAguardando" class="text-center text-slate-400 text-sm py-4 animate-pulse w-full font-medium">
                             Aguardando o líder iniciar o jogo...
                         </div>
                     </div>
                     <div class="md:col-span-7 flex flex-col">
                         <div class="flex justify-between items-center mb-4">
-                            <h3 class="font-bold text-lg text-slate-300">👥 Jogadores na Sala</h3>
-                            <span class="text-xs font-bold px-3 py-1 bg-slate-900 rounded-full text-indigo-300"><span id="qtdJogadores">0</span>/10</span>
+                            <h3 class="font-extrabold text-lg text-slate-200">👥 Jogadores na Sala</h3>
+                            <span class="text-xs font-extrabold px-3 py-1 bg-slate-900/80 rounded-full text-indigo-300 border border-white/10"><span id="qtdJogadores">0</span>/10</span>
                         </div>
                         <ul id="listaJogadores" class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-64 md:max-h-[500px] overflow-y-auto no-scrollbar pb-2"></ul>
                     </div>
@@ -181,22 +309,22 @@ Fruta</textarea>
         </div>
 
         <div id="tela-jogo" class="tela w-full">
-            <div class="fixed top-0 left-0 right-0 z-[80] cartao-glass rounded-b-3xl border-b border-slate-700/50 shadow-2xl px-4 py-3 md:px-8">
+            <div class="fixed top-0 left-0 right-0 z-[80] cartao-glass rounded-b-3xl border-b border-white/10 shadow-2xl px-4 py-3 md:px-8">
                 <div class="max-w-5xl mx-auto flex flex-col gap-2.5">
                     <div class="flex justify-between items-center">
                         <div class="text-[10px] md:text-xs font-bold tracking-widest text-slate-300 uppercase">
-                            Rodada <span id="rodadaAtualL" class="text-indigo-400 text-sm md:text-base"></span>/<span id="rodadasTotalL"></span>
+                            Rodada <span id="rodadaAtualL" class="text-indigo-400 text-sm md:text-base font-extrabold"></span>/<span id="rodadasTotalL"></span>
                         </div>
                         <button onclick="abandonarPartida()" class="px-3 py-1.5 bg-rose-500/10 text-rose-400 rounded-xl text-[10px] md:text-xs font-bold border border-rose-500/20 hover:bg-rose-500 hover:text-white transition-all shadow-sm">
                             🚪 Sair
                         </button>
                     </div>
                     <div class="flex justify-between items-center gap-3">
-                        <div class="bg-slate-900/60 px-4 py-2 md:px-6 md:py-3 rounded-2xl border-l-4 border-indigo-500 flex-1 shadow-inner flex flex-col items-center">
+                        <div class="bg-slate-950/50 px-4 py-2 md:px-6 md:py-3 rounded-2xl border-l-4 border-indigo-500 flex-1 shadow-inner flex flex-col items-center backdrop-blur-md">
                             <p class="text-[10px] md:text-xs text-slate-400 font-bold tracking-wider mb-0.5">LETRA</p>
                             <p id="letraSorteada" class="text-3xl md:text-5xl font-black text-amber-400 leading-none"></p>
                         </div>
-                        <div class="bg-slate-900/60 px-4 py-2 md:px-6 md:py-3 rounded-2xl border-r-4 border-rose-500 flex-1 shadow-inner flex flex-col items-center">
+                        <div class="bg-slate-950/50 px-4 py-2 md:px-6 md:py-3 rounded-2xl border-r-4 border-rose-500 flex-1 shadow-inner flex flex-col items-center backdrop-blur-md">
                             <p class="text-[10px] md:text-xs text-slate-400 font-bold tracking-wider mb-0.5">TEMPO</p>
                             <p id="tempoRestante" class="text-3xl md:text-5xl font-black text-rose-400 leading-none">60</p>
                         </div>
@@ -210,7 +338,7 @@ Fruta</textarea>
 
             <div class="fixed bottom-4 md:bottom-8 left-0 right-0 z-50 pointer-events-none px-4">
                 <div class="max-w-5xl mx-auto pointer-events-auto">
-                    <button onclick="submeterRespostasStop()" id="btnStop" class="hidden w-full bg-rose-600 hover:bg-rose-500 disabled:bg-slate-800 text-white rounded-2xl py-4 md:py-5 font-black text-xl md:text-2xl tracking-widest uppercase transition-colors shadow-2xl shadow-rose-600/40 border-2 border-rose-400/50">
+                    <button onclick="submeterRespostasStop()" id="btnStop" class="hidden w-full bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 disabled:bg-slate-800 text-white rounded-2xl py-4 md:py-5 font-black text-xl md:text-2xl tracking-widest uppercase transition-all shadow-2xl shadow-rose-600/40 border border-rose-400/40 active:scale-95">
                         🚨 STOP!
                     </button>
                 </div>
@@ -229,35 +357,20 @@ Fruta</textarea>
                 <p class="text-slate-400 text-xs md:text-sm">Analise as palavras para a letra <span id="letraVotacao" class="text-amber-400 font-bold text-xl md:text-2xl"></span>. Vote ✅ ou ❌.</p>
             </div>
 
-            <div class="cartao-glass rounded-3xl p-4 mb-6 max-w-3xl mx-auto border border-indigo-500/30">
-                <label class="block text-xs font-bold text-indigo-400 mb-2 uppercase tracking-wider flex items-center gap-1.5">
-                    🔍 Validar Significado de Palavra
-                </label>
-                <div class="flex gap-2">
-                    <input type="text" id="inputPesquisaInterna" placeholder="Digite uma palavra para consultar..." onkeypress="if(event.key==='Enter') pesquisarSignificadoSemBloqueio()" class="input-premium w-full rounded-xl px-4 py-2 text-sm text-white placeholder-slate-500">
-                    <button onclick="pesquisarSignificadoSemBloqueio()" class="btn-gradiente px-5 py-2 rounded-xl font-bold text-sm text-white shrink-0 shadow-md flex items-center gap-1">
-                        Validar 🔍
-                    </button>
+            <div class="cartao-glass rounded-3xl p-4 mb-6 max-w-xl mx-auto flex items-center justify-between gap-3 border border-indigo-500/30">
+                <div class="flex flex-col flex-1">
+                    <span class="text-[10px] font-extrabold text-indigo-400 uppercase tracking-wider mb-0.5">Tire dúvidas com a IA ✨</span>
+                    <input type="text" id="inputPesquisaVotacao" placeholder="Ex: A palavra X existe?" readonly class="bg-transparent text-xs sm:text-sm text-slate-300 outline-none w-full cursor-not-allowed font-medium">
                 </div>
-
-                <div id="miniJanelaResultado" class="hidden mt-3 pt-3 border-t border-slate-800">
-                    <div class="flex justify-between items-center mb-2">
-                        <span id="tituloMiniJanela" class="text-xs font-bold text-slate-300">Resultado</span>
-                        <button onclick="fecharMiniJanela()" class="text-xs bg-rose-500/20 hover:bg-rose-500 text-rose-300 hover:text-white px-2.5 py-1 rounded-lg border border-rose-500/30 transition-all font-bold">
-                            ✖ Fechar
-                        </button>
-                    </div>
-                    <div id="conteudoPesquisa" class="w-full p-4 rounded-2xl border border-slate-800 bg-slate-950/80 text-sm text-slate-300 max-h-56 overflow-y-auto leading-relaxed">
-                        Procurando...
-                    </div>
-                </div>
+                <button onclick="iniciarPesquisaVoz('inputPesquisaVotacao')" class="w-11 h-11 rounded-2xl bg-indigo-600 hover:bg-indigo-500 flex items-center justify-center text-lg transition-all shadow-lg mic-button shrink-0 border border-white/20">
+                    🎤
+                </button>
             </div>
 
-            <div id="areaVotacao" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 max-h-[50vh] overflow-y-auto no-scrollbar pb-4">
-            </div>
+            <div id="areaVotacao" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 max-h-[50vh] overflow-y-auto no-scrollbar pb-4"></div>
 
             <div class="max-w-md mx-auto mt-6">
-                <button id="btnApurar" onclick="marcarProntoAvancar()" class="btn-gradiente w-full rounded-2xl py-3 md:py-4 font-bold text-base md:text-lg text-white shadow-lg transition-all">
+                <button id="btnApurar" onclick="marcarProntoAvancar()" class="btn-gradiente w-full rounded-2xl py-3.5 md:py-4 font-black text-base md:text-lg text-white shadow-xl transition-all">
                     ✅ Estou Pronto para Avançar
                 </button>
                 <p id="msgVotacao" class="text-center text-amber-300 text-xs md:text-sm py-2 font-bold tracking-wide mt-2">
@@ -267,17 +380,17 @@ Fruta</textarea>
         </div>
 
         <div id="tela-ranking" class="tela w-full max-w-lg mx-auto">
-            <div class="text-center mb-8 pt-6">
-                <div class="text-6xl mb-4">🏆</div>
-                <h2 class="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-yellow-500">Fim de Jogo!</h2>
-                <p class="text-slate-400 text-sm mt-2">Classificação final dos participantes</p>
+            <div class="text-center mb-8 pt-4">
+                <div class="text-6xl mb-3 flutuar-suave">🏆</div>
+                <h2 class="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 drop-shadow-sm">Fim de Jogo!</h2>
+                <p class="text-slate-400 text-sm mt-1">Classificação final dos participantes</p>
             </div>
             <div id="areaPodio" class="cartao-glass rounded-3xl p-5 md:p-6 space-y-3 mb-6"></div>
             <div class="space-y-3">
-                <button id="btnJogarNovamente" onclick="reiniciarPartidaCompleta()" class="hidden w-full bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl py-4 font-bold text-base md:text-lg shadow-md transition-all">
+                <button id="btnJogarNovamente" onclick="reiniciarPartidaCompleta()" class="hidden w-full bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl py-4 font-black text-base md:text-lg shadow-xl transition-all border border-emerald-400/30">
                     🔄 Começar Nova Partida
                 </button>
-                <button onclick="abandonarPartida()" class="bg-slate-800 hover:bg-slate-700 w-full text-slate-300 rounded-2xl py-4 font-bold text-base md:text-lg transition-colors">
+                <button onclick="abandonarPartida()" class="bg-slate-800/80 hover:bg-slate-700 w-full text-slate-300 rounded-2xl py-4 font-bold text-base md:text-lg transition-all border border-white/10">
                     🏠 Voltar ao Início
                 </button>
             </div>
@@ -286,6 +399,11 @@ Fruta</textarea>
     </div>
 
 <script>
+    // ==========================================
+    // CHAVE DE API DA OPENAI
+    // ==========================================
+    const OPENAI_API_KEY = "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";
+
     // ==========================================
     // CONFIGURAÇÃO DO FIREBASE
     // ==========================================
@@ -326,44 +444,9 @@ Fruta</textarea>
         if (nomeSalvo) document.getElementById('inputNome').value = nomeSalvo;
     });
 
-    // Consulta de Significado via Wikipédia/Dicionário Livre (sem bloqueios de iframe)
-    async function pesquisarSignificadoSemBloqueio() {
-        const termo = document.getElementById('inputPesquisaInterna').value.trim();
-        const janela = document.getElementById('miniJanelaResultado');
-        const conteudo = document.getElementById('conteudoPesquisa');
-        const titulo = document.getElementById('tituloMiniJanela');
-
-        if (!termo) {
-            emitirAviso("Atenção", "Digite uma palavra para validar.");
-            return;
-        }
-
-        janela.classList.remove('hidden');
-        titulo.innerText = `📖 Consultado: "${termo}"`;
-        conteudo.innerHTML = `<span class="animate-pulse text-indigo-400 font-bold">🔍 Verificando no dicionário...</span>`;
-
-        try {
-            const resp = await fetch(`https://pt.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(termo)}`);
-            if (resp.ok) {
-                const data = await resp.json();
-                if (data.extract) {
-                    conteudo.innerHTML = `<p class="font-bold text-emerald-400 mb-1">✅ Palavra Encontrada:</p><p>${data.extract}</p>`;
-                    return;
-                }
-            }
-            conteudo.innerHTML = `<p class="text-rose-400 font-bold mb-1">⚠️ Definição exata não encontrada diretamente.</p><p class="text-xs text-slate-400">Pode ser um nome próprio, gíria local ou palavra flexionada.</p>`;
-        } catch (e) {
-            conteudo.innerHTML = `<p class="text-rose-400 font-bold">Erro ao consultar a palavra. Tente novamente.</p>`;
-        }
-    }
-
-    function fecharMiniJanela() {
-        document.getElementById('miniJanelaResultado').classList.add('hidden');
-    }
-
     function emitirAviso(titulo, texto, tipo = 'error') {
         if (typeof Swal !== 'undefined') {
-            Swal.fire({ title: titulo, text: texto, icon: tipo, background: '#111827', color: '#fff', confirmButtonColor: '#6366f1', customClass: { popup: 'rounded-3xl border border-slate-800' } });
+            Swal.fire({ title: titulo, text: texto, icon: tipo, background: '#0f172a', color: '#fff', confirmButtonColor: '#6366f1', customClass: { popup: 'rounded-3xl border border-white/10 backdrop-blur-xl' } });
         } else { alert(`${titulo}\n\n${texto}`); }
     }
 
@@ -371,8 +454,8 @@ Fruta</textarea>
         if (typeof Swal !== 'undefined') {
             Swal.fire({
                 toast: true, position: 'top-end', showConfirmButton: false, timer: 3000,
-                title: texto, icon: tipo, background: '#111827', color: '#fff',
-                customClass: { popup: 'rounded-xl border border-slate-800' }
+                title: texto, icon: tipo, background: '#0f172a', color: '#fff',
+                customClass: { popup: 'rounded-2xl border border-white/10' }
             });
         }
     }
@@ -487,9 +570,9 @@ Fruta</textarea>
         document.getElementById("qtdJogadores").innerText = listaInstanciada.length;
         
         document.getElementById("listaJogadores").innerHTML = listaInstanciada.map(j => `
-            <li class="bg-slate-900/50 px-4 py-3 rounded-xl border border-slate-800 flex justify-between items-center shadow-sm">
-                <span class="font-bold text-slate-200 text-sm truncate pr-2">👤 ${j.nome}</span>
-                <span class="text-[11px] md:text-xs bg-slate-950 font-semibold px-2.5 py-1 rounded-md text-indigo-400 border border-indigo-950 whitespace-nowrap">${j.pontos} pts</span>
+            <li class="bg-slate-900/60 px-4 py-3 rounded-2xl border border-white/10 flex justify-between items-center shadow-sm backdrop-blur-md">
+                <span class="font-extrabold text-slate-200 text-sm truncate pr-2">👤 ${j.nome}</span>
+                <span class="text-[11px] md:text-xs bg-indigo-500/20 font-bold px-3 py-1 rounded-lg text-indigo-300 border border-indigo-500/30 whitespace-nowrap">${j.pontos} pts</span>
             </li>
         `).join('');
     }
@@ -551,12 +634,12 @@ Fruta</textarea>
         document.getElementById("rodadasTotalL").innerText = dados.config.rodadas;
         
         document.getElementById("areaInputs").innerHTML = categoriasJogo.map((cat, idx) => `
-            <div class="bg-slate-900/80 p-3.5 md:p-4 rounded-2xl border border-slate-800 focus-within:border-indigo-500 transition-all shadow-sm">
+            <div class="cartao-glass p-3.5 md:p-4 rounded-2xl border border-white/10 focus-within:border-indigo-500 transition-all shadow-md">
                 <div class="flex justify-between items-center mb-1.5 md:mb-2">
-                    <label class="block text-[11px] md:text-xs font-bold text-indigo-400 uppercase tracking-widest">${cat}</label>
-                    <button onclick="marcarNS(${idx})" class="text-[10px] md:text-xs bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white px-2 py-0.5 md:px-3 md:py-1 rounded-md border border-slate-700 transition-colors shadow-sm">N/S</button>
+                    <label class="block text-[11px] md:text-xs font-black text-indigo-400 uppercase tracking-widest">${cat}</label>
+                    <button onclick="marcarNS(${idx})" class="text-[10px] md:text-xs bg-slate-800/80 hover:bg-slate-700 text-slate-300 px-2 py-0.5 md:px-3 md:py-1 rounded-lg border border-white/10 transition-colors shadow-sm font-bold">N/S</button>
                 </div>
-                <input type="text" id="resposta_campo_${idx}" oninput="verificarPreenchimentoCategorias()" class="w-full bg-transparent text-white font-bold text-lg md:text-xl outline-none" autocomplete="off" placeholder="Digitar...">
+                <input type="text" id="resposta_campo_${idx}" oninput="verificarPreenchimentoCategorias()" class="w-full bg-transparent text-white font-extrabold text-lg md:text-xl outline-none" autocomplete="off" placeholder="Digitar...">
             </div>
         `).join('');
         
@@ -606,7 +689,6 @@ Fruta</textarea>
         if (ecranAtual !== 'tela-votacao') {
             gerirNavegacaoEcras('tela-votacao');
             document.getElementById("letraVotacao").innerText = dados.letraAtual;
-            fecharMiniJanela();
             
             if (ecranAtual === 'tela-jogo') {
                 clearInterval(cronometro);
@@ -672,8 +754,8 @@ Fruta</textarea>
 
         categoriasJogo.forEach((categoriaNome, idxCat) => {
             estruturaVisualVotos += `
-                <div class="cartao-glass p-4 rounded-2xl border border-slate-800">
-                    <h3 class="text-indigo-400 font-extrabold tracking-wider text-xs md:text-sm uppercase mb-3 border-b border-slate-800 pb-1.5">📂 ${categoriaNome}</h3>
+                <div class="cartao-glass p-4 rounded-3xl border border-white/10">
+                    <h3 class="text-indigo-400 font-black tracking-wider text-xs md:text-sm uppercase mb-3 border-b border-white/10 pb-1.5">📂 ${categoriaNome}</h3>
                     <div class="space-y-3">
             `;
 
@@ -682,9 +764,9 @@ Fruta</textarea>
                 const respostaTexto = (dados.respostas && dados.respostas[jogadorId] && dados.respostas[jogadorId][idxCat]) ? String(dados.respostas[jogadorId][idxCat]).trim() : "";
                 
                 const emBranco = !respostaTexto || respostaTexto.toUpperCase() === "N/S";
-                const stringExibicao = !emBranco ? respostaTexto : "<span class='text-slate-600 italic font-normal text-[13px]'>Em branco</span>";
+                const stringExibicao = !emBranco ? respostaTexto : "<span class='text-slate-500 italic font-normal text-[13px]'>Em branco</span>";
                 
-                let classesStatus = "border-slate-800/80 bg-slate-950/20";
+                let classesStatus = "border-white/5 bg-slate-950/30";
                 let textStatus = "text-slate-200";
 
                 let foiAprovado = false;
@@ -693,27 +775,27 @@ Fruta</textarea>
                 }
 
                 if (foiAprovado) {
-                    classesStatus = "border-emerald-900/50 bg-emerald-950/10";
-                    textStatus = "text-emerald-400 font-black";
+                    classesStatus = "border-emerald-500/30 bg-emerald-950/20";
+                    textStatus = "text-emerald-400 font-extrabold";
                 } else {
-                    classesStatus = "border-rose-950/40 bg-rose-950/5 opacity-80";
+                    classesStatus = "border-rose-500/20 bg-rose-950/10 opacity-80";
                     textStatus = "text-rose-400/80 line-through";
                 }
 
                 const podeVotar = !emBranco;
 
                 estruturaVisualVotos += `
-                    <div class="rounded-xl p-3 md:p-3.5 border ${classesStatus} flex flex-col gap-2 transition-all">
+                    <div class="rounded-2xl p-3 md:p-3.5 border ${classesStatus} flex flex-col gap-2 transition-all">
                         <div class="flex justify-between items-center gap-2">
                             <div class="truncate pr-2">
-                                <span class="text-[10px] md:text-xs text-slate-500 font-bold block mb-0.5 truncate">${jogadorId === meuId ? '🫵 Você' : nomeDoJogador}</span>
+                                <span class="text-[10px] md:text-xs text-slate-400 font-bold block mb-0.5 truncate">${jogadorId === meuId ? '🫵 Você' : nomeDoJogador}</span>
                                 <span class="text-sm md:text-base font-bold truncate block ${textStatus}">${stringExibicao}</span>
                             </div>
                             <div class="flex items-center gap-2 shrink-0">
-                                <button onclick="alterarVotoManual(${idxCat}, '${jogadorId}', true)" ${!podeVotar ? 'disabled' : ''} class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-900/80 border ${foiAprovado ? 'border-emerald-500 text-emerald-400' : 'border-slate-700 text-slate-500'} hover:bg-emerald-900/30 transition-all ${!podeVotar ? 'opacity-30 cursor-not-allowed' : ''}">
+                                <button onclick="alterarVotoManual(${idxCat}, '${jogadorId}', true)" ${!podeVotar ? 'disabled' : ''} class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-900/80 border ${foiAprovado ? 'border-emerald-500 text-emerald-400 shadow-md' : 'border-slate-700 text-slate-500'} hover:bg-emerald-900/30 transition-all ${!podeVotar ? 'opacity-30 cursor-not-allowed' : ''}">
                                     ✅
                                 </button>
-                                <button onclick="alterarVotoManual(${idxCat}, '${jogadorId}', false)" ${!podeVotar ? 'disabled' : ''} class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-900/80 border ${!foiAprovado ? 'border-rose-500 text-rose-400' : 'border-slate-700 text-slate-500'} hover:bg-rose-900/30 transition-all ${!podeVotar ? 'opacity-30 cursor-not-allowed' : ''}">
+                                <button onclick="alterarVotoManual(${idxCat}, '${jogadorId}', false)" ${!podeVotar ? 'disabled' : ''} class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-900/80 border ${!foiAprovado ? 'border-rose-500 text-rose-400 shadow-md' : 'border-slate-700 text-slate-500'} hover:bg-rose-900/30 transition-all ${!podeVotar ? 'opacity-30 cursor-not-allowed' : ''}">
                                     ❌
                                 </button>
                             </div>
@@ -805,15 +887,15 @@ Fruta</textarea>
 
         const arrayOrdenado = Object.values(dados.jogadores || {}).sort((a,b) => b.pontos - a.pontos);
         document.getElementById("areaPodio").innerHTML = arrayOrdenado.map((jogador, posicao) => {
-            let classeEstiloEstetica = "bg-slate-900/60 border-slate-800"; 
+            let classeEstiloEstetica = "bg-slate-900/60 border-white/10"; 
             let medalhaIcone = "👤 ";
             if (posicao === 0) { classeEstiloEstetica = "bg-gradient-to-r from-amber-500/20 to-yellow-600/10 border-amber-500/30 text-amber-300"; medalhaIcone = "🥇 "; }
             else if (posicao === 1) { classeEstiloEstetica = "bg-gradient-to-r from-slate-400/20 to-slate-500/10 border-slate-400/30 text-slate-300"; medalhaIcone = "🥈 "; }
-            else if (posicao === 2) { classeEstiloEstetica = "bg-gradient-to-r from-amber-800/20 to-amber-900/10 border-amber-800/30 text-amber-600"; medalhaIcone = "🥉 "; }
+            else if (posicao === 2) { classeEstiloEstetica = "bg-gradient-to-r from-amber-800/20 to-amber-900/10 border-amber-800/30 text-amber-500"; medalhaIcone = "🥉 "; }
             
             return `
-                <div class="border p-4 rounded-2xl flex justify-between items-center shadow-md ${classeEstiloEstetica}">
-                    <span class="font-bold text-lg truncate pr-3">${medalhaIcone}${jogador.nome}</span>
+                <div class="border p-4 rounded-2xl flex justify-between items-center shadow-md backdrop-blur-md ${classeEstiloEstetica}">
+                    <span class="font-extrabold text-lg truncate pr-3">${medalhaIcone}${jogador.nome}</span>
                     <span class="font-black text-2xl whitespace-nowrap">${jogador.pontos} <span class="text-xs font-normal opacity-60">pts</span></span>
                 </div>
             `;
@@ -851,8 +933,108 @@ Fruta</textarea>
         if(campo) { campo.value = "N/S"; verificarPreenchimentoCategorias(); }
     }
 
+    // ==========================================
+    // PESQUISA POR VOZ (OPENAI API - CHATGPT)
+    // ==========================================
+    function iniciarPesquisaVoz(inputId) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            return emitirAviso("Ops!", "Seu navegador não suporta pesquisa por voz. Tente usar o Google Chrome.", "warning");
+        }
+
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'pt-BR';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        const inputField = document.getElementById(inputId);
+        const originalPlaceholder = inputField.placeholder;
+        
+        recognition.start();
+
+        recognition.onstart = () => {
+            inputField.placeholder = "Ouvindo... Fale agora 🎤";
+        };
+
+        recognition.onspeechend = () => {
+            recognition.stop();
+        };
+
+        recognition.onresult = async (event) => {
+            const transcript = event.results[0][0].transcript;
+            inputField.value = transcript;
+            await enviarPerguntaAIA(transcript);
+            setTimeout(() => { 
+                inputField.value = ""; 
+                inputField.placeholder = originalPlaceholder;
+            }, 5000);
+        };
+
+        recognition.onerror = (event) => {
+            inputField.placeholder = originalPlaceholder;
+            mostrarNotificacaoToast("Não consegui ouvir. Tente novamente.", "error");
+        };
+    }
+
+    async function enviarPerguntaAIA(pergunta) {
+        if (OPENAI_API_KEY === "COLOQUE_SUA_CHAVE_AQUI") {
+            return emitirAviso("Aviso", "Você precisa inserir a sua OPENAI_API_KEY no código para usar a IA.");
+        }
+
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Consultando a IA...',
+                text: `Sua pergunta: "${pergunta}"`,
+                allowOutsideClick: false,
+                background: '#0f172a', color: '#fff',
+                didOpen: () => { Swal.showLoading(); }
+            });
+        }
+
+        try {
+            const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${OPENAI_API_KEY}`
+                },
+                body: JSON.stringify({
+                    model: "gpt-4o-mini",
+                    messages: [
+                        { role: "system", content: "Você é um assistente rápido e direto para um jogo de Stop/Adedonha. Responda em uma ou duas frases curtas." },
+                        { role: "user", content: pergunta }
+                    ]
+                })
+            });
+            
+            if (!response.ok) throw new Error("Erro na comunicação");
+
+            const data = await response.json();
+            const textResponse = data.choices[0].message.content;
+
+            Swal.fire({
+                title: 'Resposta da IA ✨',
+                text: textResponse,
+                icon: 'info',
+                background: '#0f172a', color: '#fff',
+                confirmButtonColor: '#6366f1',
+                customClass: { popup: 'rounded-3xl border border-white/10 backdrop-blur-xl' }
+            });
+
+        } catch (err) {
+            Swal.fire({
+                title: 'Ops!',
+                text: 'Não consegui me conectar para buscar a resposta no momento.',
+                icon: 'error',
+                background: '#0f172a', color: '#fff',
+                confirmButtonColor: '#6366f1',
+                customClass: { popup: 'rounded-3xl border border-white/10 backdrop-blur-xl' }
+            });
+        }
+    }
+
     function mudarTema(tema) {
-        let classesBase = "bg-custom-fundo min-h-screen flex flex-col p-4 md:p-8";
+        let classesBase = "bg-custom-fundo min-h-screen flex flex-col justify-between p-4 md:p-8 relative";
         if (tema !== "atual") classesBase += ` ${tema}`;
         document.body.className = classesBase;
     }
