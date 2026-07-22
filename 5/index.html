@@ -231,24 +231,24 @@ Fruta</textarea>
 
             <div class="cartao-glass rounded-3xl p-4 mb-6 max-w-3xl mx-auto border border-indigo-500/30">
                 <label class="block text-xs font-bold text-indigo-400 mb-2 uppercase tracking-wider flex items-center gap-1.5">
-                    🔍 Consultar Palavra no Jogo
+                    🔍 Validar Significado de Palavra
                 </label>
                 <div class="flex gap-2">
-                    <input type="text" id="inputPesquisaInterna" placeholder="Digite uma palavra para validar..." onkeypress="if(event.key==='Enter') abrirMiniTelaPesquisa()" class="input-premium w-full rounded-xl px-4 py-2 text-sm text-white placeholder-slate-500">
-                    <button onclick="abrirMiniTelaPesquisa()" class="btn-gradiente px-5 py-2 rounded-xl font-bold text-sm text-white shrink-0 shadow-md flex items-center gap-1">
-                        Pesquisar 🔍
+                    <input type="text" id="inputPesquisaInterna" placeholder="Digite uma palavra para consultar..." onkeypress="if(event.key==='Enter') pesquisarSignificadoSemBloqueio()" class="input-premium w-full rounded-xl px-4 py-2 text-sm text-white placeholder-slate-500">
+                    <button onclick="pesquisarSignificadoSemBloqueio()" class="btn-gradiente px-5 py-2 rounded-xl font-bold text-sm text-white shrink-0 shadow-md flex items-center gap-1">
+                        Validar 🔍
                     </button>
                 </div>
 
-                <div id="miniJanelaPesquisa" class="hidden mt-3 pt-3 border-t border-slate-800">
+                <div id="miniJanelaResultado" class="hidden mt-3 pt-3 border-t border-slate-800">
                     <div class="flex justify-between items-center mb-2">
-                        <span id="tituloMiniJanela" class="text-xs font-bold text-slate-300">Resultados da Consulta</span>
-                        <button onclick="fecharMiniTelaPesquisa()" class="text-xs bg-rose-500/20 hover:bg-rose-500 text-rose-300 hover:text-white px-2.5 py-1 rounded-lg border border-rose-500/30 transition-all font-bold">
+                        <span id="tituloMiniJanela" class="text-xs font-bold text-slate-300">Resultado</span>
+                        <button onclick="fecharMiniJanela()" class="text-xs bg-rose-500/20 hover:bg-rose-500 text-rose-300 hover:text-white px-2.5 py-1 rounded-lg border border-rose-500/30 transition-all font-bold">
                             ✖ Fechar
                         </button>
                     </div>
-                    <div class="w-full h-64 md:h-80 rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 shadow-inner">
-                        <iframe id="frameMiniPesquisa" class="w-full h-full border-0" title="Pesquisa"></iframe>
+                    <div id="conteudoPesquisa" class="w-full p-4 rounded-2xl border border-slate-800 bg-slate-950/80 text-sm text-slate-300 max-h-56 overflow-y-auto leading-relaxed">
+                        Procurando...
                     </div>
                 </div>
             </div>
@@ -326,29 +326,39 @@ Fruta</textarea>
         if (nomeSalvo) document.getElementById('inputNome').value = nomeSalvo;
     });
 
-    // Função para abrir mini janela com buscador interno
-    function abrirMiniTelaPesquisa() {
+    // Consulta de Significado via Wikipédia/Dicionário Livre (sem bloqueios de iframe)
+    async function pesquisarSignificadoSemBloqueio() {
         const termo = document.getElementById('inputPesquisaInterna').value.trim();
-        const miniJanela = document.getElementById('miniJanelaPesquisa');
-        const frame = document.getElementById('frameMiniPesquisa');
+        const janela = document.getElementById('miniJanelaResultado');
+        const conteudo = document.getElementById('conteudoPesquisa');
         const titulo = document.getElementById('tituloMiniJanela');
 
         if (!termo) {
-            emitirAviso("Atenção", "Digite uma palavra para pesquisar.");
+            emitirAviso("Atenção", "Digite uma palavra para validar.");
             return;
         }
 
-        titulo.innerText = `🔍 Pesquisando: "${termo}"`;
-        // Utiliza o DuckDuckGo em versão Lite que aceita exibição interna em frame
-        frame.src = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(termo)}`;
-        miniJanela.classList.remove('hidden');
+        janela.classList.remove('hidden');
+        titulo.innerText = `📖 Consultado: "${termo}"`;
+        conteudo.innerHTML = `<span class="animate-pulse text-indigo-400 font-bold">🔍 Verificando no dicionário...</span>`;
+
+        try {
+            const resp = await fetch(`https://pt.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(termo)}`);
+            if (resp.ok) {
+                const data = await resp.json();
+                if (data.extract) {
+                    conteudo.innerHTML = `<p class="font-bold text-emerald-400 mb-1">✅ Palavra Encontrada:</p><p>${data.extract}</p>`;
+                    return;
+                }
+            }
+            conteudo.innerHTML = `<p class="text-rose-400 font-bold mb-1">⚠️ Definição exata não encontrada diretamente.</p><p class="text-xs text-slate-400">Pode ser um nome próprio, gíria local ou palavra flexionada.</p>`;
+        } catch (e) {
+            conteudo.innerHTML = `<p class="text-rose-400 font-bold">Erro ao consultar a palavra. Tente novamente.</p>`;
+        }
     }
 
-    function fecharMiniTelaPesquisa() {
-        const miniJanela = document.getElementById('miniJanelaPesquisa');
-        const frame = document.getElementById('frameMiniPesquisa');
-        miniJanela.classList.add('hidden');
-        frame.src = "";
+    function fecharMiniJanela() {
+        document.getElementById('miniJanelaResultado').classList.add('hidden');
     }
 
     function emitirAviso(titulo, texto, tipo = 'error') {
@@ -596,7 +606,7 @@ Fruta</textarea>
         if (ecranAtual !== 'tela-votacao') {
             gerirNavegacaoEcras('tela-votacao');
             document.getElementById("letraVotacao").innerText = dados.letraAtual;
-            fecharMiniTelaPesquisa();
+            fecharMiniJanela();
             
             if (ecranAtual === 'tela-jogo') {
                 clearInterval(cronometro);
