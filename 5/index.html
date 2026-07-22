@@ -114,8 +114,8 @@
 
             <div class="cartao-glass rounded-3xl p-4 mb-6 flex items-center justify-between gap-3 border border-indigo-500/30">
                 <div class="flex flex-col flex-1">
-                    <span class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-1">Assistente IA (ChatGPT) ✨</span>
-                    <input type="text" id="inputPesquisaInicio" placeholder="Tire uma dúvida por voz..." readonly class="bg-transparent text-sm text-slate-300 outline-none w-full cursor-not-allowed">
+                    <span class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-1">Pesquisar no Google 🔍</span>
+                    <input type="text" id="inputPesquisaInicio" placeholder="Pesquisar por voz..." readonly class="bg-transparent text-sm text-slate-300 outline-none w-full cursor-not-allowed">
                 </div>
                 <button onclick="iniciarPesquisaVoz('inputPesquisaInicio')" class="w-12 h-12 rounded-2xl bg-indigo-600 hover:bg-indigo-500 flex items-center justify-center text-xl transition-colors shadow-lg mic-button">
                     🎤
@@ -250,7 +250,7 @@ Fruta</textarea>
 
             <div class="cartao-glass rounded-3xl p-4 mb-6 max-w-xl mx-auto flex items-center justify-between gap-3 border border-indigo-500/30">
                 <div class="flex flex-col flex-1">
-                    <span class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-1">Tire dúvidas com a IA ✨</span>
+                    <span class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-1">Pesquisar no Google 🔍</span>
                     <input type="text" id="inputPesquisaVotacao" placeholder="Ex: A palavra X existe?" readonly class="bg-transparent text-sm text-slate-300 outline-none w-full cursor-not-allowed">
                 </div>
                 <button onclick="iniciarPesquisaVoz('inputPesquisaVotacao')" class="w-12 h-12 rounded-2xl bg-indigo-600 hover:bg-indigo-500 flex items-center justify-center text-xl transition-colors shadow-lg mic-button">
@@ -291,12 +291,6 @@ Fruta</textarea>
     </div>
 
 <script>
-    // ==========================================
-    // CHAVE DE API DA OPENAI
-    // ==========================================
-    // Crie sua chave em: https://platform.openai.com/api-keys
-    const OPENAI_API_KEY = "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";
-
     // ==========================================
     // CONFIGURAÇÃO DO FIREBASE
     // ==========================================
@@ -827,7 +821,7 @@ Fruta</textarea>
     }
 
     // ==========================================
-    // PESQUISA POR VOZ (OPENAI API - CHATGPT)
+    // PESQUISA POR VOZ + BUSCA DIRETA NO GOOGLE
     // ==========================================
     function iniciarPesquisaVoz(inputId) {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -853,14 +847,16 @@ Fruta</textarea>
             recognition.stop();
         };
 
-        recognition.onresult = async (event) => {
+        recognition.onresult = (event) => {
             const transcript = event.results[0][0].transcript;
             inputField.value = transcript;
-            await enviarPerguntaAIA(transcript);
+            
+            pesquisarNoGoogle(transcript);
+
             setTimeout(() => { 
                 inputField.value = ""; 
                 inputField.placeholder = originalPlaceholder;
-            }, 5000);
+            }, 4000);
         };
 
         recognition.onerror = (event) => {
@@ -869,61 +865,33 @@ Fruta</textarea>
         };
     }
 
-    async function enviarPerguntaAIA(pergunta) {
-        if (OPENAI_API_KEY === "COLOQUE_SUA_CHAVE_AQUI") {
-            return emitirAviso("Aviso", "Você precisa inserir a sua OPENAI_API_KEY no código para usar a IA.");
+    function pesquisarNoGoogle(termo) {
+        if (!termo) return;
+
+        // 1. Resposta em voz usando a API nativa do navegador
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel(); // Cancela falas anteriores
+            const fala = new SpeechSynthesisUtterance(`Pesquisando no Google por: ${termo}`);
+            fala.lang = 'pt-BR';
+            window.speechSynthesis.speak(fala);
         }
 
+        // 2. Alerta visual na tela
         if (typeof Swal !== 'undefined') {
             Swal.fire({
-                title: 'Consultando a IA...',
-                text: `Sua pergunta: "${pergunta}"`,
-                allowOutsideClick: false,
-                background: '#111827', color: '#fff',
-                didOpen: () => { Swal.showLoading(); }
-            });
-        }
-
-        try {
-            const response = await fetch('https://api.openai.com/v1/chat/completions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${OPENAI_API_KEY}`
-                },
-                body: JSON.stringify({
-                    model: "gpt-4o-mini", // Modelo rápido e barato
-                    messages: [
-                        { role: "system", content: "Você é um assistente rápido e direto para um jogo de Stop/Adedonha. Responda em uma ou duas frases curtas." },
-                        { role: "user", content: pergunta }
-                    ]
-                })
-            });
-            
-            if (!response.ok) throw new Error("Erro na comunicação");
-
-            const data = await response.json();
-            const textResponse = data.choices[0].message.content;
-
-            Swal.fire({
-                title: 'Resposta da IA ✨',
-                text: textResponse,
+                title: 'Pesquisando no Google 🔍',
+                text: `Buscando por: "${termo}"`,
                 icon: 'info',
+                timer: 2000,
+                showConfirmButton: false,
                 background: '#111827', color: '#fff',
-                confirmButtonColor: '#6366f1',
-                customClass: { popup: 'rounded-3xl border border-slate-800' }
-            });
-
-        } catch (err) {
-            Swal.fire({
-                title: 'Ops!',
-                text: 'Não consegui me conectar para buscar a resposta no momento.',
-                icon: 'error',
-                background: '#111827', color: '#fff',
-                confirmButtonColor: '#6366f1',
                 customClass: { popup: 'rounded-3xl border border-slate-800' }
             });
         }
+
+        // 3. Abre a busca no Google em uma nova aba
+        const urlGoogle = `https://www.google.com/search?q=${encodeURIComponent(termo)}`;
+        window.open(urlGoogle, '_blank');
     }
 
     function mudarTema(tema) {
