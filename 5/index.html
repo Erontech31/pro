@@ -73,15 +73,6 @@
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        .mic-button {
-            animation: pulse-mic 2s infinite;
-        }
-        @keyframes pulse-mic {
-            0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(99, 102, 241, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
-        }
     </style>
 </head>
 <body class="bg-custom-fundo min-h-screen flex flex-col p-4 md:p-8">
@@ -110,16 +101,6 @@
             <div class="text-center mb-6 pt-4 md:pt-8 md:mb-8">
                 <h1 class="text-5xl md:text-6xl font-black mb-2 tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">Adedonha</h1>
                 <p class="text-slate-400 font-medium text-xs md:text-sm tracking-wide">Com Votação Manual Justa ⚖️</p>
-            </div>
-
-            <div class="cartao-glass rounded-3xl p-4 mb-6 flex items-center justify-between gap-3 border border-indigo-500/30">
-                <div class="flex flex-col flex-1">
-                    <span class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-1">Dúvidas rápidas 🔍</span>
-                    <input type="text" id="inputPesquisaInicio" placeholder="Fale uma palavra por voz..." readonly class="bg-transparent text-sm text-slate-300 outline-none w-full cursor-not-allowed">
-                </div>
-                <button onclick="iniciarPesquisaVoz('inputPesquisaInicio')" class="w-12 h-12 rounded-2xl bg-indigo-600 hover:bg-indigo-500 flex items-center justify-center text-xl transition-colors shadow-lg mic-button">
-                    🎤
-                </button>
             </div>
 
             <div class="cartao-glass rounded-3xl p-5 md:p-6 space-y-5">
@@ -248,18 +229,22 @@ Fruta</textarea>
                 <p class="text-slate-400 text-xs md:text-sm">Analise as palavras para a letra <span id="letraVotacao" class="text-amber-400 font-bold text-xl md:text-2xl"></span>. Vote ✅ ou ❌.</p>
             </div>
 
-            <div class="cartao-glass rounded-3xl p-4 mb-6 max-w-xl mx-auto flex items-center justify-between gap-3 border border-indigo-500/30">
-                <div class="flex flex-col flex-1">
-                    <span class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-1">Dúvidas Rápidas 🔍</span>
-                    <input type="text" id="inputPesquisaVotacao" placeholder="Fale uma palavra por voz..." readonly class="bg-transparent text-sm text-slate-300 outline-none w-full cursor-not-allowed">
+            <div class="cartao-glass rounded-3xl p-3 md:p-4 mb-6 max-w-3xl mx-auto border border-indigo-500/30">
+                <div class="flex justify-between items-center mb-2 px-1">
+                    <span class="text-xs md:text-sm font-bold text-indigo-400 flex items-center gap-1.5">
+                        🔍 Consultar Palavra no Bing
+                    </span>
+                    <a href="https://www.bing.com" target="_blank" rel="noopener noreferrer" class="text-[10px] md:text-xs text-slate-400 hover:text-indigo-300 underline">
+                        Abrir em nova aba ↗
+                    </a>
                 </div>
-                <button onclick="iniciarPesquisaVoz('inputPesquisaVotacao')" class="w-12 h-12 rounded-2xl bg-indigo-600 hover:bg-indigo-500 flex items-center justify-center text-xl transition-colors shadow-lg mic-button">
-                    🎤
-                </button>
+                <div class="w-full h-56 md:h-72 rounded-2xl overflow-hidden border border-slate-800 bg-slate-900 shadow-inner">
+                    <iframe src="https://www.bing.com" class="w-full h-full border-0" title="Pesquisa Bing"></iframe>
+                </div>
             </div>
 
             <div id="areaVotacao" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 max-h-[50vh] overflow-y-auto no-scrollbar pb-4">
-                </div>
+            </div>
 
             <div class="max-w-md mx-auto mt-6">
                 <button id="btnApurar" onclick="marcarProntoAvancar()" class="btn-gradiente w-full rounded-2xl py-3 md:py-4 font-bold text-base md:text-lg text-white shadow-lg transition-all">
@@ -818,120 +803,6 @@ Fruta</textarea>
     function marcarNS(idx) {
         const campo = document.getElementById(`resposta_campo_${idx}`);
         if(campo) { campo.value = "N/S"; verificarPreenchimentoCategorias(); }
-    }
-
-    // ==========================================
-    // PESQUISA POR VOZ (Direto e Funcional no Pop-up)
-    // ==========================================
-    function iniciarPesquisaVoz(inputId) {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRecognition) {
-            return emitirAviso("Ops!", "Seu navegador não suporta pesquisa por voz. Tente usar o Google Chrome.", "warning");
-        }
-
-        const recognition = new SpeechRecognition();
-        recognition.lang = 'pt-BR';
-        recognition.interimResults = false;
-        recognition.maxAlternatives = 1;
-
-        const inputField = document.getElementById(inputId);
-        const originalPlaceholder = inputField.placeholder;
-        
-        recognition.start();
-
-        recognition.onstart = () => {
-            inputField.placeholder = "Ouvindo... Fale a palavra 🎤";
-        };
-
-        recognition.onspeechend = () => {
-            recognition.stop();
-        };
-
-        recognition.onresult = (event) => {
-            const transcript = event.results[0][0].transcript;
-            inputField.value = transcript;
-            
-            buscarRespostaNaWeb(transcript);
-
-            setTimeout(() => { 
-                inputField.value = ""; 
-                inputField.placeholder = originalPlaceholder;
-            }, 3000);
-        };
-
-        recognition.onerror = (event) => {
-            inputField.placeholder = originalPlaceholder;
-            mostrarNotificacaoToast("Não consegui ouvir. Tente novamente.", "error");
-        };
-    }
-
-    async function buscarRespostaNaWeb(termo) {
-        if (!termo) return;
-
-        if (typeof Swal !== 'undefined') {
-            Swal.fire({
-                title: 'Buscando Definição... 🔍',
-                text: `Procurando informações sobre: "${termo}"`,
-                allowOutsideClick: false,
-                background: '#111827', color: '#fff',
-                didOpen: () => { Swal.showLoading(); }
-            });
-        }
-
-        try {
-            // A Wikipédia é a única base de dados gratuita que permite puxar o texto diretamente 
-            // sem bloqueio de CORS (Diferente do Google que bloqueia).
-            const urlBase = `https://pt.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(termo.trim())}`;
-            const resposta = await fetch(urlBase);
-            
-            let textoLido = "";
-
-            if (resposta.ok) {
-                const dados = await resposta.json();
-                // Pega apenas a PRIMEIRA FRASE da resposta para agir como o snippet do Google
-                if (dados.extract) {
-                    textoLido = dados.extract.split('.')[0] + '.';
-                } else {
-                    textoLido = "Encontrei a palavra, mas ela não tem um resumo curto disponível.";
-                }
-            } else {
-                textoLido = `A palavra "${termo}" não foi encontrada no banco de dados livre.`;
-            }
-
-            // Ler a resposta em voz alta imediatamente
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel(); 
-                const fala = new SpeechSynthesisUtterance(textoLido);
-                fala.lang = 'pt-BR';
-                fala.rate = 1.05; // Velocidade da leitura
-                window.speechSynthesis.speak(fala);
-            }
-
-            // Exibir a resposta escrita e indicar que está lendo
-            Swal.fire({
-                title: `🎯 ${termo.toUpperCase()}`,
-                html: `
-                    <p class="text-slate-300 text-sm mb-4 leading-relaxed">${textoLido}</p>
-                    <div class="text-indigo-400 text-xs font-bold animate-pulse flex items-center justify-center gap-2">
-                        <span>🔊</span> Lendo a resposta em voz alta...
-                    </div>
-                `,
-                icon: 'success',
-                background: '#111827', color: '#fff',
-                confirmButtonColor: '#6366f1',
-                customClass: { popup: 'rounded-3xl border border-slate-800' }
-            });
-
-        } catch (erro) {
-            Swal.fire({
-                title: 'Erro de Conexão',
-                text: 'Falha ao buscar a resposta na internet.',
-                icon: 'error',
-                background: '#111827', color: '#fff',
-                confirmButtonColor: '#6366f1',
-                customClass: { popup: 'rounded-3xl border border-slate-800' }
-            });
-        }
     }
 
     function mudarTema(tema) {
